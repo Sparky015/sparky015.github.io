@@ -83,6 +83,8 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;memory&gt;</code><br />
+<code>#include &quot;<a class="el" href="../../d5/d75/_generic_region_allocator_8h_source.html">Debug/MemoryTracking/GenericRegionAllocator.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="../../db/db7/_ref_8h_source.html">Asset/Ref.h</a>&quot;</code><br />
 </div>
 <p><a href="../../d7/dc3/_smart_pointers_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -92,18 +94,12 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-typedef-members" class="groupheader"><a id="typedef-members" name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:a12728c24ae1ddd7d09e0c4baa4d062fc" id="r_a12728c24ae1ddd7d09e0c4baa4d062fc"><td class="memTemplParams" colspan="2"><a id="a12728c24ae1ddd7d09e0c4baa4d062fc" name="a12728c24ae1ddd7d09e0c4baa4d062fc"></a>
-template&lt;typename T&gt; </td></tr>
-<tr class="memitem:a12728c24ae1ddd7d09e0c4baa4d062fc template"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><b>Astral::Ref</b> = std::shared_ptr&lt;T&gt;</td></tr>
 <tr class="memitem:aba92c628250b1dd64640f3c7c39be85d" id="r_aba92c628250b1dd64640f3c7c39be85d"><td class="memTemplParams" colspan="2"><a id="aba92c628250b1dd64640f3c7c39be85d" name="aba92c628250b1dd64640f3c7c39be85d"></a>
 template&lt;typename T&gt; </td></tr>
 <tr class="memitem:aba92c628250b1dd64640f3c7c39be85d template"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><b>Astral::ScopedPtr</b> = std::unique_ptr&lt;T&gt;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a4fbc0b36ce54194e95a98b973ec6d00d" id="r_a4fbc0b36ce54194e95a98b973ec6d00d"><td class="memTemplParams" colspan="2"><a id="a4fbc0b36ce54194e95a98b973ec6d00d" name="a4fbc0b36ce54194e95a98b973ec6d00d"></a>
-template&lt;typename T, class... Args&gt; </td></tr>
-<tr class="memitem:a4fbc0b36ce54194e95a98b973ec6d00d template"><td class="memItemLeft" align="right" valign="top">Ref&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Astral::CreateRef</b> (Args &amp;&amp;... args)</td></tr>
 <tr class="memitem:ad5cffd49a3047b33c232a5ba0118cc28" id="r_ad5cffd49a3047b33c232a5ba0118cc28"><td class="memTemplParams" colspan="2"><a id="ad5cffd49a3047b33c232a5ba0118cc28" name="ad5cffd49a3047b33c232a5ba0118cc28"></a>
 template&lt;typename T, class... Args&gt; </td></tr>
 <tr class="memitem:ad5cffd49a3047b33c232a5ba0118cc28 template"><td class="memItemLeft" align="right" valign="top">ScopedPtr&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Astral::CreateScopedPtr</b> (Args &amp;&amp;... args)</td></tr>

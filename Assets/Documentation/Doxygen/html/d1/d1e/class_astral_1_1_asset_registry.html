@@ -84,6 +84,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a55679301ee93a59af2215794da721162" id="r_a55679301ee93a59af2215794da721162"><td class="memItemLeft" align="right" valign="top"><a id="a55679301ee93a59af2215794da721162" name="a55679301ee93a59af2215794da721162"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Init</b> ()</td></tr>
+<tr class="memitem:a7cdaaf85eea0332427cfd471a7820ac7" id="r_a7cdaaf85eea0332427cfd471a7820ac7"><td class="memItemLeft" align="right" valign="top"><a id="a7cdaaf85eea0332427cfd471a7820ac7" name="a7cdaaf85eea0332427cfd471a7820ac7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Shutdown</b> ()</td></tr>
 <tr class="memitem:aee2e4cce1561a612c8f0ec13fd0ce9bf" id="r_aee2e4cce1561a612c8f0ec13fd0ce9bf"><td class="memTemplParams" colspan="2"><a id="aee2e4cce1561a612c8f0ec13fd0ce9bf" name="aee2e4cce1561a612c8f0ec13fd0ce9bf"></a>
 template&lt;typename AssetType&gt; <br />
 requires std::is_base_of_v&lt;<a class="el" href="../../d1/d97/class_astral_1_1_asset.html">Asset</a>, AssetType&gt;</td></tr>
@@ -92,6 +96,10 @@ requires std::is_base_of_v&lt;<a class="el" href="../../d1/d97/class_astral_1_1_
 template&lt;typename AssetType&gt; <br />
 requires std::is_base_of_v&lt;<a class="el" href="../../d1/d97/class_astral_1_1_asset.html">Asset</a>, AssetType&gt;</td></tr>
 <tr class="memitem:af629beab892f724d223448e7d0cd3f5f template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterAsset</b> (Ref&lt; AssetType &gt; alreadyLoadedAsset, const std::filesystem::path &amp;filePath)</td></tr>
+<tr class="memitem:a985640226ecdb9c91a35846793601386" id="r_a985640226ecdb9c91a35846793601386"><td class="memTemplParams" colspan="2"><a id="a985640226ecdb9c91a35846793601386" name="a985640226ecdb9c91a35846793601386"></a>
+template&lt;typename AssetType&gt; <br />
+requires std::is_base_of_v&lt;<a class="el" href="../../d1/d97/class_astral_1_1_asset.html">Asset</a>, AssetType&gt;</td></tr>
+<tr class="memitem:a985640226ecdb9c91a35846793601386 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterRuntimeAsset</b> (Ref&lt; AssetType &gt; alreadyLoadedAsset, const std::string &amp;uniqueIdentifier)</td></tr>
 <tr class="memitem:aa293bc1a6678de183660f10f1ee01a1e" id="r_aa293bc1a6678de183660f10f1ee01a1e"><td class="memItemLeft" align="right" valign="top"><a id="aa293bc1a6678de183660f10f1ee01a1e" name="aa293bc1a6678de183660f10f1ee01a1e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>LoadScene</b> (const std::filesystem::path &amp;filePath)</td></tr>
 <tr class="memitem:a16037ef5a818345f8aa2a3bf7d6b16b1" id="r_a16037ef5a818345f8aa2a3bf7d6b16b1"><td class="memItemLeft" align="right" valign="top"><a id="a16037ef5a818345f8aa2a3bf7d6b16b1" name="a16037ef5a818345f8aa2a3bf7d6b16b1"></a>
@@ -124,6 +132,8 @@ const <a class="el" href="../../d6/d45/struct_astral_1_1_asset_registry_stats.ht
 const std::filesystem::path &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetAssetDirectoryPath</b> ()</td></tr>
 <tr class="memitem:a80208257d7009ed128964e69da824813" id="r_a80208257d7009ed128964e69da824813"><td class="memItemLeft" align="right" valign="top"><a id="a80208257d7009ed128964e69da824813" name="a80208257d7009ed128964e69da824813"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>GetRelativePath</b> (std::filesystem::path &amp;outfilePath)</td></tr>
+<tr class="memitem:a6476afbd37195e8eab2bdb6a38a8f0c0" id="r_a6476afbd37195e8eab2bdb6a38a8f0c0"><td class="memItemLeft" align="right" valign="top"><a id="a6476afbd37195e8eab2bdb6a38a8f0c0" name="a6476afbd37195e8eab2bdb6a38a8f0c0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>InitAssetLoaderDefaults</b> ()</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Astral-Runtime/Asset/<a class="el" href="../../d6/d93/_asset_registry_8h_source.html">AssetRegistry.h</a></li>

@@ -95,19 +95,28 @@ Inheritance diagram for Astral::VulkanDevice:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ac5ca394f2d49e1afae9b717f1a914abf" id="r_ac5ca394f2d49e1afae9b717f1a914abf"><td class="memItemLeft" align="right" valign="top"><a id="ac5ca394f2d49e1afae9b717f1a914abf" name="ac5ca394f2d49e1afae9b717f1a914abf"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>VulkanDevice</b> (const <a class="el" href="../../d7/d5c/struct_astral_1_1_vulkan_device_desc.html">VulkanDeviceDesc</a> &amp;desc)</td></tr>
+<tr class="memitem:a7f95b94f78f26166aa7a05f02c8890f2" id="r_a7f95b94f78f26166aa7a05f02c8890f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7f95b94f78f26166aa7a05f02c8890f2">Init</a> () override</td></tr>
 <tr class="memitem:a92c2f045e4aa89238c1c1339e470fdff" id="r_a92c2f045e4aa89238c1c1339e470fdff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d2/d75/class_astral_1_1_swapchain.html">Swapchain</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a92c2f045e4aa89238c1c1339e470fdff">GetSwapchain</a> () override</td></tr>
 <tr class="memitem:a7f279a8c8742e787a7a6c5cb0b9ea241" id="r_a7f279a8c8742e787a7a6c5cb0b9ea241"><td class="memItemLeft" align="right" valign="top">CommandBufferHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7f279a8c8742e787a7a6c5cb0b9ea241">AllocateCommandBuffer</a> () override</td></tr>
-<tr class="memitem:a49d34fac1fde5524f6d4d9290f94c5cd" id="r_a49d34fac1fde5524f6d4d9290f94c5cd"><td class="memItemLeft" align="right" valign="top">CommandQueueHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a49d34fac1fde5524f6d4d9290f94c5cd">GetCommandQueue</a> () override</td></tr>
+<tr class="memitem:a1d506a54a02f810e291b8ad65ce5d737" id="r_a1d506a54a02f810e291b8ad65ce5d737"><td class="memItemLeft" align="right" valign="top">CommandQueueHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1d506a54a02f810e291b8ad65ce5d737">GetPrimaryCommandQueue</a> () override</td></tr>
+<tr class="memitem:a907aa5906590aada70e463fe8afeebd3" id="r_a907aa5906590aada70e463fe8afeebd3"><td class="memItemLeft" align="right" valign="top">CommandQueueHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a907aa5906590aada70e463fe8afeebd3">GetAsyncCommandQueue</a> () override</td></tr>
 <tr class="memitem:a0c2bab13261ca9ddd46f8fa5b689895e" id="r_a0c2bab13261ca9ddd46f8fa5b689895e"><td class="memItemLeft" align="right" valign="top">RenderPassHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0c2bab13261ca9ddd46f8fa5b689895e">CreateRenderPass</a> () override</td></tr>
 <tr class="memitem:ac88210f33346f1a17436a1d12d6b69af" id="r_ac88210f33346f1a17436a1d12d6b69af"><td class="memItemLeft" align="right" valign="top">FramebufferHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac88210f33346f1a17436a1d12d6b69af">CreateFramebuffer</a> (RenderPassHandle renderPassHandle) override</td></tr>
 <tr class="memitem:a2e5ee8e2339bd901faa54ddd0a9bd313" id="r_a2e5ee8e2339bd901faa54ddd0a9bd313"><td class="memItemLeft" align="right" valign="top">ShaderHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e5ee8e2339bd901faa54ddd0a9bd313">CreateShader</a> (const <a class="el" href="../../da/d75/class_astral_1_1_shader_source.html">ShaderSource</a> &amp;shaderSource) override</td></tr>
-<tr class="memitem:a7efde020b0a1efc08aa766b8a2f551da" id="r_a7efde020b0a1efc08aa766b8a2f551da"><td class="memItemLeft" align="right" valign="top">PipelineStateObjectHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7efde020b0a1efc08aa766b8a2f551da">CreatePipelineStateObject</a> (const <a class="el" href="../../dc/dbc/struct_astral_1_1_pipeline_state_object_create_info.html">PipelineStateObjectCreateInfo</a> &amp;pipelineStateObjectCreateInfo) override</td></tr>
+<tr class="memitem:aa0834920600632a8d7ea76bf1358568d" id="r_aa0834920600632a8d7ea76bf1358568d"><td class="memItemLeft" align="right" valign="top">PipelineStateHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0834920600632a8d7ea76bf1358568d">CreateGraphicsPipelineState</a> (const <a class="el" href="../../d1/d81/struct_astral_1_1_graphics_pipeline_state_create_info.html">GraphicsPipelineStateCreateInfo</a> &amp;pipelineStateCreateInfo) override</td></tr>
+<tr class="memitem:a78fb09548c9173102184323ceb5c00ba" id="r_a78fb09548c9173102184323ceb5c00ba"><td class="memItemLeft" align="right" valign="top">PipelineStateHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a78fb09548c9173102184323ceb5c00ba">CreateComputePipelineState</a> (const <a class="el" href="../../d0/d8f/struct_astral_1_1_compute_pipeline_state_create_info.html">ComputePipelineStateCreateInfo</a> &amp;computePipelineStateCreateInfo) override</td></tr>
 <tr class="memitem:a97f485aae86328fd85f945b2075250cf" id="r_a97f485aae86328fd85f945b2075250cf"><td class="memItemLeft" align="right" valign="top">VertexBufferHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a97f485aae86328fd85f945b2075250cf">CreateVertexBuffer</a> (void *verticeData, uint32 sizeInBytes, <a class="el" href="../../df/d88/class_astral_1_1_vertex_buffer_layout.html">VertexBufferLayout</a> &amp;bufferLayout) override</td></tr>
 <tr class="memitem:a6811a70a8869f2740b7131f50f77b917" id="r_a6811a70a8869f2740b7131f50f77b917"><td class="memItemLeft" align="right" valign="top">IndexBufferHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6811a70a8869f2740b7131f50f77b917">CreateIndexBuffer</a> (uint32 *indiceData, uint32 sizeInBytes) override</td></tr>
 <tr class="memitem:a425b56a4b058102cfa1aca2ec47f935c" id="r_a425b56a4b058102cfa1aca2ec47f935c"><td class="memItemLeft" align="right" valign="top">BufferHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a425b56a4b058102cfa1aca2ec47f935c">CreateStorageBuffer</a> (void *data, uint32 size) override</td></tr>
 <tr class="memitem:aba554f1b44a54f93e3cefcf9602ae0ad" id="r_aba554f1b44a54f93e3cefcf9602ae0ad"><td class="memItemLeft" align="right" valign="top">BufferHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aba554f1b44a54f93e3cefcf9602ae0ad">CreateUniformBuffer</a> (void *data, uint32 size) override</td></tr>
 <tr class="memitem:a69f1d4ec9d3dd7de8a26dd65a1b0e63a" id="r_a69f1d4ec9d3dd7de8a26dd65a1b0e63a"><td class="memItemLeft" align="right" valign="top">DescriptorSetHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a69f1d4ec9d3dd7de8a26dd65a1b0e63a">CreateDescriptorSet</a> () override</td></tr>
 <tr class="memitem:a0d505a0f467f954d405083a5ebf6b114" id="r_a0d505a0f467f954d405083a5ebf6b114"><td class="memItemLeft" align="right" valign="top">TextureHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d505a0f467f954d405083a5ebf6b114">CreateTexture</a> (const <a class="el" href="../../d2/d54/struct_astral_1_1_texture_create_info.html">TextureCreateInfo</a> &amp;textureCreateInfo) override</td></tr>
+<tr class="memitem:a2f4b1207b73c23cc4a227328db107c73" id="r_a2f4b1207b73c23cc4a227328db107c73"><td class="memItemLeft" align="right" valign="top">TextureHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2f4b1207b73c23cc4a227328db107c73">CreateCubemap</a> (const <a class="el" href="../../d2/d54/struct_astral_1_1_texture_create_info.html">TextureCreateInfo</a> &amp;textureCreateInfo) override</td></tr>
+<tr class="memitem:aa0714413320da1de7649b003fc54c3ed" id="r_aa0714413320da1de7649b003fc54c3ed"><td class="memItemLeft" align="right" valign="top">TextureHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0714413320da1de7649b003fc54c3ed">Create3DTexture</a> (const <a class="el" href="../../d2/d54/struct_astral_1_1_texture_create_info.html">TextureCreateInfo</a> &amp;textureCreateInfo) override</td></tr>
+<tr class="memitem:a21e72b3275822156a3b680e540732aff" id="r_a21e72b3275822156a3b680e540732aff"><td class="memItemLeft" align="right" valign="top">TextureHandle&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a21e72b3275822156a3b680e540732aff">Create1DTexture</a> (const <a class="el" href="../../d2/d54/struct_astral_1_1_texture_create_info.html">TextureCreateInfo</a> &amp;textureCreateInfo) override</td></tr>
+<tr class="memitem:a09312ba1e800f3c443be9395b59c9bc7" id="r_a09312ba1e800f3c443be9395b59c9bc7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a09312ba1e800f3c443be9395b59c9bc7">IsBlitSupportedByFormat</a> (ImageFormat imageFormat) override</td></tr>
+<tr class="memitem:a320afe05549834fe2595de0bcd838792" id="r_a320afe05549834fe2595de0bcd838792"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a320afe05549834fe2595de0bcd838792">IsAnisotropySupported</a> () override</td></tr>
+<tr class="memitem:a702510317fc80cdfe7c9b2b7652c3daa" id="r_a702510317fc80cdfe7c9b2b7652c3daa"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a702510317fc80cdfe7c9b2b7652c3daa">GetMaxAnisotropySupported</a> () override</td></tr>
 <tr class="memitem:ad9130a0e57869a5afcebd0b1f462c7bf" id="r_ad9130a0e57869a5afcebd0b1f462c7bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad9130a0e57869a5afcebd0b1f462c7bf">WaitIdle</a> () override</td></tr>
 <tr class="memitem:a21e9f88e15742bc5d19828601d45c41c" id="r_a21e9f88e15742bc5d19828601d45c41c"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a21e9f88e15742bc5d19828601d45c41c">GetNativeHandle</a> () override</td></tr>
 <tr class="memitem:af16963a2c89d2437a6d32d502ccfa849" id="r_af16963a2c89d2437a6d32d502ccfa849"><td class="memItemLeft" align="right" valign="top"><a id="af16963a2c89d2437a6d32d502ccfa849" name="af16963a2c89d2437a6d32d502ccfa849"></a>
@@ -133,6 +142,114 @@ Public Member Functions</h2></td></tr>
           <td class="memname">GraphicsRef&lt; <a class="el" href="../../d1/dc1/class_astral_1_1_command_buffer.html">CommandBuffer</a> &gt; Astral::VulkanDevice::AllocateCommandBuffer </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
+<a id="a21e72b3275822156a3b680e540732aff" name="a21e72b3275822156a3b680e540732aff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21e72b3275822156a3b680e540732aff">&#9670;&#160;</a></span>Create1DTexture()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TextureHandle Astral::VulkanDevice::Create1DTexture </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d2/d54/struct_astral_1_1_texture_create_info.html">TextureCreateInfo</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>textureCreateInfo</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
+<a id="aa0714413320da1de7649b003fc54c3ed" name="aa0714413320da1de7649b003fc54c3ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0714413320da1de7649b003fc54c3ed">&#9670;&#160;</a></span>Create3DTexture()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TextureHandle Astral::VulkanDevice::Create3DTexture </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d2/d54/struct_astral_1_1_texture_create_info.html">TextureCreateInfo</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>textureCreateInfo</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
+<a id="a78fb09548c9173102184323ceb5c00ba" name="a78fb09548c9173102184323ceb5c00ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78fb09548c9173102184323ceb5c00ba">&#9670;&#160;</a></span>CreateComputePipelineState()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">PipelineStateHandle Astral::VulkanDevice::CreateComputePipelineState </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d0/d8f/struct_astral_1_1_compute_pipeline_state_create_info.html">ComputePipelineStateCreateInfo</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>computePipelineStateCreateInfo</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
+<a id="a2f4b1207b73c23cc4a227328db107c73" name="a2f4b1207b73c23cc4a227328db107c73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f4b1207b73c23cc4a227328db107c73">&#9670;&#160;</a></span>CreateCubemap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TextureHandle Astral::VulkanDevice::CreateCubemap </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d2/d54/struct_astral_1_1_texture_create_info.html">TextureCreateInfo</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>textureCreateInfo</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -201,6 +318,33 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="aa0834920600632a8d7ea76bf1358568d" name="aa0834920600632a8d7ea76bf1358568d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0834920600632a8d7ea76bf1358568d">&#9670;&#160;</a></span>CreateGraphicsPipelineState()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">PipelineStateHandle Astral::VulkanDevice::CreateGraphicsPipelineState </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d1/d81/struct_astral_1_1_graphics_pipeline_state_create_info.html">GraphicsPipelineStateCreateInfo</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>pipelineStateCreateInfo</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
 <a id="a6811a70a8869f2740b7131f50f77b917" name="a6811a70a8869f2740b7131f50f77b917"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6811a70a8869f2740b7131f50f77b917">&#9670;&#160;</a></span>CreateIndexBuffer()</h2>
 
@@ -219,33 +363,6 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint32</td>          <td class="paramname"><span class="paramname"><em>sizeInBytes</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
-
-</div>
-</div>
-<a id="a7efde020b0a1efc08aa766b8a2f551da" name="a7efde020b0a1efc08aa766b8a2f551da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7efde020b0a1efc08aa766b8a2f551da">&#9670;&#160;</a></span>CreatePipelineStateObject()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">PipelineStateObjectHandle Astral::VulkanDevice::CreatePipelineStateObject </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="../../dc/dbc/struct_astral_1_1_pipeline_state_object_create_info.html">PipelineStateObjectCreateInfo</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>pipelineStateObjectCreateInfo</em></span></td><td>)</td>
-          <td></td>
         </tr>
       </table>
   </td>
@@ -438,8 +555,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a49d34fac1fde5524f6d4d9290f94c5cd" name="a49d34fac1fde5524f6d4d9290f94c5cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a49d34fac1fde5524f6d4d9290f94c5cd">&#9670;&#160;</a></span>GetCommandQueue()</h2>
+<a id="a907aa5906590aada70e463fe8afeebd3" name="a907aa5906590aada70e463fe8afeebd3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a907aa5906590aada70e463fe8afeebd3">&#9670;&#160;</a></span>GetAsyncCommandQueue()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -448,7 +565,34 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">GraphicsRef&lt; <a class="el" href="../../da/df7/class_astral_1_1_command_queue.html">CommandQueue</a> &gt; Astral::VulkanDevice::GetCommandQueue </td>
+          <td class="memname">CommandQueueHandle Astral::VulkanDevice::GetAsyncCommandQueue </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
+<a id="a702510317fc80cdfe7c9b2b7652c3daa" name="a702510317fc80cdfe7c9b2b7652c3daa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a702510317fc80cdfe7c9b2b7652c3daa">&#9670;&#160;</a></span>GetMaxAnisotropySupported()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Astral::VulkanDevice::GetMaxAnisotropySupported </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td></td>
@@ -492,6 +636,33 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a1d506a54a02f810e291b8ad65ce5d737" name="a1d506a54a02f810e291b8ad65ce5d737"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d506a54a02f810e291b8ad65ce5d737">&#9670;&#160;</a></span>GetPrimaryCommandQueue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">GraphicsRef&lt; <a class="el" href="../../da/df7/class_astral_1_1_command_queue.html">CommandQueue</a> &gt; Astral::VulkanDevice::GetPrimaryCommandQueue </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
 <a id="a92c2f045e4aa89238c1c1339e470fdff" name="a92c2f045e4aa89238c1c1339e470fdff"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a92c2f045e4aa89238c1c1339e470fdff">&#9670;&#160;</a></span>GetSwapchain()</h2>
 
@@ -511,6 +682,87 @@ Public Member Functions</h2></td></tr>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
+<a id="a7f95b94f78f26166aa7a05f02c8890f2" name="a7f95b94f78f26166aa7a05f02c8890f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f95b94f78f26166aa7a05f02c8890f2">&#9670;&#160;</a></span>Init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Astral::VulkanDevice::Init </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
+<a id="a320afe05549834fe2595de0bcd838792" name="a320afe05549834fe2595de0bcd838792"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a320afe05549834fe2595de0bcd838792">&#9670;&#160;</a></span>IsAnisotropySupported()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Astral::VulkanDevice::IsAnisotropySupported </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Astral::Device</a>.</p>
+
+</div>
+</div>
+<a id="a09312ba1e800f3c443be9395b59c9bc7" name="a09312ba1e800f3c443be9395b59c9bc7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09312ba1e800f3c443be9395b59c9bc7">&#9670;&#160;</a></span>IsBlitSupportedByFormat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Astral::VulkanDevice::IsBlitSupportedByFormat </td>
+          <td>(</td>
+          <td class="paramtype">ImageFormat</td>          <td class="paramname"><span class="paramname"><em>imageFormat</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">

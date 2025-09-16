@@ -95,24 +95,8 @@ Inheritance diagram for Astral::RendererCommands:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2e195d92af860021610b400f4525adc4" id="r_a2e195d92af860021610b400f4525adc4"><td class="memItemLeft" align="right" valign="top"><a id="a2e195d92af860021610b400f4525adc4" name="a2e195d92af860021610b400f4525adc4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> (CommandBufferHandle commandBuffer, RenderTargetHandle renderTarget)=0</td></tr>
-<tr class="memitem:a341018c7e642496fd437623f95f53c9d" id="r_a341018c7e642496fd437623f95f53c9d"><td class="memItemLeft" align="right" valign="top"><a id="a341018c7e642496fd437623f95f53c9d" name="a341018c7e642496fd437623f95f53c9d"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetClearColor</b> (float r, float g, float b, float a)=0</td></tr>
-<tr class="memitem:a403c6dd8229b534b0499452c87231413" id="r_a403c6dd8229b534b0499452c87231413"><td class="memItemLeft" align="right" valign="top"><a id="a403c6dd8229b534b0499452c87231413" name="a403c6dd8229b534b0499452c87231413"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DrawElementsIndexed</b> (CommandBufferHandle commandBufferHandle, IndexBufferHandle indexBufferHandle)=0</td></tr>
-<tr class="memitem:a30375ce644e84bb36cb24acabfe4186e" id="r_a30375ce644e84bb36cb24acabfe4186e"><td class="memItemLeft" align="right" valign="top"><a id="a30375ce644e84bb36cb24acabfe4186e" name="a30375ce644e84bb36cb24acabfe4186e"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>PushConstants</b> (CommandBufferHandle commandBufferHandle, PipelineStateObjectHandle pipelineStateObjectHandle, void *data, uint32 sizeInBytes)=0</td></tr>
-<tr class="memitem:a7fce12433fcbf56380e0bd56fdb9d6a1" id="r_a7fce12433fcbf56380e0bd56fdb9d6a1"><td class="memItemLeft" align="right" valign="top"><a id="a7fce12433fcbf56380e0bd56fdb9d6a1" name="a7fce12433fcbf56380e0bd56fdb9d6a1"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPipelineBarrier</b> (CommandBufferHandle commandBufferHandle, const <a class="el" href="../../d8/d6a/struct_astral_1_1_pipeline_barrier.html">PipelineBarrier</a> &amp;pipelineBarrier)=0</td></tr>
-<tr class="memitem:ae99eaf40fd52b42780375bfb6b4da4de" id="r_ae99eaf40fd52b42780375bfb6b4da4de"><td class="memItemLeft" align="right" valign="top"><a id="ae99eaf40fd52b42780375bfb6b4da4de" name="ae99eaf40fd52b42780375bfb6b4da4de"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetBlending</b> (bool enable)=0</td></tr>
-<tr class="memitem:a2a0786c05ebd0df7b41f6321595a4eb9" id="r_a2a0786c05ebd0df7b41f6321595a4eb9"><td class="memItemLeft" align="right" valign="top"><a id="a2a0786c05ebd0df7b41f6321595a4eb9" name="a2a0786c05ebd0df7b41f6321595a4eb9"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BeginLabel</b> (CommandBufferHandle commandBufferHandle, std::string_view label, Vec4 color)=0</td></tr>
-<tr class="memitem:a984dd1affd301925ac8cb8d4f04c1012" id="r_a984dd1affd301925ac8cb8d4f04c1012"><td class="memItemLeft" align="right" valign="top"><a id="a984dd1affd301925ac8cb8d4f04c1012" name="a984dd1affd301925ac8cb8d4f04c1012"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndLabel</b> (CommandBufferHandle commandBufferHandle)=0</td></tr>
-<tr class="memitem:aefcb1117f820e4c97622fa428f7ec36a" id="r_aefcb1117f820e4c97622fa428f7ec36a"><td class="memItemLeft" align="right" valign="top"><a id="aefcb1117f820e4c97622fa428f7ec36a" name="aefcb1117f820e4c97622fa428f7ec36a"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>InsertMarker</b> (CommandBufferHandle commandBufferHandle, std::string_view label, Vec4 color)=0</td></tr>
+<tr class="memitem:a66ecbd5eec40d976f23cd5adbc5100f9" id="r_a66ecbd5eec40d976f23cd5adbc5100f9"><td class="memItemLeft" align="right" valign="top"><a id="a66ecbd5eec40d976f23cd5adbc5100f9" name="a66ecbd5eec40d976f23cd5adbc5100f9"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ExecuteOneTimeAndBlock</b> (const std::function&lt; void(CommandBufferHandle)&gt; &amp;callback)=0</td></tr>
 <tr class="memitem:aaece63a6e7b5c6bc184be67d85ac3d52" id="r_aaece63a6e7b5c6bc184be67d85ac3d52"><td class="memItemLeft" align="right" valign="top"><a id="aaece63a6e7b5c6bc184be67d85ac3d52" name="aaece63a6e7b5c6bc184be67d85ac3d52"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (BufferHandle bufferHandle, std::string_view name)=0</td></tr>
 <tr class="memitem:ab6e73ec7f19b816c7c941cb9b0ddf81c" id="r_ab6e73ec7f19b816c7c941cb9b0ddf81c"><td class="memItemLeft" align="right" valign="top"><a id="ab6e73ec7f19b816c7c941cb9b0ddf81c" name="ab6e73ec7f19b816c7c941cb9b0ddf81c"></a>
@@ -123,10 +107,16 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (ShaderHandle shaderHandle, std::string_view name)=0</td></tr>
 <tr class="memitem:a1db149468484d5812b8be18e2d7ba911" id="r_a1db149468484d5812b8be18e2d7ba911"><td class="memItemLeft" align="right" valign="top"><a id="a1db149468484d5812b8be18e2d7ba911" name="a1db149468484d5812b8be18e2d7ba911"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (FramebufferHandle framebufferHandle, std::string_view name)=0</td></tr>
+<tr class="memitem:ac7908776a4cd631dbce76022bd2c524e" id="r_ac7908776a4cd631dbce76022bd2c524e"><td class="memItemLeft" align="right" valign="top"><a id="ac7908776a4cd631dbce76022bd2c524e" name="ac7908776a4cd631dbce76022bd2c524e"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (CommandBufferHandle commandBufferHandle, std::string_view name)=0</td></tr>
+<tr class="memitem:addfb7b129377229dfb7bb2d1029dd9e1" id="r_addfb7b129377229dfb7bb2d1029dd9e1"><td class="memItemLeft" align="right" valign="top"><a id="addfb7b129377229dfb7bb2d1029dd9e1" name="addfb7b129377229dfb7bb2d1029dd9e1"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (RenderPassHandle renderPassHandle, std::string_view name)=0</td></tr>
 <tr class="memitem:aa667d881b00685e1729151b9173a2a5b" id="r_aa667d881b00685e1729151b9173a2a5b"><td class="memItemLeft" align="right" valign="top"><a id="aa667d881b00685e1729151b9173a2a5b" name="aa667d881b00685e1729151b9173a2a5b"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>CallImGuiDraws</b> (CommandBufferHandle commandBufferHandle)=0</td></tr>
-<tr class="memitem:a1af2ef4bdee72b2a5f64121b9e989600" id="r_a1af2ef4bdee72b2a5f64121b9e989600"><td class="memItemLeft" align="right" valign="top"><a id="a1af2ef4bdee72b2a5f64121b9e989600" name="a1af2ef4bdee72b2a5f64121b9e989600"></a>
-<a class="el" href="../../da/d0f/struct_astral_1_1_renderer_debug_stats.html">RendererDebugStats</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GetNumberOfDrawCalls</b> ()</td></tr>
+<tr class="memitem:a7643d089827c5b4722d168a3faec0b59" id="r_a7643d089827c5b4722d168a3faec0b59"><td class="memItemLeft" align="right" valign="top"><a id="a7643d089827c5b4722d168a3faec0b59" name="a7643d089827c5b4722d168a3faec0b59"></a>
+const <a class="el" href="../../da/d0f/struct_astral_1_1_renderer_debug_stats.html">RendererDebugStats</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetRendererDebugStats</b> () const</td></tr>
+<tr class="memitem:ad65c6baadde690d9c96473d3be620301" id="r_ad65c6baadde690d9c96473d3be620301"><td class="memItemLeft" align="right" valign="top"><a id="ad65c6baadde690d9c96473d3be620301" name="ad65c6baadde690d9c96473d3be620301"></a>
+<a class="el" href="../../da/d0f/struct_astral_1_1_renderer_debug_stats.html">RendererDebugStats</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetInProgressRendererDebugStats</b> ()</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-static-methods" class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>

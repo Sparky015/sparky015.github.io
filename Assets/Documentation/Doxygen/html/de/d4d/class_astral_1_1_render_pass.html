@@ -81,6 +81,11 @@ $(function() {
   <div class="headertitle"><div class="title">Astral::RenderPass Class Reference<span class="mlabels"><span class="mlabel abstract">abstract</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Defines the RHI <a class="el" href="../../de/d4d/class_astral_1_1_render_pass.html" title="Defines the RHI RenderPass object.">RenderPass</a> object.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="../../db/d35/_renderpass_8h_source.html">Renderpass.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Astral::RenderPass:</div>
 <div class="dyncontent">
@@ -117,20 +122,25 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DefineSubpass
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndBuildingRenderPass</b> ()=0</td></tr>
 <tr class="memitem:aabe2e85d1a21f8702c1d01f184ef415c" id="r_aabe2e85d1a21f8702c1d01f184ef415c"><td class="memItemLeft" align="right" valign="top"><a id="aabe2e85d1a21f8702c1d01f184ef415c" name="aabe2e85d1a21f8702c1d01f184ef415c"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Invalidate</b> ()=0</td></tr>
-<tr class="memitem:a6d92f16cccd56cd054cbfda2cda5270d" id="r_a6d92f16cccd56cd054cbfda2cda5270d"><td class="memItemLeft" align="right" valign="top"><a id="a6d92f16cccd56cd054cbfda2cda5270d" name="a6d92f16cccd56cd054cbfda2cda5270d"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BeginRenderPass</b> (CommandBufferHandle commandBufferHandle, FramebufferHandle frameBufferHandle)=0</td></tr>
-<tr class="memitem:ada8e2c4f5f435cb7dedf68acfd3a376d" id="r_ada8e2c4f5f435cb7dedf68acfd3a376d"><td class="memItemLeft" align="right" valign="top"><a id="ada8e2c4f5f435cb7dedf68acfd3a376d" name="ada8e2c4f5f435cb7dedf68acfd3a376d"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NextSubpass</b> (CommandBufferHandle commandBufferHandle)=0</td></tr>
-<tr class="memitem:af9e73ec8c42ad19882b146df3560e7c2" id="r_af9e73ec8c42ad19882b146df3560e7c2"><td class="memItemLeft" align="right" valign="top"><a id="af9e73ec8c42ad19882b146df3560e7c2" name="af9e73ec8c42ad19882b146df3560e7c2"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndRenderPass</b> (CommandBufferHandle commandBufferHandle)=0</td></tr>
+<tr class="memitem:a1499163e1d884168515e51f3947aa476" id="r_a1499163e1d884168515e51f3947aa476"><td class="memItemLeft" align="right" valign="top"><a id="a1499163e1d884168515e51f3947aa476" name="a1499163e1d884168515e51f3947aa476"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BeginRenderPass</b> (FramebufferHandle frameBufferHandle)=0</td></tr>
+<tr class="memitem:a8aade828c7b0a828c5bd759d61413e9a" id="r_a8aade828c7b0a828c5bd759d61413e9a"><td class="memItemLeft" align="right" valign="top"><a id="a8aade828c7b0a828c5bd759d61413e9a" name="a8aade828c7b0a828c5bd759d61413e9a"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NextSubpass</b> ()=0</td></tr>
+<tr class="memitem:a9d74858dffc03da886c87a33f49c5729" id="r_a9d74858dffc03da886c87a33f49c5729"><td class="memItemLeft" align="right" valign="top"><a id="a9d74858dffc03da886c87a33f49c5729" name="a9d74858dffc03da886c87a33f49c5729"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndRenderPass</b> ()=0</td></tr>
 <tr class="memitem:a2e8751a26e946371296ba92e2df5b3a1" id="r_a2e8751a26e946371296ba92e2df5b3a1"><td class="memItemLeft" align="right" valign="top"><a id="a2e8751a26e946371296ba92e2df5b3a1" name="a2e8751a26e946371296ba92e2df5b3a1"></a>
 virtual uint32&#160;</td><td class="memItemRight" valign="bottom"><b>GetNumberOfSubpasses</b> ()=0</td></tr>
 <tr class="memitem:a0342e8c3b42052017f73718abc3694c4" id="r_a0342e8c3b42052017f73718abc3694c4"><td class="memItemLeft" align="right" valign="top"><a id="a0342e8c3b42052017f73718abc3694c4" name="a0342e8c3b42052017f73718abc3694c4"></a>
 virtual uint32&#160;</td><td class="memItemRight" valign="bottom"><b>GetNumColorAttachments</b> (SubpassIndex subpassIndex)=0</td></tr>
+<tr class="memitem:a4112c7317187593cfac2e674199952cd" id="r_a4112c7317187593cfac2e674199952cd"><td class="memItemLeft" align="right" valign="top"><a id="a4112c7317187593cfac2e674199952cd" name="a4112c7317187593cfac2e674199952cd"></a>
+virtual const std::vector&lt; Vec4 &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetClearColors</b> () const =0</td></tr>
 <tr class="memitem:a0378df01cd490a2d84f6fcd97a234a21" id="r_a0378df01cd490a2d84f6fcd97a234a21"><td class="memItemLeft" align="right" valign="top"><a id="a0378df01cd490a2d84f6fcd97a234a21" name="a0378df01cd490a2d84f6fcd97a234a21"></a>
 virtual void *&#160;</td><td class="memItemRight" valign="bottom"><b>GetNativeHandle</b> ()=0</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Defines the RHI <a class="el" href="../../de/d4d/class_astral_1_1_render_pass.html" title="Defines the RHI RenderPass object.">RenderPass</a> object. </p>
+<dl class="section warning"><dt>Warning</dt><dd>The current implementation only supports single threaded recording </dd></dl>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>Astral-Runtime/Renderer/RHI/Resources/<a class="el" href="../../db/d35/_renderpass_8h_source.html">Renderpass.h</a></li>
 </ul>
 </div><!-- contents -->

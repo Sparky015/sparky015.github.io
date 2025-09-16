@@ -89,10 +89,12 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:abe2ff41d4e6e4289ce7614f21b8ea429" id="r_abe2ff41d4e6e4289ce7614f21b8ea429"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abe2ff41d4e6e4289ce7614f21b8ea429">BeginBuildingRenderGraph</a> (const std::string_view &amp;debugName=&quot;Untitled Render Graph&quot;)</td></tr>
-<tr class="memdesc:abe2ff41d4e6e4289ce7614f21b8ea429"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks the beginning of calls to collect render passes and other information to build the render graph.  <br /></td></tr>
+<tr class="memitem:a7c28f23d142e5d13635104163c11cbdd" id="r_a7c28f23d142e5d13635104163c11cbdd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7c28f23d142e5d13635104163c11cbdd">BeginBuildingRenderGraph</a> (uint32 maxFramesInFlight, const std::string_view &amp;debugName=&quot;Untitled Render Graph&quot;)</td></tr>
+<tr class="memdesc:a7c28f23d142e5d13635104163c11cbdd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks the beginning of calls to collect render passes and other information to build the render graph.  <br /></td></tr>
 <tr class="memitem:aed3281d0b141d0554be2400afe8a0744" id="r_aed3281d0b141d0554be2400afe8a0744"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aed3281d0b141d0554be2400afe8a0744">AddPass</a> (const <a class="el" href="../../d7/dac/class_astral_1_1_render_graph_pass.html">RenderGraphPass</a> &amp;pass)</td></tr>
 <tr class="memdesc:aed3281d0b141d0554be2400afe8a0744"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a render pass to the render graph.  <br /></td></tr>
+<tr class="memitem:a4a68befddd554d8fdcf89fcf3f92d78e" id="r_a4a68befddd554d8fdcf89fcf3f92d78e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4a68befddd554d8fdcf89fcf3f92d78e">AddOutputPass</a> (const <a class="el" href="../../d7/dac/class_astral_1_1_render_graph_pass.html">RenderGraphPass</a> &amp;pass)</td></tr>
+<tr class="memdesc:a4a68befddd554d8fdcf89fcf3f92d78e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a output render pass to the render graph.  <br /></td></tr>
 <tr class="memitem:ab1c27eeabfc69188b8c614fe5e11d774" id="r_ab1c27eeabfc69188b8c614fe5e11d774"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1c27eeabfc69188b8c614fe5e11d774">SetOutputAttachment</a> (const <a class="el" href="../../d7/dac/class_astral_1_1_render_graph_pass.html">RenderGraphPass</a> &amp;pass, std::string_view attachmentName, const std::vector&lt; TextureHandle &gt; &amp;offscreenTargets)</td></tr>
 <tr class="memdesc:ab1c27eeabfc69188b8c614fe5e11d774"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the output of the render graph to a specific attachment in a render pass.  <br /></td></tr>
 <tr class="memitem:a77168ad09a07dc5e6cfa25ca4da7fe26" id="r_a77168ad09a07dc5e6cfa25ca4da7fe26"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a77168ad09a07dc5e6cfa25ca4da7fe26">SetOutputAttachment</a> (const <a class="el" href="../../d7/dac/class_astral_1_1_render_graph_pass.html">RenderGraphPass</a> &amp;pass, std::string_view attachmentName, const std::vector&lt; RenderTargetHandle &gt; &amp;swapchainTargets)</td></tr>
@@ -107,10 +109,38 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a4bf8c82d42082f571e0cc5eda12f2aa6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recreates the render graph resources (textures, framebuffers, and descriptor sets)  <br /></td></tr>
 <tr class="memitem:a1ff7e850f008229d7c3a83a3ca910040" id="r_a1ff7e850f008229d7c3a83a3ca910040"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1ff7e850f008229d7c3a83a3ca910040">ResizeResources</a> (const std::vector&lt; RenderTargetHandle &gt; &amp;swapchainTargets)</td></tr>
 <tr class="memdesc:a1ff7e850f008229d7c3a83a3ca910040"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recreates the render graph resources (textures, framebuffers, and descriptor sets)  <br /></td></tr>
+<tr class="memitem:a905854fbf0fe0c0b85dc79567f55b1c2" id="r_a905854fbf0fe0c0b85dc79567f55b1c2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a905854fbf0fe0c0b85dc79567f55b1c2">ClearResourceHold</a> ()</td></tr>
+<tr class="memdesc:a905854fbf0fe0c0b85dc79567f55b1c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clears any held resources from previous render graphs.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Manages the creation and execution of a render graph consisting of multiple render passes. Provides methods to build, execute, and resize render graph resources. </p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="a4a68befddd554d8fdcf89fcf3f92d78e" name="a4a68befddd554d8fdcf89fcf3f92d78e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4a68befddd554d8fdcf89fcf3f92d78e">&#9670;&#160;</a></span>AddOutputPass()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Astral::RenderGraph::AddOutputPass </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="../../d7/dac/class_astral_1_1_render_graph_pass.html">RenderGraphPass</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>pass</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds a output render pass to the render graph. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">pass</td><td>The render pass to add to the graph </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section pre"><dt>Precondition</dt><dd><a class="el" href="#a7c28f23d142e5d13635104163c11cbdd">BeginBuildingRenderGraph</a> is called first </dd></dl>
+
+</div>
+</div>
 <a id="aed3281d0b141d0554be2400afe8a0744" name="aed3281d0b141d0554be2400afe8a0744"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aed3281d0b141d0554be2400afe8a0744">&#9670;&#160;</a></span>AddPass()</h2>
 
@@ -133,13 +163,12 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section pre"><dt>Precondition</dt><dd><a class="el" href="#abe2ff41d4e6e4289ce7614f21b8ea429">BeginBuildingRenderGraph</a> is called first </dd></dl>
-<dl class="section post"><dt>Postcondition</dt><dd><a class="el" href="#a74fcf0f95e415946c8b76cdc7faa5568">EndBuildingRenderGraph</a> is called after all passes and output resources are added </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd><a class="el" href="#a7c28f23d142e5d13635104163c11cbdd">BeginBuildingRenderGraph</a> is called first </dd></dl>
 
 </div>
 </div>
-<a id="abe2ff41d4e6e4289ce7614f21b8ea429" name="abe2ff41d4e6e4289ce7614f21b8ea429"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abe2ff41d4e6e4289ce7614f21b8ea429">&#9670;&#160;</a></span>BeginBuildingRenderGraph()</h2>
+<a id="a7c28f23d142e5d13635104163c11cbdd" name="a7c28f23d142e5d13635104163c11cbdd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c28f23d142e5d13635104163c11cbdd">&#9670;&#160;</a></span>BeginBuildingRenderGraph()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -147,8 +176,12 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void Astral::RenderGraph::BeginBuildingRenderGraph </td>
           <td>(</td>
-          <td class="paramtype">const std::string_view &amp;</td>          <td class="paramname"><span class="paramname"><em>debugName</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;Untitled&#160;Render&#160;Graph&quot;</span></td><td>)</td>
+          <td class="paramtype">uint32</td>          <td class="paramname"><span class="paramname"><em>maxFramesInFlight</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const std::string_view &amp;</td>          <td class="paramname"><span class="paramname"><em>debugName</em></span><span class="paramdefsep"> = </span><span class="paramdefval">&quot;Untitled&#160;Render&#160;Graph&quot;</span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -156,11 +189,33 @@ Public Member Functions</h2></td></tr>
 <p>Marks the beginning of calls to collect render passes and other information to build the render graph. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">maxFramesInFlight</td><td>The max frames in flight </td></tr>
     <tr><td class="paramname">debugName</td><td>A name to assign to the graph that is used to label graph operators with </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section post"><dt>Postcondition</dt><dd><a class="el" href="#a74fcf0f95e415946c8b76cdc7faa5568">EndBuildingRenderGraph</a> is called after all passes and output images are added to create the render graph </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This invalidates any previous render graph built in this instance </dd></dl>
+
+</div>
+</div>
+<a id="a905854fbf0fe0c0b85dc79567f55b1c2" name="a905854fbf0fe0c0b85dc79567f55b1c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a905854fbf0fe0c0b85dc79567f55b1c2">&#9670;&#160;</a></span>ClearResourceHold()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Astral::RenderGraph::ClearResourceHold </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clears any held resources from previous render graphs. </p>
+<dl class="section pre"><dt>Precondition</dt><dd><a class="el" href="#a74fcf0f95e415946c8b76cdc7faa5568">EndBuildingRenderGraph</a> is called first to create render graph and its resources </dd></dl>
 
 </div>
 </div>
@@ -180,7 +235,7 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Ends the building of the render graph and compiles the render graph. </p>
-<dl class="section pre"><dt>Precondition</dt><dd><a class="el" href="#abe2ff41d4e6e4289ce7614f21b8ea429">BeginBuildingRenderGraph</a> is called first </dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd><a class="el" href="#a7c28f23d142e5d13635104163c11cbdd">BeginBuildingRenderGraph</a> is called first </dd></dl>
 
 </div>
 </div>

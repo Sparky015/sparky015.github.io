@@ -101,10 +101,36 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BeginRecordin
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndRecording</b> ()=0</td></tr>
 <tr class="memitem:a43cc0c53d3f45414afdbae9aebb28451" id="r_a43cc0c53d3f45414afdbae9aebb28451"><td class="memItemLeft" align="right" valign="top"><a id="a43cc0c53d3f45414afdbae9aebb28451" name="a43cc0c53d3f45414afdbae9aebb28451"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> ()=0</td></tr>
-<tr class="memitem:aa33068215b103f2df3ac55e9d5c45939" id="r_aa33068215b103f2df3ac55e9d5c45939"><td class="memItemLeft" align="right" valign="top"><a id="aa33068215b103f2df3ac55e9d5c45939" name="aa33068215b103f2df3ac55e9d5c45939"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BindPipeline</b> ()=0</td></tr>
-<tr class="memitem:a3343780d9ec0e4cea684730543f6aa23" id="r_a3343780d9ec0e4cea684730543f6aa23"><td class="memItemLeft" align="right" valign="top"><a id="a3343780d9ec0e4cea684730543f6aa23" name="a3343780d9ec0e4cea684730543f6aa23"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BindDescriptorSet</b> ()=0</td></tr>
+<tr class="memitem:a89a8b249751de67871ee4372fc648e4e" id="r_a89a8b249751de67871ee4372fc648e4e"><td class="memItemLeft" align="right" valign="top"><a id="a89a8b249751de67871ee4372fc648e4e" name="a89a8b249751de67871ee4372fc648e4e"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BindPipeline</b> (const PipelineStateHandle &amp;pipeline)=0</td></tr>
+<tr class="memitem:aaad38dac64c3901aa33c4470c6ba1867" id="r_aaad38dac64c3901aa33c4470c6ba1867"><td class="memItemLeft" align="right" valign="top"><a id="aaad38dac64c3901aa33c4470c6ba1867" name="aaad38dac64c3901aa33c4470c6ba1867"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BindDescriptorSet</b> (const DescriptorSetHandle &amp;descriptorSet, uint32 binding)=0</td></tr>
+<tr class="memitem:a11d62fa81f86a476d3413d8c1f706798" id="r_a11d62fa81f86a476d3413d8c1f706798"><td class="memItemLeft" align="right" valign="top"><a id="a11d62fa81f86a476d3413d8c1f706798" name="a11d62fa81f86a476d3413d8c1f706798"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BindVertexBuffer</b> (const VertexBufferHandle &amp;vertexBuffer)=0</td></tr>
+<tr class="memitem:a78e58e6aaf037c5510bb23a1196daffa" id="r_a78e58e6aaf037c5510bb23a1196daffa"><td class="memItemLeft" align="right" valign="top"><a id="a78e58e6aaf037c5510bb23a1196daffa" name="a78e58e6aaf037c5510bb23a1196daffa"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BindIndexBuffer</b> (const IndexBufferHandle &amp;indexBuffer)=0</td></tr>
+<tr class="memitem:ab7091c9ab33d299f4a0745d42a07e3db" id="r_ab7091c9ab33d299f4a0745d42a07e3db"><td class="memItemLeft" align="right" valign="top"><a id="ab7091c9ab33d299f4a0745d42a07e3db" name="ab7091c9ab33d299f4a0745d42a07e3db"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetViewportAndScissor</b> (UVec2 dimensions)=0</td></tr>
+<tr class="memitem:ad660bc46b80bc13338a456e7e91f93be" id="r_ad660bc46b80bc13338a456e7e91f93be"><td class="memItemLeft" align="right" valign="top"><a id="ad660bc46b80bc13338a456e7e91f93be" name="ad660bc46b80bc13338a456e7e91f93be"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BeginRenderPass</b> (const RenderPassHandle &amp;renderPassHandle, const FramebufferHandle &amp;frameBufferHandle)=0</td></tr>
+<tr class="memitem:ae85e2ee08a26b6294144d0ec677000b7" id="r_ae85e2ee08a26b6294144d0ec677000b7"><td class="memItemLeft" align="right" valign="top"><a id="ae85e2ee08a26b6294144d0ec677000b7" name="ae85e2ee08a26b6294144d0ec677000b7"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>NextSubpass</b> ()=0</td></tr>
+<tr class="memitem:a2ad41c69c4505148eebb925f14a21cd6" id="r_a2ad41c69c4505148eebb925f14a21cd6"><td class="memItemLeft" align="right" valign="top"><a id="a2ad41c69c4505148eebb925f14a21cd6" name="a2ad41c69c4505148eebb925f14a21cd6"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndRenderPass</b> ()=0</td></tr>
+<tr class="memitem:a36060566a1052ab1152d7fd72fe94642" id="r_a36060566a1052ab1152d7fd72fe94642"><td class="memItemLeft" align="right" valign="top"><a id="a36060566a1052ab1152d7fd72fe94642" name="a36060566a1052ab1152d7fd72fe94642"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DrawElementsIndexed</b> (const IndexBufferHandle &amp;indexBufferHandle)=0</td></tr>
+<tr class="memitem:a8a79ead140f62c52fbf52baaaf341c0d" id="r_a8a79ead140f62c52fbf52baaaf341c0d"><td class="memItemLeft" align="right" valign="top"><a id="a8a79ead140f62c52fbf52baaaf341c0d" name="a8a79ead140f62c52fbf52baaaf341c0d"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dispatch</b> (uint32 groupCountX, uint32 groupCountY, uint32 groupCountZ)=0</td></tr>
+<tr class="memitem:a29a6bfbc2f9d724cae1015ad96ed75dd" id="r_a29a6bfbc2f9d724cae1015ad96ed75dd"><td class="memItemLeft" align="right" valign="top"><a id="a29a6bfbc2f9d724cae1015ad96ed75dd" name="a29a6bfbc2f9d724cae1015ad96ed75dd"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>PushConstants</b> (void *data, uint32 sizeInBytes)=0</td></tr>
+<tr class="memitem:a15b8625285a02a67a92e3537a0b17bd5" id="r_a15b8625285a02a67a92e3537a0b17bd5"><td class="memItemLeft" align="right" valign="top"><a id="a15b8625285a02a67a92e3537a0b17bd5" name="a15b8625285a02a67a92e3537a0b17bd5"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPipelineBarrier</b> (const <a class="el" href="../../d8/d6a/struct_astral_1_1_pipeline_barrier.html">PipelineBarrier</a> &amp;pipelineBarrier)=0</td></tr>
+<tr class="memitem:ad9b31dc85f61a0853cc34c87a14be99d" id="r_ad9b31dc85f61a0853cc34c87a14be99d"><td class="memItemLeft" align="right" valign="top"><a id="ad9b31dc85f61a0853cc34c87a14be99d" name="ad9b31dc85f61a0853cc34c87a14be99d"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>BeginLabel</b> (const std::string_view &amp;label, Vec4 color)=0</td></tr>
+<tr class="memitem:abcd3bbd7a32eb52a29baf3e96890da2a" id="r_abcd3bbd7a32eb52a29baf3e96890da2a"><td class="memItemLeft" align="right" valign="top"><a id="abcd3bbd7a32eb52a29baf3e96890da2a" name="abcd3bbd7a32eb52a29baf3e96890da2a"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>EndLabel</b> ()=0</td></tr>
+<tr class="memitem:a55580e2caa9292fd456f7889c8b63998" id="r_a55580e2caa9292fd456f7889c8b63998"><td class="memItemLeft" align="right" valign="top"><a id="a55580e2caa9292fd456f7889c8b63998" name="a55580e2caa9292fd456f7889c8b63998"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>InsertMarker</b> (const std::string_view &amp;label, Vec4 color)=0</td></tr>
 <tr class="memitem:a19c450db9a26d24eeb0059723778ecbe" id="r_a19c450db9a26d24eeb0059723778ecbe"><td class="memItemLeft" align="right" valign="top"><a id="a19c450db9a26d24eeb0059723778ecbe" name="a19c450db9a26d24eeb0059723778ecbe"></a>
 virtual void *&#160;</td><td class="memItemRight" valign="bottom"><b>GetNativeHandle</b> ()=0</td></tr>
 <tr class="memitem:a84b7b2326b7ab6ef0c0c975866abda40" id="r_a84b7b2326b7ab6ef0c0c975866abda40"><td class="memItemLeft" align="right" valign="top"><a id="a84b7b2326b7ab6ef0c0c975866abda40" name="a84b7b2326b7ab6ef0c0c975866abda40"></a>

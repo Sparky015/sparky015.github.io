@@ -93,29 +93,36 @@ $(function() {
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#include &lt;vulkan/vulkan_core.h&gt;</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;<a class="code" href="../../d1/d3e/_dependency_flags_8h.html">Renderer/RHI/Common/DependencyFlags.h</a>&quot;</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;<a class="code" href="../../de/d1d/_image_subresource_range_8h.html">Renderer/RHI/Common/ImageSubResourceRange.h</a>&quot;</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">namespace </span><a class="code hl_namespace" href="../../d5/d9b/namespace_astral.html">Astral</a> {</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;<a class="code" href="../../d6/dc3/_image_sub_resource_range_8h.html">Renderer/RHI/Common/ImageSubResourceRange.h</a>&quot;</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &quot;<a class="code" href="../../d8/dde/_sampler_settings_8h.html">Renderer/RHI/Common/SamplerSettings.h</a>&quot;</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &quot;<a class="code" href="../../db/d35/_renderpass_8h.html">Renderer/RHI/Resources/Renderpass.h</a>&quot;</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    VkFormat ConvertImageFormatToVkFormat(ImageFormat imageFormat);</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    VkImageLayout ConvertImageLayoutToVkImageLayout(ImageLayout imageLayout);</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    VkAccessFlags ConvertAccessFlagsToVkAccessFlags(AccessFlags accessFlags);</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    VkPipelineStageFlags ConvertPipelineStageToVkPipelineStageFlags(PipelineStageFlags pipelineStageFlags);</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    VkImageUsageFlags ConvertImageUsageFlagsToVkImageUsageFlags(ImageUsageFlags imageUsageFlags);</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    VkImageAspectFlags ConvertImageAspectFlagsToVkImageAspectFlags(ImageAspectFlags imageAspectFlags);</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    VkDependencyFlags ConvertDependencyFlagsToVkDependencyFlags(DependencyFlags dependencyFlags);</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    ImageLayout ConvertVkImageLayoutToImageLayout(VkImageLayout imageLayout);</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    ImageFormat ConvertVkFormatToImageFormat(VkFormat imageFormat);</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>}</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">namespace </span><a class="code hl_namespace" href="../../d5/d9b/namespace_astral.html">Astral</a> {</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    VkFormat ConvertImageFormatToVkFormat(ImageFormat imageFormat);</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    VkImageLayout ConvertImageLayoutToVkImageLayout(ImageLayout imageLayout);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    VkAccessFlags ConvertAccessFlagsToVkAccessFlags(AccessFlags accessFlags);</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    VkPipelineStageFlags ConvertPipelineStageToVkPipelineStageFlags(PipelineStageFlags pipelineStageFlags);</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    VkImageUsageFlags ConvertImageUsageFlagsToVkImageUsageFlags(ImageUsageFlags imageUsageFlags);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    VkImageAspectFlags ConvertImageAspectFlagsToVkImageAspectFlags(ImageAspectFlags imageAspectFlags);</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    VkDependencyFlags ConvertDependencyFlagsToVkDependencyFlags(DependencyFlags dependencyFlags);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    VkFilter ConvertSamplerFilterToVkFilter(SamplerFilter samplerFilter);</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    VkSamplerAddressMode ConvertSamplerAddressModeToVkSamplerAddressMode(SamplerAddressMode samplerAddressMode);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    VkSampleCountFlagBits ConvertSampleCountToVkSampleCountBit(SampleCount sampleCount);</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    ImageLayout ConvertVkImageLayoutToImageLayout(VkImageLayout imageLayout);</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    ImageFormat ConvertVkFormatToImageFormat(VkFormat imageFormat);</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>}</div>
 <div class="ttc" id="a_access_flags_8h_html"><div class="ttname"><a href="../../df/d64/_access_flags_8h.html">AccessFlags.h</a></div></div>
 <div class="ttc" id="a_dependency_flags_8h_html"><div class="ttname"><a href="../../d1/d3e/_dependency_flags_8h.html">DependencyFlags.h</a></div></div>
 <div class="ttc" id="a_image_formats_8h_html"><div class="ttname"><a href="../../d3/d6f/_image_formats_8h.html">ImageFormats.h</a></div></div>
 <div class="ttc" id="a_image_layouts_8h_html"><div class="ttname"><a href="../../df/d48/_image_layouts_8h.html">ImageLayouts.h</a></div></div>
-<div class="ttc" id="a_image_subresource_range_8h_html"><div class="ttname"><a href="../../de/d1d/_image_subresource_range_8h.html">ImageSubresourceRange.h</a></div></div>
+<div class="ttc" id="a_image_sub_resource_range_8h_html"><div class="ttname"><a href="../../d6/dc3/_image_sub_resource_range_8h.html">ImageSubResourceRange.h</a></div></div>
 <div class="ttc" id="a_image_usage_flags_8h_html"><div class="ttname"><a href="../../db/d4e/_image_usage_flags_8h.html">ImageUsageFlags.h</a></div></div>
 <div class="ttc" id="a_pipeline_stage_flags_8h_html"><div class="ttname"><a href="../../da/d03/_pipeline_stage_flags_8h.html">PipelineStageFlags.h</a></div></div>
+<div class="ttc" id="a_renderpass_8h_html"><div class="ttname"><a href="../../db/d35/_renderpass_8h.html">Renderpass.h</a></div></div>
+<div class="ttc" id="a_sampler_settings_8h_html"><div class="ttname"><a href="../../d8/dde/_sampler_settings_8h.html">SamplerSettings.h</a></div></div>
 <div class="ttc" id="anamespace_astral_html"><div class="ttname"><a href="../../d5/d9b/namespace_astral.html">Astral</a></div><div class="ttdef"><b>Definition</b> Asset.h:13</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

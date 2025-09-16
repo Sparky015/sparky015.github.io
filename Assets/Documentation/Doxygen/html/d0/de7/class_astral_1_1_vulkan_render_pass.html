@@ -87,7 +87,7 @@ Inheritance diagram for Astral::VulkanRenderPass:</div>
  <div class="center">
   <img src="../../d0/de7/class_astral_1_1_vulkan_render_pass.png" usemap="#Astral_3A_3AVulkanRenderPass_map" alt=""/>
   <map id="Astral_3A_3AVulkanRenderPass_map" name="Astral_3A_3AVulkanRenderPass_map">
-<area href="../../de/d4d/class_astral_1_1_render_pass.html" alt="Astral::RenderPass" shape="rect" coords="0,0,158,24"/>
+<area href="../../de/d4d/class_astral_1_1_render_pass.html" title="Defines the RHI RenderPass object." alt="Astral::RenderPass" shape="rect" coords="0,0,158,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -107,11 +107,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3cd655cee7b8b0af4c83e445785f8ecd" id="r_a3cd655cee7b8b0af4c83e445785f8ecd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3cd655cee7b8b0af4c83e445785f8ecd">DefineSubpassDependency</a> (SubpassIndex sourceSubpass, SubpassIndex destinationSubpass, <a class="el" href="../../d1/d1b/struct_astral_1_1_subpass_dependency_masks.html">SubpassDependencyMasks</a> subpassDependencyMasks) override</td></tr>
 <tr class="memitem:a322e809287b8d9ed2e11a60db8766abd" id="r_a322e809287b8d9ed2e11a60db8766abd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a322e809287b8d9ed2e11a60db8766abd">EndBuildingRenderPass</a> () override</td></tr>
 <tr class="memitem:ab6a6ca903b2e7f212c99fbeab351eb0a" id="r_ab6a6ca903b2e7f212c99fbeab351eb0a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab6a6ca903b2e7f212c99fbeab351eb0a">Invalidate</a> () override</td></tr>
-<tr class="memitem:a594339e36fc8084044142bb5f8fdbcf9" id="r_a594339e36fc8084044142bb5f8fdbcf9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a594339e36fc8084044142bb5f8fdbcf9">BeginRenderPass</a> (CommandBufferHandle commandBufferHandle, FramebufferHandle frameBufferHandle) override</td></tr>
-<tr class="memitem:ab60dbe417c9a82b01a7792db49bd6f3b" id="r_ab60dbe417c9a82b01a7792db49bd6f3b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab60dbe417c9a82b01a7792db49bd6f3b">NextSubpass</a> (CommandBufferHandle commandBufferHandle) override</td></tr>
-<tr class="memitem:a0ce023c769ad7c138c8c943a62265b25" id="r_a0ce023c769ad7c138c8c943a62265b25"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ce023c769ad7c138c8c943a62265b25">EndRenderPass</a> (CommandBufferHandle commandBufferHandle) override</td></tr>
+<tr class="memitem:a62c4cb98215adf025e03cc0e3102e36c" id="r_a62c4cb98215adf025e03cc0e3102e36c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a62c4cb98215adf025e03cc0e3102e36c">BeginRenderPass</a> (FramebufferHandle frameBufferHandle) override</td></tr>
+<tr class="memitem:a496aae85fc3852e7ea647c90d6e5b481" id="r_a496aae85fc3852e7ea647c90d6e5b481"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a496aae85fc3852e7ea647c90d6e5b481">NextSubpass</a> () override</td></tr>
+<tr class="memitem:a6ed6feabfbfa1cb1bd0cd304f848ada4" id="r_a6ed6feabfbfa1cb1bd0cd304f848ada4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6ed6feabfbfa1cb1bd0cd304f848ada4">EndRenderPass</a> () override</td></tr>
 <tr class="memitem:a2887d9595a29589f09baaa938f75aa71" id="r_a2887d9595a29589f09baaa938f75aa71"><td class="memItemLeft" align="right" valign="top">uint32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2887d9595a29589f09baaa938f75aa71">GetNumberOfSubpasses</a> () override</td></tr>
 <tr class="memitem:a6b7323b0c5242d3a4b1a4d75c6981005" id="r_a6b7323b0c5242d3a4b1a4d75c6981005"><td class="memItemLeft" align="right" valign="top">uint32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6b7323b0c5242d3a4b1a4d75c6981005">GetNumColorAttachments</a> (SubpassIndex subpassIndex) override</td></tr>
+<tr class="memitem:a5d14f2312cd386c8bfcdc2a21c4bab6e" id="r_a5d14f2312cd386c8bfcdc2a21c4bab6e"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; Vec4 &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5d14f2312cd386c8bfcdc2a21c4bab6e">GetClearColors</a> () const override</td></tr>
 <tr class="memitem:ac25333cb6dd56fafb1781d40936910b5" id="r_ac25333cb6dd56fafb1781d40936910b5"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac25333cb6dd56fafb1781d40936910b5">GetNativeHandle</a> () override</td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
@@ -293,8 +294,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a594339e36fc8084044142bb5f8fdbcf9" name="a594339e36fc8084044142bb5f8fdbcf9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a594339e36fc8084044142bb5f8fdbcf9">&#9670;&#160;</a></span>BeginRenderPass()</h2>
+<a id="a62c4cb98215adf025e03cc0e3102e36c" name="a62c4cb98215adf025e03cc0e3102e36c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62c4cb98215adf025e03cc0e3102e36c">&#9670;&#160;</a></span>BeginRenderPass()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -305,12 +306,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void Astral::VulkanRenderPass::BeginRenderPass </td>
           <td>(</td>
-          <td class="paramtype">CommandBufferHandle</td>          <td class="paramname"><span class="paramname"><em>commandBufferHandle</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype">FramebufferHandle</td>          <td class="paramname"><span class="paramname"><em>frameBufferHandle</em></span></td><td>)</td>
           <td></td>
-          <td class="paramtype">FramebufferHandle</td>          <td class="paramname"><span class="paramname"><em>frameBufferHandle</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -441,8 +438,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a0ce023c769ad7c138c8c943a62265b25" name="a0ce023c769ad7c138c8c943a62265b25"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0ce023c769ad7c138c8c943a62265b25">&#9670;&#160;</a></span>EndRenderPass()</h2>
+<a id="a6ed6feabfbfa1cb1bd0cd304f848ada4" name="a6ed6feabfbfa1cb1bd0cd304f848ada4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ed6feabfbfa1cb1bd0cd304f848ada4">&#9670;&#160;</a></span>EndRenderPass()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -453,13 +450,40 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void Astral::VulkanRenderPass::EndRenderPass </td>
           <td>(</td>
-          <td class="paramtype">CommandBufferHandle</td>          <td class="paramname"><span class="paramname"><em>commandBufferHandle</em></span></td><td>)</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
 <span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="../../de/d4d/class_astral_1_1_render_pass.html">Astral::RenderPass</a>.</p>
+
+</div>
+</div>
+<a id="a5d14f2312cd386c8bfcdc2a21c4bab6e" name="a5d14f2312cd386c8bfcdc2a21c4bab6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d14f2312cd386c8bfcdc2a21c4bab6e">&#9670;&#160;</a></span>GetClearColors()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::vector&lt; Vec4 &gt; &amp; Astral::VulkanRenderPass::GetClearColors </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
@@ -576,8 +600,8 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ab60dbe417c9a82b01a7792db49bd6f3b" name="ab60dbe417c9a82b01a7792db49bd6f3b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab60dbe417c9a82b01a7792db49bd6f3b">&#9670;&#160;</a></span>NextSubpass()</h2>
+<a id="a496aae85fc3852e7ea647c90d6e5b481" name="a496aae85fc3852e7ea647c90d6e5b481"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a496aae85fc3852e7ea647c90d6e5b481">&#9670;&#160;</a></span>NextSubpass()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -588,7 +612,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="memname">void Astral::VulkanRenderPass::NextSubpass </td>
           <td>(</td>
-          <td class="paramtype">CommandBufferHandle</td>          <td class="paramname"><span class="paramname"><em>commandBufferHandle</em></span></td><td>)</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>

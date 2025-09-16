@@ -128,9 +128,9 @@ uint32&#160;</td><td class="memItemRight" valign="bottom"><b>GetNumberOfActiveEn
 <tr class="memitem:a4cd541a2f6a8687db7ab935fa293c755" id="r_a4cd541a2f6a8687db7ab935fa293c755"><td class="memTemplParams" colspan="2">template&lt;typename ComponentType&gt; </td></tr>
 <tr class="memitem:a4cd541a2f6a8687db7ab935fa293c755 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4cd541a2f6a8687db7ab935fa293c755">UpdateComponent</a> (<a class="el" href="../../df/da2/class_astral_1_1_entity.html">Entity</a> entity, const ComponentType &amp;component)</td></tr>
 <tr class="memdesc:a4cd541a2f6a8687db7ab935fa293c755"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates a component to an entity.  <br /></td></tr>
-<tr class="memitem:afb3058fc322819a2c31cce48dce21d82" id="r_afb3058fc322819a2c31cce48dce21d82"><td class="memTemplParams" colspan="2">template&lt;typename ComponentType&gt; </td></tr>
-<tr class="memitem:afb3058fc322819a2c31cce48dce21d82 template"><td class="memItemLeft" align="right" valign="top">ECS_Result&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb3058fc322819a2c31cce48dce21d82">GetComponent</a> (<a class="el" href="../../df/da2/class_astral_1_1_entity.html">Entity</a> entity, ComponentType &amp;outComponent)</td></tr>
-<tr class="memdesc:afb3058fc322819a2c31cce48dce21d82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the requested component of an entity.  <br /></td></tr>
+<tr class="memitem:abed4160a6383de2d9453bdca3a577f00" id="r_abed4160a6383de2d9453bdca3a577f00"><td class="memTemplParams" colspan="2">template&lt;typename ComponentType&gt; </td></tr>
+<tr class="memitem:abed4160a6383de2d9453bdca3a577f00 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abed4160a6383de2d9453bdca3a577f00">GetComponent</a> (<a class="el" href="../../df/da2/class_astral_1_1_entity.html">Entity</a> entity, ComponentType &amp;outComponent)</td></tr>
+<tr class="memdesc:abed4160a6383de2d9453bdca3a577f00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the requested component of an entity.  <br /></td></tr>
 <tr class="memitem:a5bbbd6843a987fe09c893dc5eb1300b3" id="r_a5bbbd6843a987fe09c893dc5eb1300b3"><td class="memTemplParams" colspan="2">template&lt;typename ComponentType&gt; </td></tr>
 <tr class="memitem:a5bbbd6843a987fe09c893dc5eb1300b3 template"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5bbbd6843a987fe09c893dc5eb1300b3">RemoveComponent</a> (<a class="el" href="../../df/da2/class_astral_1_1_entity.html">Entity</a> entity)</td></tr>
 <tr class="memdesc:a5bbbd6843a987fe09c893dc5eb1300b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes the given component from the entity. Does nothing if the entity does not have the given component.  <br /></td></tr>
@@ -178,19 +178,16 @@ template&lt;typename ComponentType&gt; </div>
 
 </div>
 </div>
-<a id="afb3058fc322819a2c31cce48dce21d82" name="afb3058fc322819a2c31cce48dce21d82"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afb3058fc322819a2c31cce48dce21d82">&#9670;&#160;</a></span>GetComponent()</h2>
+<a id="abed4160a6383de2d9453bdca3a577f00" name="abed4160a6383de2d9453bdca3a577f00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abed4160a6383de2d9453bdca3a577f00">&#9670;&#160;</a></span>GetComponent()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename ComponentType&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">ECS_Result Astral::ECS::GetComponent </td>
+          <td class="memname">void Astral::ECS::GetComponent </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="../../df/da2/class_astral_1_1_entity.html">Entity</a></td>          <td class="paramname"><span class="paramname"><em>entity</em></span>, </td>
         </tr>
@@ -200,11 +197,6 @@ template&lt;typename ComponentType&gt; </div>
           <td class="paramtype">ComponentType &amp;</td>          <td class="paramname"><span class="paramname"><em>outComponent</em></span>&#160;)</td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel nodiscard">nodiscard</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 <p>Retrieves the requested component of an entity. </p>

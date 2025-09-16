@@ -88,24 +88,8 @@ Static Public Member Functions</h2></td></tr>
 static <a class="el" href="../../d2/dde/class_astral_1_1_device.html">Device</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetDevice</b> ()</td></tr>
 <tr class="memitem:ab8167e61e6579c943dfeb1dd36d1efff" id="r_ab8167e61e6579c943dfeb1dd36d1efff"><td class="memItemLeft" align="right" valign="top"><a id="ab8167e61e6579c943dfeb1dd36d1efff" name="ab8167e61e6579c943dfeb1dd36d1efff"></a>
 static <a class="el" href="../../de/de0/class_astral_1_1_rendering_context.html">RenderingContext</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetContext</b> ()</td></tr>
-<tr class="memitem:a7cd47780ae1303fc9246a85ba83002c1" id="r_a7cd47780ae1303fc9246a85ba83002c1"><td class="memItemLeft" align="right" valign="top"><a id="a7cd47780ae1303fc9246a85ba83002c1" name="a7cd47780ae1303fc9246a85ba83002c1"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> (CommandBufferHandle commandBufferHandle, RenderTargetHandle renderTargetHandle)</td></tr>
-<tr class="memitem:a79d3e271de02ff75289ab834b3d0abb6" id="r_a79d3e271de02ff75289ab834b3d0abb6"><td class="memItemLeft" align="right" valign="top"><a id="a79d3e271de02ff75289ab834b3d0abb6" name="a79d3e271de02ff75289ab834b3d0abb6"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>SetClearColor</b> (float r, float g, float b, float a)</td></tr>
-<tr class="memitem:a39a150f712c78e7937678b7ea0f8e143" id="r_a39a150f712c78e7937678b7ea0f8e143"><td class="memItemLeft" align="right" valign="top"><a id="a39a150f712c78e7937678b7ea0f8e143" name="a39a150f712c78e7937678b7ea0f8e143"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>DrawElementsIndexed</b> (CommandBufferHandle commandBuffer, IndexBufferHandle indexBuffer)</td></tr>
-<tr class="memitem:a4b2bca2fa3bf941c97d8027c207526b7" id="r_a4b2bca2fa3bf941c97d8027c207526b7"><td class="memItemLeft" align="right" valign="top"><a id="a4b2bca2fa3bf941c97d8027c207526b7" name="a4b2bca2fa3bf941c97d8027c207526b7"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>PushConstants</b> (CommandBufferHandle commandBuffer, PipelineStateObjectHandle pipelineStateObjectHandle, void *data, uint32 sizeInBytes)</td></tr>
-<tr class="memitem:a85b952fad0002cf68f44ff9273637c15" id="r_a85b952fad0002cf68f44ff9273637c15"><td class="memItemLeft" align="right" valign="top"><a id="a85b952fad0002cf68f44ff9273637c15" name="a85b952fad0002cf68f44ff9273637c15"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>SetPipelineBarrier</b> (CommandBufferHandle commandBufferHandle, const <a class="el" href="../../d8/d6a/struct_astral_1_1_pipeline_barrier.html">PipelineBarrier</a> &amp;pipelineBarrier)</td></tr>
-<tr class="memitem:ae5974eb454a5b5df6f7ae2adb42eb8e2" id="r_ae5974eb454a5b5df6f7ae2adb42eb8e2"><td class="memItemLeft" align="right" valign="top"><a id="ae5974eb454a5b5df6f7ae2adb42eb8e2" name="ae5974eb454a5b5df6f7ae2adb42eb8e2"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>SetBlending</b> (bool enable)</td></tr>
-<tr class="memitem:a31a7836bc4311779bb5ab4345780b28b" id="r_a31a7836bc4311779bb5ab4345780b28b"><td class="memItemLeft" align="right" valign="top"><a id="a31a7836bc4311779bb5ab4345780b28b" name="a31a7836bc4311779bb5ab4345780b28b"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>BeginLabel</b> (CommandBufferHandle commandBufferHandle, std::string_view label, Vec4 color)</td></tr>
-<tr class="memitem:a8175e0d5d780a40cd21591507d1153a6" id="r_a8175e0d5d780a40cd21591507d1153a6"><td class="memItemLeft" align="right" valign="top"><a id="a8175e0d5d780a40cd21591507d1153a6" name="a8175e0d5d780a40cd21591507d1153a6"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>EndLabel</b> (CommandBufferHandle commandBufferHandle)</td></tr>
-<tr class="memitem:a17bb6d3f02469591c315a1180c1a0d7c" id="r_a17bb6d3f02469591c315a1180c1a0d7c"><td class="memItemLeft" align="right" valign="top"><a id="a17bb6d3f02469591c315a1180c1a0d7c" name="a17bb6d3f02469591c315a1180c1a0d7c"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>InsertMarker</b> (CommandBufferHandle commandBufferHandle, std::string_view label, Vec4 color)</td></tr>
+<tr class="memitem:a7dc5e2af4589ab7e1205482af7dc3096" id="r_a7dc5e2af4589ab7e1205482af7dc3096"><td class="memItemLeft" align="right" valign="top"><a id="a7dc5e2af4589ab7e1205482af7dc3096" name="a7dc5e2af4589ab7e1205482af7dc3096"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>ExecuteOneTimeAndBlock</b> (const std::function&lt; void(CommandBufferHandle)&gt; &amp;callback)</td></tr>
 <tr class="memitem:accc29d9bd5c49e9864045a9909ceb6b1" id="r_accc29d9bd5c49e9864045a9909ceb6b1"><td class="memItemLeft" align="right" valign="top"><a id="accc29d9bd5c49e9864045a9909ceb6b1" name="accc29d9bd5c49e9864045a9909ceb6b1"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (BufferHandle bufferHandle, std::string_view name)</td></tr>
 <tr class="memitem:ac9aa70530888a9020eba4aa563429423" id="r_ac9aa70530888a9020eba4aa563429423"><td class="memItemLeft" align="right" valign="top"><a id="ac9aa70530888a9020eba4aa563429423" name="ac9aa70530888a9020eba4aa563429423"></a>
@@ -116,8 +100,16 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (ShaderHandle shaderHandle, std::string_view name)</td></tr>
 <tr class="memitem:af1b614b70e0f0efc9d803949cdd8fa45" id="r_af1b614b70e0f0efc9d803949cdd8fa45"><td class="memItemLeft" align="right" valign="top"><a id="af1b614b70e0f0efc9d803949cdd8fa45" name="af1b614b70e0f0efc9d803949cdd8fa45"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (FramebufferHandle framebufferHandle, std::string_view name)</td></tr>
+<tr class="memitem:ad2af6c1c2399970d9b527aac3d6f75f9" id="r_ad2af6c1c2399970d9b527aac3d6f75f9"><td class="memItemLeft" align="right" valign="top"><a id="ad2af6c1c2399970d9b527aac3d6f75f9" name="ad2af6c1c2399970d9b527aac3d6f75f9"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (CommandBufferHandle commandBufferHandle, std::string_view name)</td></tr>
+<tr class="memitem:a91dd9751d4266c63365130849da37117" id="r_a91dd9751d4266c63365130849da37117"><td class="memItemLeft" align="right" valign="top"><a id="a91dd9751d4266c63365130849da37117" name="a91dd9751d4266c63365130849da37117"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>NameObject</b> (RenderPassHandle renderPassHandle, std::string_view name)</td></tr>
 <tr class="memitem:a4887dac3e81774f46b0b795d57cd1f53" id="r_a4887dac3e81774f46b0b795d57cd1f53"><td class="memItemLeft" align="right" valign="top"><a id="a4887dac3e81774f46b0b795d57cd1f53" name="a4887dac3e81774f46b0b795d57cd1f53"></a>
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>CallImGuiDraws</b> (CommandBufferHandle commandBufferHandle)</td></tr>
+<tr class="memitem:ae4b26501b1ae6be62eead2a40f5955e6" id="r_ae4b26501b1ae6be62eead2a40f5955e6"><td class="memItemLeft" align="right" valign="top"><a id="ae4b26501b1ae6be62eead2a40f5955e6" name="ae4b26501b1ae6be62eead2a40f5955e6"></a>
+static const <a class="el" href="../../da/d0f/struct_astral_1_1_renderer_debug_stats.html">RendererDebugStats</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetRendererDebugStats</b> ()</td></tr>
+<tr class="memitem:ae47e07256477015ee19369c255dc732f" id="r_ae47e07256477015ee19369c255dc732f"><td class="memItemLeft" align="right" valign="top"><a id="ae47e07256477015ee19369c255dc732f" name="ae47e07256477015ee19369c255dc732f"></a>
+static <a class="el" href="../../da/d0f/struct_astral_1_1_renderer_debug_stats.html">RendererDebugStats</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetInProgressRendererDebugStats</b> ()</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>Astral-Runtime/Renderer/RHI/<a class="el" href="../../d6/d22/_renderer_a_p_i_8h_source.html">RendererAPI.h</a></li>
