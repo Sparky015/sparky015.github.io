@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andrew Fagan - Project Documentation</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 leading-relaxed antialiased selection:bg-sky-500 selection:text-white">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 backdrop-blur-lg bg-slate-900/70 border-b border-slate-800">
+    <nav class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <a href="index.html" class="text-xl font-bold text-white hover:text-sky-400 transition-colors">
+                    Andrew Fagan
+                </a>
+            </div>
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                    <a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">← Back to Main Site</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Documentation Section -->
+    <section id="docs" class="py-20 sm:py-32">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">Project Documentation</h1>
+            <p class="mt-4 text-lg text-slate-400 max-w-3xl mx-auto">
+                A selection of my design documents, problem analyses, and research notes that guided the architecture of the Astral Engine.
+            </p>
+        </div>
+
+        <div class="mt-16 bg-slate-800/50 rounded-2xl shadow-lg ring-1 ring-white/10 p-6 sm:p-8 font-mono text-sm">
+            <!-- ICONS DEFINITIONS -->
+            <svg class="hidden">
+                <symbol id="icon-folder" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /></symbol>
+                <symbol id="icon-md" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm11.586 2.586a.5.5 0 00-.854-.353L12 8.414l-2.732-2.186a.5.5 0 00-.854.353v8.372a.5.5 0 00.854.353L12 12.586l2.732 2.186a.5.5 0 00.854-.353V6.586z" clip-rule="evenodd" /></symbol>
+                <symbol id="icon-img" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" /></symbol>
+                <symbol id="icon-txt" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2.5a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5zm0 3a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5zm0 3a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></symbol>
+                <symbol id="icon-html" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.496 2.132a1 1 0 00-.992 0l-7 4A1 1 0 003 7v6a1 1 0 00.496.868l7 4a1 1 0 00.992 0l7-4A1 1 0 0017 13V7a1 1 0 00-.496-.868l-7-4zM4.646 12.433L10 15.283l5.354-2.85-1.32-.75-3.531 1.889a1 1 0 01-.992 0L5.965 11.683l-1.32.75zM4.654 8.567L10 5.717l5.346 2.85-5.346 2.85L4.654 8.567z" clip-rule="evenodd" /></symbol>
+            </svg>
+
+            <ul class="space-y-2">
+                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Documentation</span></div>
+                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Astral-Editor</span></div>
+                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                <li><a href="Assets/Documentation/Astral-Editor/Features.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Features.md</span></a></li>
+                            </ul>
+                        </li>
+                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Astral-Runtime</span></div>
+                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Asset Manager</span></div></li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Core</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Containers</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Core/Containers/Description.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Description.md</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Events</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Core/Events/Analysis.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Analysis.md</span></a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Debugging</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Debugging/Features.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Features.md</span></a></li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">ECS</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/ECS/Problem-Analysis.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md</span></a></li>
+                                        <li><a href="Assets/Documentation/Astral-Runtime/ECS/Research-and-Planning.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Research-and-Planning.md</span></a></li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Overall</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Overall/Features.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Features.md</span></a></li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Profiling Tools</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Memory Tracking &amp; Visualization</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Information.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Information.md</span></a></li>
+                                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Tracking Planning</span></div>
+                                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Tracking%20Planning/Ideas.txt" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-400"><use xlink:href="#icon-txt"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Ideas.txt</span></a></li>
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Tracking%20Planning/Memory%20Tracking%20System%20Architecture.png" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Memory Tracking System Architecture.png</span></a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Visualization Planning</span></div>
+                                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Ideas.txt" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-400"><use xlink:href="#icon-txt"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Ideas.txt</span></a></li>
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Memory%20Visualization%20Architecture.jpg" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Memory Visualization Architecture.jpg</span></a></li>
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Visualization%20ImGui%20Architecture.jpg" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Visualization ImGui Architecture.jpg</span></a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Scope Profiler</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Scope%20Profiler/Information.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Information.md</span></a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Renderer</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Structure.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Structure.md</span></a></li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Color Management</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Color%20Management/Research-Analysis.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Research-Analysis.md</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Render Graph</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Graph/Problem-Analysis.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md</span></a></li>
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Graph/Research-Analysis.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Research-Analysis.md</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Render Paths</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Paths/Deferred.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Deferred.md</span></a></li>
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Paths/Forward.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Forward.md</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Renderer Hardware Interface</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Renderer%20Hardware%20Interface/Problem-Analysis.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md</span></a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Scenes</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Scenes/Problem-Analysis.md" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md</span></a></li>
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Scenes/Scene%20Architecture.png" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Scene Architecture.png</span></a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Doxygen</span></div>
+                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                <li><a href="Assets/Documentation/Doxygen/Docs.html" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-green-400"><use xlink:href="#icon-html"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Docs.html (View Code Documentation)</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-slate-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-8 text-center text-sm text-slate-500">
+            <p>&copy; 2025 Andrew Fagan. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Fade-in sections on scroll is not needed for this single-section page
+</script>
+</body>
+</html>
+
