@@ -193,6 +193,83 @@
         </div>
 
     </div>
+
+    <div class="mt-32 mb-20">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+                <span class="text-sky-400 text-glow">Features</span>
+            </h2>
+            <p class="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
+                Deep dive into the rendering techniques and systems implemented in Astral Engine
+            </p>
+        </div>
+
+        <div class="space-y-16">
+            <!-- Cascaded Shadow Maps -->
+            <div class="bg-slate-800/30 rounded-lg p-8 ring-1 ring-white/10">
+                <h3 class="text-2xl font-bold text-white mb-4">Cascaded Shadow Maps</h3>
+                <p class="text-slate-400 mb-6">
+                    Dynamic shadow rendering using cascaded shadow mapping to maintain shadow quality at both near and far distances.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                        <source src="Assets/Showcase/Features/Cascaded Shadow Maps/Astral Cascaded Shadow Map - Cascades.mov" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                        <source src="Assets/Showcase/Features/Cascaded Shadow Maps/Astral Cascaded Shadow Mapping - Movement.mov" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- Deferred Rendering -->
+            <div class="bg-slate-800/30 rounded-lg p-8 ring-1 ring-white/10">
+                <h3 class="text-2xl font-bold text-white mb-4">Deferred Rendering Pipeline</h3>
+                <p class="text-slate-400 mb-6">
+                    View individual render targets including full lighting, albedo, roughness, metallic, emission, and normals.
+                </p>
+                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                    <source src="Assets/Showcase/Features/Deferred Rendering/Astral Deferred Rendering.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <!-- HDR Tonemapping -->
+            <div class="bg-slate-800/30 rounded-lg p-8 ring-1 ring-white/10">
+                <h3 class="text-2xl font-bold text-white mb-4">HDR Tonemapping</h3>
+                <p class="text-slate-400 mb-6">
+                    High dynamic range rendering with multiple tone mapping functions to compare ACES to other options.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <img src="Assets/Showcase/Features/HDR Tonemapping/Astral Tonemapping - Off.png" alt="HDR Tonemapping Off" class="w-full rounded-lg">
+                        <p class="text-sm text-slate-500 mt-2 text-center">No Tonemapping</p>
+                    </div>
+                    <div>
+                        <img src="Assets/Showcase/Features/HDR Tonemapping/Astral Tonemapping - Reinhard.png" alt="Reinhard Tonemapping" class="w-full rounded-lg">
+                        <p class="text-sm text-slate-500 mt-2 text-center">Reinhard</p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <img src="Assets/Showcase/Features/HDR Tonemapping/Astral Tonemapping - ACES.png" alt="ACES Tonemapping" class="w-full rounded-lg max-w-md mx-auto">
+                    <p class="text-sm text-slate-500 mt-2 text-center">ACES</p>
+                </div>
+            </div>
+
+            <!-- Scope Profiler -->
+            <div class="bg-slate-800/30 rounded-lg p-8 ring-1 ring-white/10">
+                <h3 class="text-2xl font-bold text-white mb-4">Performance Profiling Tools</h3>
+                <p class="text-slate-400 mb-6">
+                    Custom scope profiling integrated into Chrome's trace tool for viewing. Track performance timing for engine systems, rendering passes, and frame execution to identify optimization opportunities.
+                </p>
+                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                    <source src="Assets/Showcase/Features/Scope Profiler/Astral Scope Profiler.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
 </main>
 
 <footer class="border-t border-slate-800">
