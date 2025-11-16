@@ -384,7 +384,7 @@
             <h2 class="text-2xl font-bold text-white mt-10 mb-4">Results</h2>
 
             <p>
-                That was the last of the 3 areas of allocations I wanted to reduce. So, now let's look at the results. I started at 11,686 allocations in a frame and now I am down to 545 allocations. That is a reduction of approximately 95%. This just highlights how much easier the Memory Allocation Tracker combined with the scope profiler makes it to profile hotspots and find excessive memory allocations.
+                That was the last of the 3 optimizations I did to reduce memory allocations. So, now let’s look at the results. I started at 11,686 allocations in a frame and now I am down to 545 allocations. That is a reduction of ~95%. Of those remaining 545 allocations, 453 allocations come from the Vulkan driver when I submit the command buffer, so there is not much I can do there. Additionally, libraries like ImGui and GLFW also contribute to those remaining allocations. But overall, this just highlights how much easier the Memory Allocation Tracker combined with the scope profiler makes it to profile hotspots and find excessive memory allocations. I am going to now profile for any time improvements. I don’t expect it to be a big improvement as many of these allocations I removed were allocating and freeing the same memory so the overhead is not as high as it could be. However, there is always some overhead in calling into malloc and free many times, so I think I will see a small improvement in frame time. I will update this page when I am done with the results.
             </p>
         </div>
     </article>
