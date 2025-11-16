@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reducing Per-Frame Allocations by 95% - Andrew Fagan</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .article-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+        .article-content pre {
+            margin: 2rem 0;
+        }
+        .article-content code {
+            font-size: 0.875rem;
+        }
+        .hljs {
+            background: transparent !important;
+            padding: 1.5rem !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 leading-relaxed antialiased selection:bg-sky-500 selection:text-white">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 backdrop-blur-lg bg-slate-900/70 border-b border-slate-800">
+    <nav class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <a href="../../index.html" class="text-xl font-bold text-white hover:text-sky-400 transition-colors">
+                    Andrew Fagan
+                </a>
+            </div>
+            <div>
+                <a href="../../index.html#articles" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">← Back to Articles</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
+    <!-- Article Header -->
+    <article>
+        <header class="mb-12">
+            <div class="mb-6">
+                <a href="../../index.html#articles" class="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors text-sm font-medium">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
+                    Back to Articles
+                </a>
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">
+                Reducing Per-Frame Allocations by 95% with Custom Profiling Tools
+            </h1>
+            <div class="flex items-center gap-4 text-slate-400 text-sm">
+                <time datetime="2025-11-16">November 16, 2025</time>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span>
+                <span>Draft</span>
+            </div>
+        </header>
+
+        <!-- Article Content -->
+        <div class="article-content text-slate-300 text-lg">
+            <p>
+                This article is an overview of my process optimizing for unnecessary/excessive allocations with my Memory Allocation Tracker and Scope Profiler tools I built for Astral Engine. In short, these tools allow me to profile sections of my engine and help me identify spots in my code that I can optimize for time or memory. The Scope Profiler tool profiles scopes of code and gives me an idea of which parts of my engine are taking a long time and how many allocations a scope is doing. I use this tool first as it gives me a broader overview of the engine's performance. The Memory Allocation Tracker tool captures memory allocations and allows me to view them later with stack traces of where the allocations were and other statistics. I use this tool second to get a finer look into what is causing allocations and it points me to the code I need to optimize. Now, this optimization session started when I was recording a video to showcase the scope profiler and I saw that there were 11,686 allocations in one frame on the Amazon Lumberyard Bistro benchmark scene on my PC (Ryzen 5600x with Nvidia RTX 3070 Ti). I knew I could do better than that, so I decided to put the tools I developed to use and optimize this issue.
+            </p>
+
+            <p>
+                Even before this, I used my profiling tools to optimize the renderer command recording time. For example, I noticed my FPS wasn't quite hitting VSync, so I used my Scope Profiler tool and the Memory Allocation Tracker tool to find that there were many allocations coming from the render pass command buffer recording. I could see specifically that they were coming from std::filesystem::path constructors when I was retrieving shaders from the asset manager cache. So I simply moved the retrieval of the shader assets to initialization of the renderer, so they don't create a new std::filesystem::path string to query for the shader every draw/mesh. This one optimization quickly fixed the command recording time and made the FPS hit VSync.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Identifying the Bottleneck</h2>
+
+            <p>
+                The first thing, I decided to do was to determine whether I am CPU bounded or GPU bounded as this will tell me if I will be able to see any results of my optimizations. So I used Nvidia Nsight Systems to see the GPU Active % which was about 100%. That means I am GPU bound. TLDR, it was the shadow mapping so I turned shadows off for now so that I am very CPU sided in order to profile the performance improvements. The shadow mapping cost is heavy as my settings are set really high and there are also some optimizations that can be made, but I will focus on the memory allocations for now. This is important as I will need to be CPU sided to be able to profile the performance improvements, if any, from my optimizations below.
+            </p>
+
+            <p>
+                Before any optimizations are made, you can see that there are 11,686 allocations in a frame, which is a lot more than there should be. Using the output from the scope profiler in the trace view, I can see that there are thousands of allocations coming from the command buffer recording for the Depth Pre-Pass, Cascaded Shadow Map pass, and Forward Lighting Pass as well as the mesh submission in the Rendering ECS System. The number of allocations are roughly corresponding to the number of draws being made, so I am assuming there is one or more causes of these allocations specifically in a loop during the command buffer recording.
+            </p>
+
+            <!-- Before Optimizations Screenshot -->
+            <figure class="my-10">
+                <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 p-4">
+                    <img src="Screenshots/Before%20Opts.png" alt="Scope profiler trace showing 11,686 allocations before optimizations" class="w-full rounded-lg">
+                </div>
+                <figcaption class="mt-3 text-sm text-slate-500 text-center">
+                    Scope profiler trace view showing total allocations in the frame.
+                </figcaption>
+            </figure>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Optimization #1: Pipeline Cache Query Allocations</h2>
+
+            <p>
+                But I want to locate exactly which lines are causing the allocations, so I used my Memory Allocation Tracker to briefly capture a few frames of allocations at runtime. Loading the capture into the Memory Allocation Tracker UI, I can see all the allocations and frees that were made and a stack trace of where it happened. Looking at the stack traces, I can see that there are many allocations coming from the PipelineCache::GetPipeline function in each render pass during command buffer recording. I am getting an allocation every time a render pass queries the pipeline cache for a pipeline regardless if the pipeline is already cached or not. With that, I know exactly where to look in my code to find the unnecessary heap allocations.
+            </p>
+
+            <!-- Opt 1 Spot Screenshot -->
+            <figure class="my-10">
+                <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 p-4">
+                    <img src="Screenshots/Opt%201%20Spot.png" alt="Memory Allocation Tracker showing pipeline cache allocations" class="w-full rounded-lg">
+                </div>
+                <figcaption class="mt-3 text-sm text-slate-500 text-center">
+                    Memory Allocation Tracker pinpointing allocations in PipelineCache::GetPipeline function.
+                </figcaption>
+            </figure>
+
+            <p>
+                Looking at my code, the section that checks if a pipeline exists in the cache is relatively small.
+            </p>
+
+            <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 my-8">
+                <pre><code class="language-cpp">PipelineStateHandle PipelineStateCache::GetGraphicsPipeline(const RenderPassHandle&amp; renderPass, Material&amp; material, Mesh&amp; mesh, uint32 subpassIndex, CullMode cullMode, SampleCount msaaSampleCount)
+{
+    // Build pipeline configuration struct
+
+    GraphicsPipelineStateConfiguration pipelineStateConfiguration = {
+        .RenderPass = renderPass,
+        .VertexShader = mesh.VertexShader,
+        .FragmentShader = material.FragmentShader,
+        .ShaderDataLayout = material.DescriptorSet ? material.DescriptorSet-&gt;GetDescriptorSetLayout() : DescriptorSetLayout(),
+        .VertexBufferLayout = mesh.VertexBuffer-&gt;GetBufferLayout(),
+        .IsAlphaBlended = material.IsAlphaBlended,
+        .MSAASampleCount = msaaSampleCount,
+    };
+
+    // If the pipeline was created already, return it
+    if (m_GraphicsPipelineCache.contains(pipelineStateConfiguration)) {
+        return m_GraphicsPipelineCache[pipelineStateConfiguration];
+    }
+
+    // ... rest of function
+}</code></pre>
+            </div>
+
+            <p>
+                You can see that data is copied into the GraphicsPipelineStateConfiguration struct to be checked against the hash map to see if it has already been created. The problem was that the types of .VertexBufferLayout and .ShaderDataLayout both utilize std::vector so every time I want to retrieve a cached pipeline or create a pipeline, I do two allocations. I call the function in every render pass for every mesh that needs to be drawn to ensure I have the correct pipeline bound, so naturally this issue caused a lot of the allocations.
+            </p>
+
+            <p>
+                This was the fix I implemented to get rid of the allocations. I simply stored an instance of the GraphicsPipelineStateConfiguration in the class and used std::vector::assign to copy the data to the vectors while only allocating the necessary memory when the current vector capacity is not enough. And by storing the instance in the class, I don't need to allocate new memory every time I call PipelineStateCache::GetGraphicsPipeline.
+            </p>
+
+            <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 my-8">
+                <pre><code class="language-cpp">PipelineStateHandle PipelineStateCache::GetGraphicsPipeline(const RenderPassHandle&amp; renderPass, Material&amp; material, Mesh&amp; mesh, uint32 subpassIndex, CullMode cullMode, SampleCount msaaSampleCount)
+{
+    // Build pipeline configuration struct
+    m_GraphicsPipelineStateConfigurationCache.RenderPass = renderPass;
+    m_GraphicsPipelineStateConfigurationCache.VertexShader = mesh.VertexShader;
+    m_GraphicsPipelineStateConfigurationCache.FragmentShader = material.FragmentShader;
+    m_GraphicsPipelineStateConfigurationCache.VertexBufferLayout.CopyAttributes(mesh.VertexBuffer-&gt;GetBufferLayout());
+    m_GraphicsPipelineStateConfigurationCache.IsAlphaBlended = material.IsAlphaBlended;
+    m_GraphicsPipelineStateConfigurationCache.MSAASampleCount = msaaSampleCount;
+
+    if (material.DescriptorSet)
+    {
+        const std::vector&lt;Descriptor&gt;&amp; descriptors = material.DescriptorSet-&gt;GetDescriptorSetLayout().Descriptors;
+        m_GraphicsPipelineStateConfigurationCache.ShaderDataLayout.Descriptors.assign(descriptors.begin(), descriptors.end());
+    }
+    else
+    {
+        m_GraphicsPipelineStateConfigurationCache.ShaderDataLayout.Descriptors.clear();
+    }
+
+    // If the pipeline was created already, return it
+    if (m_GraphicsPipelineCache.contains(m_GraphicsPipelineStateConfigurationCache)) {
+        return m_GraphicsPipelineCache[m_GraphicsPipelineStateConfigurationCache];
+    }
+
+    // ... rest of function
+}</code></pre>
+            </div>
+
+            <p>
+                After applying that change, you can see that the number of allocations in the Bistro scene went down from 11,686 to 3,727 with both the cascaded shadow maps pass and forward lighting pass decreasing by 3,182 allocations while the depth prepass decreased from 3,182 allocations to 1,591 allocations. The remaining areas with high allocations counts are the depth prepass and mesh submission, both with 1,591 allocations.
+            </p>
+
+            <!-- After Opt 1 Screenshot -->
+            <figure class="my-10">
+                <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 p-4">
+                    <img src="Screenshots/After%20Opt%201.png" alt="Scope profiler after first optimization showing 3,727 allocations" class="w-full rounded-lg">
+                </div>
+                <figcaption class="mt-3 text-sm text-slate-500 text-center">
+                    After optimization #1: Allocations reduced from 11,686 to 3,727.
+                </figcaption>
+            </figure>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Optimization #2: Material Copy in Depth Pre-Pass</h2>
+
+            <p>
+                Now, there are still a relatively high amount of allocations in the depth prepass, so I decided to look into that pass further. Using the Memory Allocation Tracker again, I can find that the leftover allocations in the depth pre-pass are coming from the Material constructor and destructor.
+            </p>
+
+            <!-- Opt 2 Spot Screenshot -->
+            <figure class="my-10">
+                <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 p-4">
+                    <img src="Screenshots/Opt%202%20Spot.png" alt="Memory Allocation Tracker showing Material constructor allocations" class="w-full rounded-lg">
+                </div>
+                <figcaption class="mt-3 text-sm text-slate-500 text-center">
+                    Memory Allocation Tracker revealing Material copy operations in depth pre-pass.
+                </figcaption>
+            </figure>
+
+            <p>
+                Looking at the code, I see this:
+            </p>
+
+            <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 my-8">
+                <pre><code class="language-cpp">void SceneRendererImpl::DepthPrePass()
+{
+    PROFILE_SCOPE("SceneRendererImpl::DepthPrePass")
+
+    const RenderGraphPassExecutionContext&amp; executionContext = m_RenderGraph.GetExecutionContext();
+    FrameContext&amp; frameContext = m_FrameContexts[m_CurrentFrameIndex];
+    CommandBufferHandle commandBuffer = executionContext.CommandBuffer;
+    AssetRegistry&amp; registry = Engine::Get().GetAssetManager().GetRegistry();
+
+    for (uint32 i = 0; i &lt; frameContext.Meshes.size(); i++)
+    {
+        Mesh&amp; mesh = frameContext.Meshes[i];
+        Material material = frameContext.Materials[i];
+
+        if (material.ShaderModel != ShaderModel::PBR) { continue; }
+
+        if (material.DescriptorSet == nullptr) { continue; }
+        material.DescriptorSet = nullptr;
+
+        material.FragmentShader = m_DepthWriteOnlyShader;
+
+        PipelineStateHandle pipeline = m_PipelineStateCache.GetGraphicsPipeline(executionContext.RenderPass, material, mesh, 0, CullMode::NONE, SampleCount::SAMPLE_4_BIT);
+        commandBuffer-&gt;BindPipeline(pipeline);
+        commandBuffer-&gt;SetViewportAndScissor(m_ViewportSize);
+
+        commandBuffer-&gt;BindDescriptorSet(frameContext.SceneDataDescriptorSet, 0);
+
+        commandBuffer-&gt;BindVertexBuffer(mesh.VertexBuffer);
+        commandBuffer-&gt;BindIndexBuffer(mesh.IndexBuffer);
+
+        commandBuffer-&gt;PushConstants(&amp;frameContext.Transforms[i], sizeof(frameContext.Transforms[i]));
+
+        commandBuffer-&gt;DrawElementsIndexed(mesh.IndexBuffer);
+    }
+}</code></pre>
+            </div>
+
+            <p>
+                In this function, I immediately saw that I am copying the material from the list of materials. Now this was on purpose. I wanted to change the fragment shader of the material to always be the depth pre-pass for when I retrieve the pipeline that I need, but I did not want that change to make its way back to the actual material. But this was the cause of the allocations, so I rearranged the code from copying the material to taking a ref and storing the material's shader into a temp variable while getting the correct pipeline. After getting the pipeline, I set the material's shader back to its original shader with the temp variable. Now this could also be fixed by changing the PipelineCache API to something more flexible, but all my render pass code already uses this current way and it works, so I don't want to invest the time for something minor like this.
+            </p>
+
+            <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 my-8">
+                <pre><code class="language-cpp">void SceneRendererImpl::DepthPrePass()
+{
+    PROFILE_SCOPE("SceneRendererImpl::DepthPrePass")
+
+    const RenderGraphPassExecutionContext&amp; executionContext = m_RenderGraph.GetExecutionContext();
+    FrameContext&amp; frameContext = m_FrameContexts[m_CurrentFrameIndex];
+    CommandBufferHandle commandBuffer = executionContext.CommandBuffer;
+    AssetRegistry&amp; registry = Engine::Get().GetAssetManager().GetRegistry();
+    DescriptorSetHandle materialDescriptorSetSave = nullptr;
+    ShaderHandle materialShaderSave = nullptr;
+
+    for (uint32 i = 0; i &lt; frameContext.Meshes.size(); i++)
+    {
+        Mesh&amp; mesh = *frameContext.Meshes[i];
+        Material&amp; material = *frameContext.Materials[i];
+
+        if (material.ShaderModel != ShaderModel::PBR) { continue; }
+
+        if (material.DescriptorSet == nullptr) { continue; }
+        materialDescriptorSetSave = material.DescriptorSet;
+        material.DescriptorSet = nullptr;
+
+        materialShaderSave = material.FragmentShader; // Storing the original shader and descriptor set in a temp variable
+        material.FragmentShader = m_DepthWriteOnlyShader;
+
+        PipelineStateHandle pipeline = m_PipelineStateCache.GetGraphicsPipeline(executionContext.RenderPass, material, mesh, 0, CullMode::NONE, SampleCount::SAMPLE_4_BIT);
+
+        material.DescriptorSet = materialDescriptorSetSave;         // Resetting the material back to the original shader and descriptor set
+        material.FragmentShader = materialShaderSave;
+
+        commandBuffer-&gt;BindPipeline(pipeline);
+        commandBuffer-&gt;SetViewportAndScissor(m_ViewportSize);
+
+        commandBuffer-&gt;BindDescriptorSet(frameContext.SceneDataDescriptorSet, 0);
+
+        commandBuffer-&gt;BindVertexBuffer(mesh.VertexBuffer);
+        commandBuffer-&gt;BindIndexBuffer(mesh.IndexBuffer);
+
+        commandBuffer-&gt;PushConstants(&amp;frameContext.Transforms[i], sizeof(frameContext.Transforms[i]));
+
+        commandBuffer-&gt;DrawElementsIndexed(mesh.IndexBuffer);
+    }
+}</code></pre>
+            </div>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Optimization #3: Mesh Submission Copy Operations</h2>
+
+            <p>
+                With that change, I reduced the allocations in the Depth Prepass from 1,591 allocations to 0 allocations. Now, the remaining area with many allocations is the mesh submission function from the ECS Rendering System. So, I took another capture with the Memory Allocation Tracker and looked for allocations coming from the mesh submission function.
+            </p>
+
+            <!-- Opt 3 Spot Screenshot -->
+            <figure class="my-10">
+                <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 p-4">
+                    <img src="Screenshots/Opt%203%20Spot.png" alt="Memory Allocation Tracker showing Material constructor allocations" class="w-full rounded-lg">
+                </div>
+                <figcaption class="mt-3 text-sm text-slate-500 text-center">
+                    Memory Allocation Tracker revealing material copies in the submission process of the Rendering System.
+                </figcaption>
+            </figure>
+
+            <p>
+                As you can see in the Memory Allocation Tracker output, there are many allocations coming from the Material constructor during mesh submission as well as many frees coming from the Material destructor every frame. So I took a look at the code and I saw the issue.
+            </p>
+
+            <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 my-8">
+                <pre><code class="language-cpp">void RenderingSystem::SubmitMeshComponents()
+{
+    PROFILE_SCOPE("RenderingSystem::SubmitMeshComponents")
+
+    ECS&amp; ecs = Engine::Get().GetSceneManager().GetECS();
+
+    ECS::ComponentView&lt;MeshComponent&gt;&amp; meshDisplay = ecs.GetView&lt;MeshComponent&gt;();
+    const ECS::ComponentView&lt;TransformComponent&gt;&amp; transformDisplay = ecs.GetView&lt;TransformComponent&gt;();
+
+    for (Entity entity : ecs)
+    {
+        if (!ecs.HasComponent&lt;MeshComponent&gt;(entity)) { continue; }
+        EntityID entityID = entity.GetID();
+
+        const TransformComponent&amp; transformComponent = transformDisplay[entityID];
+        MeshComponent&amp; meshComponent = meshDisplay[entityID];
+
+        if (meshComponent.Material == nullptr) { continue; }
+        if (meshComponent.MeshData == nullptr) { continue; }
+
+        Mat4 modelTransform = CreateTransform(transformComponent);
+
+        SceneRenderer::Submit(*meshComponent.MeshData, *meshComponent.Material, modelTransform);
+    }
+}</code></pre>
+            </div>
+
+            <div class="bg-slate-800/50 rounded-xl overflow-hidden ring-1 ring-white/10 my-8">
+                <pre><code class="language-cpp">void SceneRendererImpl::Submit(Mesh&amp; mesh, Material&amp; material, Mat4&amp; transform)
+{
+    ASSERT(m_IsSceneStarted, "Scene has not been started! Use SceneRenderer::BeginScene")
+    FrameContext&amp; frameContext = m_FrameContexts[m_CurrentFrameIndex];
+
+    if (m_RendererSettings.IsFrustumCullingEnabled)
+    {
+        if (ShouldCullMesh(mesh, transform)) { return; }
+    }
+
+    frameContext.Meshes.push_back(mesh);
+    frameContext.Materials.push_back(material);
+    frameContext.Transforms.push_back(transform);
+}</code></pre>
+            </div>
+
+            <p>
+                I was copying the mesh and the material into the vector instead of storing the shared pointers in the vector. I was supposed to be storing the shared pointers anyways as that makes sure the memory stays alive if the Asset Manager removes it from the cache. So I simply changed the function signature and the vectors in the SceneRenderer to store the shared ptrs of the mesh and material to prevent copying of the actual memory and thus, removing the unnecessary heap allocations. With this change the allocations in the Rendering System submission went from 1,591 allocations to 0 allocations.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Results</h2>
+
+            <p>
+                That was the last of the 3 areas of allocations I wanted to reduce. So, now let's look at the results. I started at 11,686 allocations in a frame and now I am down to 545 allocations. That is a reduction of approximately 95%. This just highlights how much easier the Memory Allocation Tracker combined with the scope profiler makes it to profile hotspots and find excessive memory allocations.
+            </p>
+        </div>
+    </article>
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-slate-800 mt-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-8 text-center text-sm text-slate-500">
+            <p>&copy; 2025 Andrew Fagan. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script>hljs.highlightAll();</script>
+
+</body>
+</html>
