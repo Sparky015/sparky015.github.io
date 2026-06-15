@@ -1,176 +1,1432 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Andrew Fagan - Graphics & Engine Developer</title>
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
-        /* Custom styles to complement Tailwind */
+        :root {
+            /* Easing curves — "water" family gives a fluid, spring-like feel */
+            --ease-water: cubic-bezier(0.33, 0.86, 0.45, 1);       /* snappy deceleration */
+            --ease-water-soft: cubic-bezier(0.22, 1, 0.36, 1);     /* gentle overshoot settle */
+            --ease-expand: cubic-bezier(0.22, 1, 0.32, 1);         /* used for clip-path expand/collapse */
+
+            /* Animation durations */
+            --duration-water: 0.65s;        /* hover glow, opacity fades */
+            --duration-water-fast: 0.4s;    /* icon scale, quick transitions */
+            --duration-ripple: 0.9s;        /* tile translate (wave motion) */
+            --duration-expand: 0.5s;        /* clip-path expand/collapse */
+
+            --stagger-step: 55ms;  /* delay between each tile fading back in after collapse */
+            --wave-amp: 2px;       /* max translation distance for the idle wave effect */
+
+            /* How much extra grid weight the hovered row/column gains.
+               Neighbors give up this weight (closest shrink most) so the
+               fixed gap is preserved and only the tile dimensions change. */
+            --tile-grow: 0.5;
+            --ease-ripple: cubic-bezier(0.22, 0.72, 0.28, 1);
+        }
+
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .text-glow {
             text-shadow: 0 0 8px rgba(56, 189, 248, 0.5), 0 0 20px rgba(56, 189, 248, 0.3);
         }
-        .fade-in-section {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+
+        /* Outer wrapper — fills the full viewport height and stacks header/grid/footer */
+        .landing-shell {
+            min-height: 100vh;
+            min-height: 100dvh; /* dvh = dynamic viewport height, accounts for mobile browser chrome */
+            display: flex;
+            flex-direction: column;
         }
-        .fade-in-section.is-visible {
+
+        /* On large enough screens lock the page to exactly one viewport — no page scroll */
+        @media (min-width: 1024px) and (min-height: 700px) {
+            html, body {
+                overflow: hidden;
+                height: 100dvh;
+            }
+            .landing-shell {
+                height: 100dvh;
+                padding: clamp(0.25rem, 0.6vh, 0.5rem) 0;
+            }
+            /* When a tile is expanded keep body scroll locked (already hidden above,
+               but the class lets JS toggle it explicitly on smaller breakpoints) */
+            body.has-expanded {
+                overflow: hidden;
+            }
+        }
+
+        /* Mobile-first: single-column flex stack */
+        .tile-grid {
+            --tile-gap: clamp(0.35rem, 0.85vw, 0.65rem); /* fluid gap between tiles */
+            display: flex;
+            flex-direction: column;
+            gap: var(--tile-gap);
+            width: min(100%, 99%);
+            max-width: 1680px;
+            margin-inline: auto;
+            flex: 1;        /* stretches to fill the shell's remaining height */
+            min-height: 0;  /* lets the flex child shrink below its content size */
+            align-self: center;
+            position: relative;
+        }
+
+        /* Desktop: CSS Grid — sidebar | col2 | col3, two rows */
+        @media (min-width: 768px) {
+            .tile-grid {
+                display: grid;
+                /* sidebar is narrower (1fr); the two content columns are wider (1.75fr each) */
+                grid-template-columns: 1fr 1.75fr 1.75fr;
+                grid-template-rows: 1fr 1fr;
+                height: min(92dvh, 960px);
+                max-height: min(92dvh, 960px);
+                /* Smooth column/row resize when hovering (the ripple effect) */
+                transition:
+                    grid-template-columns var(--duration-water) var(--ease-water),
+                    grid-template-rows var(--duration-water) var(--ease-water);
+            }
+
+            /* Explicit grid placement for each tile */
+            .sidebar-panel { grid-column: 1; grid-row: 1 / 3; } /* spans both rows */
+            .tile-project  { grid-column: 2; grid-row: 1; }
+            .tile-articles { grid-column: 2; grid-row: 2; }
+            .tile-showcase { grid-column: 3; grid-row: 1; }
+            .tile-docs     { grid-column: 3; grid-row: 2; }
+        }
+
+        /* Mobile: single-column stack — reorder tiles into a logical reading sequence */
+        @media (max-width: 767px) {
+            .sidebar-panel { order: 1; }
+            .tile-project  { order: 2; }
+            .tile-showcase { order: 3; }
+            .tile-articles { order: 4; }
+            .tile-docs     { order: 5; }
+
+            .section-tile {
+                flex: 0 0 auto; /* don't stretch/shrink — let min-height set the size */
+                width: 100%;
+                min-height: clamp(8rem, 22vw, 11rem);
+            }
+
+            /* Sidebar needs more height on mobile to show the full profile */
+            .sidebar-panel {
+                min-height: clamp(28rem, 75vh, 40rem);
+            }
+
+            /* Tighter padding inside the sidebar on small screens */
+            .sidebar-panel .tile-expand-content {
+                padding: 1rem 1.1rem;
+            }
+
+            .sidebar-panel .tile-expand-content .about-hero h3 {
+                font-size: 1.25rem;
+            }
+
+            .sidebar-panel .tile-expand-content .about-body p,
+            .sidebar-panel .tile-expand-content .about-contact p,
+            .sidebar-panel .tile-expand-content .about-hero p {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* ─── Tile base ────────────────────────────────────────────────────────── */
+        .section-tile {
+            /* CSS custom properties driven by JS for the idle wave nudge */
+            --wave-x: 0px;
+            --wave-y: 0px;
+            position: relative;
+            min-height: 0; /* allow tile to shrink inside the grid row */
+            min-width: 0;  /* same for columns */
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.92));
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            /* Wave nudge: JS sets --wave-x/y; transform keeps it GPU-composited */
+            transform: translate(var(--wave-x), var(--wave-y));
+            transform-origin: center center;
+            transition:
+                transform var(--duration-ripple) var(--ease-ripple),
+                border-color var(--duration-water) var(--ease-water),
+                box-shadow var(--duration-water) var(--ease-water),
+                opacity var(--duration-water) var(--ease-water),
+                clip-path var(--duration-expand) var(--ease-expand),        /* expand/collapse animation */
+                border-radius calc(var(--duration-expand) * 0.85) var(--ease-expand); /* slightly faster than clip-path */
+        }
+
+        /* Freeze wave position and stagger delays while an expand/collapse is in progress */
+        .section-tile.is-expanding,
+        .section-tile.is-collapsing {
+            --wave-x: 0px !important;
+            --wave-y: 0px !important;
+            transition-delay: 0ms !important;
+            cursor: default;
+            z-index: 5;
+        }
+
+        /* ::before — sky-blue radial glow that fades in on hover/expanded */
+        .section-tile::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.12), transparent 70%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--duration-water) var(--ease-water-soft);
+        }
+
+        /* ::after — used as the pulsing "water ring" outline on hover (desktop only) */
+        .section-tile::after {
+            content: '';
+            position: absolute;
+            inset: -2px; /* extends slightly beyond the tile border */
+            border-radius: inherit;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--duration-water-fast) var(--ease-water-soft);
+        }
+
+        /* Hover state — only activate on devices with a real mouse (not touch) */
+        @media (hover: hover) and (pointer: fine) {
+            .section-tile.is-hovered {
+                z-index: 8; /* lift above sibling tiles */
+                border-color: rgba(56, 189, 248, 0.35);
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(56, 189, 248, 0.15);
+            }
+            .section-tile.is-hovered::before { opacity: 0.75; }
+            .section-tile.is-hovered::after {
+                opacity: 0.6;
+                animation: water-ring 2.4s var(--ease-water-soft) infinite;
+            }
+        }
+
+        /* Ripple ring: two concentric box-shadows expand outward then fade */
+        @keyframes water-ring {
+            0%   { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.18), 0 0 0 0 rgba(56, 189, 248, 0.08); }
+            70%  { box-shadow: 0 0 0 6px rgba(56, 189, 248, 0), 0 0 0 12px rgba(56, 189, 248, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0), 0 0 0 0 rgba(56, 189, 248, 0); }
+        }
+
+        /* Keyboard focus ring for accessibility */
+        .section-tile:focus-visible {
+            outline: 2px solid rgba(56, 189, 248, 0.6);
+            outline-offset: 2px;
+        }
+
+        /* Fully expanded state — richer background and larger shadow */
+        .section-tile.is-expanded {
+            background: linear-gradient(145deg, rgb(30, 41, 59), rgb(15, 23, 42));
+            border-color: rgba(56, 189, 248, 0.28);
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(56, 189, 248, 0.15);
+            border-radius: 1.25rem;
+            cursor: default;
+            z-index: 5;
+        }
+
+        .section-tile.is-expanded::before { opacity: 1; }
+        .section-tile.is-expanded::after  { display: none; } /* hide pulsing ring when expanded */
+
+        /* On desktop the expanded tile spans columns 2–3 and both rows, filling the right ⅔ */
+        @media (min-width: 768px) {
+            .section-tile.is-expanded {
+                grid-column: 2 / 4;
+                grid-row: 1 / 3;
+                z-index: 10; /* above the sidebar which is z-index: 5 */
+            }
+        }
+
+        /* Hide all other tiles (not the sidebar) while one tile is expanded */
+        .has-expanded .section-tile:not(.is-expanded):not(.is-collapsing):not(.sidebar-panel):not(.tile-about) {
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--duration-water) var(--ease-water);
+        }
+
+        /* Restore class: re-show the hidden tiles as the expanded tile collapses back */
+        .tile-grid.is-restoring-tiles .section-tile:not(.is-collapsing):not(.sidebar-panel):not(.tile-about) {
+            pointer-events: auto;
             opacity: 1;
-            transform: translateY(0);
+            transition: opacity var(--duration-water) var(--ease-water);
+        }
+
+        /* ─── Compact header (icon + title + subtitle shown when tile is collapsed) ─ */
+        .tile-compact {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: clamp(0.5rem, 1.2vw, 1rem);
+            flex-shrink: 0;   /* never let the header shrink away */
+            position: relative;
+            z-index: 2;       /* sits above peek content in stacking order */
+        }
+
+        /* Square icon badge */
+        .tile-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            background: rgba(56, 189, 248, 0.12);
+            color: rgb(56, 189, 248);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background var(--duration-water-fast) var(--ease-water), transform var(--duration-water-fast) var(--ease-water);
+        }
+
+        /* Brighten and slightly scale the icon when the tile is hovered */
+        .section-tile:hover .tile-icon,
+        .section-tile.is-hovered .tile-icon {
+            background: rgba(56, 189, 248, 0.2);
+            transform: scale(1.05);
+        }
+
+        .tile-title {
+            font-size: clamp(0.875rem, 1.2vw, 1.05rem);
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .tile-subtitle {
+            font-size: 0.7rem;
+            color: #64748b;
+            display: block;
+        }
+
+
+        /* Hide compact header when fully expanded so expand content fills the tile */
+        .section-tile.is-expanded:not(.is-expanding):not(.is-collapsing) .tile-compact {
+            display: none;
+        }
+
+        /* ─── Expand panel — shown only when the tile is fully expanded ─────── */
+        .tile-expand {
+            display: none;   /* hidden by default; switched to flex by the .is-expanded rule below */
+            flex: 1;
+            min-height: 0;
+            flex-direction: column;
+            opacity: 0;
+        }
+
+        /* Once expand/collapse animation finishes, reveal the panel with a fade-in
+           Skip the animation if this was a peek→expand transition (content was already visible) */
+        .section-tile.is-expanded:not(.is-expanding):not(.is-collapsing):not(.is-from-peek) .tile-expand {
+            display: flex;
+            opacity: 1;
+            animation: expand-content-in 0.32s var(--ease-expand) both;
+        }
+
+        /* ─── Peek mode — always-on scaled real expand content ─────────────── */
+        .section-tile.is-peek {
+            overflow: hidden;
+        }
+
+        /* Compact header: full opacity by default, dim slightly on active hover
+           so the preview behind it is more legible when the user is examining it */
+        .section-tile.is-peek.is-hovered .tile-compact {
+            opacity: 0.55;
+            transition: opacity 0.2s var(--ease-water);
+        }
+
+        /* Peek panel: overlay below the compact header (top offset set in JS) */
+        .section-tile.is-peek .tile-expand {
+            display: flex !important;
+            opacity: 1 !important;
+            animation: none !important;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            flex: none;
+            min-height: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Full-tile overlay during peek→expand / expand→peek clip-path animations */
+        .section-tile.is-expanding.is-from-peek .tile-expand,
+        .section-tile.is-collapsing.is-from-peek .tile-expand {
+            display: flex !important;
+            opacity: 1 !important;
+            animation: none !important;
+            position: absolute;
+            inset: 0;
+            flex: none;
+            min-height: 0;
+            overflow: visible;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .section-tile.is-expanding.is-from-peek,
+        .section-tile.is-collapsing.is-from-peek {
+            overflow: visible;
+        }
+
+        .section-tile.is-collapsing.is-from-peek .tile-compact {
+            display: none;
+        }
+
+        /* Expand-inner: fixed at expandedDims size, scaled down by JS to fit the tile.
+           Absolute only during peek/expand animation — not when fully expanded (scroll needs flex). */
+        .section-tile.is-peek .tile-expand-inner,
+        .section-tile.is-expanding.is-from-peek .tile-expand-inner,
+        .section-tile.is-collapsing.is-from-peek .tile-expand-inner,
+        .section-tile.tile-scaled-canvas.is-expanding .tile-expand-inner,
+        .section-tile.tile-scaled-canvas.is-collapsing .tile-expand-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            flex: none;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        /* Scaled-canvas tiles keep content visible through expand/collapse */
+        .section-tile.tile-scaled-canvas.is-expanding .tile-expand,
+        .section-tile.tile-scaled-canvas.is-collapsing .tile-expand {
+            display: flex !important;
+            opacity: 1 !important;
+            animation: none !important;
+            position: absolute;
+            inset: 0;
+            flex: none;
+            min-height: 0;
+            overflow: visible;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .section-tile.tile-scaled-canvas.is-expanding {
+            overflow: visible;
+        }
+
+        /* Scaled-canvas tiles show content throughout expand — no post-expand fade */
+        .section-tile.tile-scaled-canvas.is-expanded:not(.is-expanding):not(.is-collapsing) .tile-expand {
+            display: flex;
+            opacity: 1;
+            animation: none;
+        }
+
+        /* Smooth scale when hover-resize or window resize refits peek previews */
+        .section-tile.tile-scaled-canvas.is-peek .tile-expand-inner {
+            transition: transform var(--duration-water) var(--ease-water);
+        }
+
+        /* Remove the top separator line while peeking (looks odd when scaled) */
+        .section-tile.is-peek .tile-expand-content,
+        .section-tile.is-expanding.is-from-peek .tile-expand-content,
+        .section-tile.is-collapsing.is-from-peek .tile-expand-content,
+        .section-tile.tile-scaled-canvas.is-expanding .tile-expand-content,
+        .section-tile.tile-scaled-canvas.is-collapsing .tile-expand-content {
+            border-top: none;
+        }
+
+        /* Fully expanded from peek: restore normal flow layout and skip the fade-in
+           animation (content was already visible during the clip-path transition) */
+        .section-tile.is-expanded:not(.is-expanding):not(.is-collapsing).is-from-peek .tile-expand {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            opacity: 1;
+            animation: none;
+            position: relative;
+        }
+
+        /* Rejoin the flex column so .tile-expand-content can scroll (overflow-y: auto) */
+        .section-tile.is-expanded:not(.is-expanding):not(.is-collapsing) .tile-expand-inner {
+            position: static;
+            flex: 1;
+            min-height: 0;
+            width: auto;
+            height: auto;
+            transform: none;
+        }
+
+        /* ─── Sidebar panel — always open, no expand/collapse interaction ────── */
+        .sidebar-panel {
+            cursor: default; /* not clickable, so don't show pointer */
+        }
+
+        /* Hide the parts that only make sense on collapsible tiles */
+        .sidebar-panel .tile-compact,
+        .sidebar-panel .tile-close-btn {
+            display: none;
+        }
+
+        /* Show the expand panel permanently (sidebar is always "expanded") */
+        .sidebar-panel .tile-expand {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            opacity: 1;
+        }
+
+        .sidebar-panel .tile-expand-content {
+            border-top: none;
+            padding: clamp(0.65rem, 1.2vw, 1.1rem) clamp(0.75rem, 1.4vw, 1.25rem);
+        }
+
+        .sidebar-panel .tile-expand-content .about-hero h3 {
+            font-size: clamp(1rem, 1.35vw, 1.35rem);
+        }
+
+        .sidebar-panel .tile-expand-content .about-hero p {
+            font-size: clamp(0.7rem, 0.85vw, 0.8rem);
+        }
+
+        .sidebar-panel .tile-expand-content .about-hero svg {
+            width: 1.35rem;
+            height: 1.35rem;
+        }
+
+        .sidebar-panel .tile-expand-content h3 {
+            font-size: clamp(0.8rem, 0.95vw, 0.9rem);
+        }
+
+        .sidebar-panel .tile-expand-content .about-body p {
+            font-size: clamp(0.68rem, 0.78vw, 0.75rem);
+            line-height: 1.55;
+        }
+
+        .sidebar-panel .tile-expand-content .about-contact p {
+            font-size: clamp(0.68rem, 0.78vw, 0.75rem);
+        }
+
+        .sidebar-panel .tile-expand-content .about-contact a.expand-link-btn,
+        .sidebar-panel .tile-expand-content .about-contact a.bg-sky-600 {
+            font-size: clamp(0.65rem, 0.75vw, 0.75rem);
+            padding: 0.4rem 0.85rem;
+        }
+
+        .sidebar-panel .tile-expand-content .about-contact a.bg-sky-600 svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+
+        .sidebar-panel .tile-expand-content .space-y-6 > * + * {
+            margin-top: clamp(0.75rem, 1.5vh, 1.25rem);
+        }
+
+        .sidebar-panel .skill-badge {
+            font-size: clamp(0.58rem, 0.65vw, 0.65rem);
+            padding: 0.2rem 0.5rem;
+        }
+
+        /* Content slides up and fades in after the clip-path animation finishes */
+        @keyframes expand-content-in {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Intermediate flex wrapper needed so overflow-y scroll works correctly in a flex column */
+        .tile-expand-inner {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Scrollable content area inside an expanded tile */
+        .tile-expand-content {
+            flex: 1;
+            min-height: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 2.5vw, 2rem);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* momentum scrolling on iOS */
+        }
+
+        /* ─── Close button (×) — absolutely positioned top-right of expanded tile ── */
+        .tile-close-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            z-index: 20; /* above everything inside the tile */
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;           /* invisible until tile is expanded */
+            pointer-events: none; /* unclickable until tile is expanded */
+            cursor: pointer;
+            transition: opacity 0.3s var(--ease-water), background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.25s ease;
+        }
+
+        /* Reveal the button once the tile finishes expanding */
+        .section-tile.is-expanded .tile-close-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Spin the × on hover as a subtle affordance */
+        .tile-close-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        /* Shared expand styles */
+        .skill-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+            color: rgb(125, 211, 252);
+        }
+
+        .expand-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: rgba(56, 189, 248, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.28);
+            color: rgb(56, 189, 248);
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .expand-link-btn:hover {
+            background: rgba(56, 189, 248, 0.16);
+            color: rgb(125, 211, 252);
+            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.45);
+        }
+
+        /* ─── Features bento grid (Apple keynote style) ─────────────────────────── */
+        .bento-panel[hidden] { display: none !important; }
+
+        .bento-panel {
+            background: rgba(2, 6, 23, 0.72);
+            border-radius: 1rem;
+            padding: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(6, minmax(0, 1fr));
+            gap: 0.65rem;
+            min-height: 36rem;
+        }
+
+        @media (min-width: 640px) {
+            .bento-grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(3, minmax(0, 1fr));
+                gap: 0.8rem;
+                min-height: 22rem;
+            }
+        }
+
+        .bento-cell {
+            position: relative;
+            border-radius: 1.125rem;
+            padding: 1.1rem 1.2rem;
+            overflow: hidden;
+            background: linear-gradient(165deg, rgba(71, 85, 105, 0.98) 0%, rgba(51, 65, 85, 0.98) 42%, rgba(30, 41, 59, 1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 4px 18px rgba(0, 0, 0, 0.28);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 0.2rem;
+            min-height: 0;
+            height: 100%;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.3s var(--ease-water);
+        }
+
+        .bento-cell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 90% 70% at 18% 12%, var(--bento-glow, rgba(56, 189, 248, 0.22)) 0%, transparent 72%);
+            pointer-events: none;
+        }
+
+        @media (hover: hover) {
+            .bento-cell:hover {
+                border-color: rgba(255, 255, 255, 0.22);
+                box-shadow:
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                    0 6px 22px rgba(0, 0, 0, 0.34);
+                transform: scale(1.008);
+            }
+
+            /* Parent tile is already scaling — skip per-cell hover scale */
+            .section-tile.is-peek .bento-cell:hover,
+            .section-tile.is-expanding .bento-cell:hover,
+            .section-tile.is-collapsing .bento-cell:hover {
+                transform: none;
+            }
+        }
+
+        .bento-cell--hero {
+            grid-column: span 2;
+            grid-row: span 2;
+            padding: 1.35rem 1.45rem;
+        }
+
+        .bento-cell--wide { grid-column: span 2; }
+
+        @media (min-width: 640px) {
+            .bento-cell--tall { grid-row: span 2; }
+        }
+
+        .bento-kicker {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgb(125, 211, 252);
+            margin-bottom: 0.4rem;
+            position: relative;
+        }
+
+        .bento-title {
+            font-size: clamp(0.95rem, 1.25vw, 1.12rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.25;
+            letter-spacing: -0.015em;
+            position: relative;
+        }
+
+        .bento-cell--hero .bento-title {
+            font-size: clamp(1.35rem, 2vw, 1.75rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+        }
+
+        .bento-desc {
+            font-size: clamp(0.76rem, 0.95vw, 0.84rem);
+            line-height: 1.58;
+            color: rgb(203, 213, 225);
+            margin-top: 0.45rem;
+            position: relative;
+            flex: 1;
+        }
+
+        .bento-cell--hero .bento-desc {
+            font-size: clamp(0.82rem, 1.05vw, 0.92rem);
+            line-height: 1.62;
+            max-width: 36ch;
+            margin-top: 0.55rem;
+        }
+
+        .bento-cell--sky    { --bento-glow: rgba(56, 189, 248, 0.32); }
+        .bento-cell--violet { --bento-glow: rgba(139, 92, 246, 0.28); }
+        .bento-cell--emerald { --bento-glow: rgba(52, 211, 153, 0.26); }
+        .bento-cell--amber  { --bento-glow: rgba(251, 191, 36, 0.24); }
+        .bento-cell--rose   { --bento-glow: rgba(244, 114, 182, 0.24); }
+
+
+        /* ─── Sidebar view-switch navigation buttons ──────────────────────────────── */
+        .view-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: clamp(0.45rem, 0.7vw, 0.6rem) clamp(0.65rem, 0.95vw, 0.85rem);
+            border-radius: 0.5rem;
+            font-size: clamp(0.75rem, 0.88vw, 0.85rem);
+            font-weight: 500;
+            color: rgb(148, 163, 184);
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+        }
+        .view-btn:hover {
+            background: rgba(56, 189, 248, 0.07);
+            color: rgb(125, 211, 252);
+            border-color: rgba(56, 189, 248, 0.18);
+        }
+        .view-btn.is-active {
+            background: rgba(56, 189, 248, 0.12);
+            color: rgb(56, 189, 248);
+            border-color: rgba(56, 189, 248, 0.28);
+        }
+        .view-btn-icon { flex-shrink: 0; opacity: 0.7; }
+        .view-btn.is-active .view-btn-icon { opacity: 1; }
+
+        /* ─── About tile — spans the full 2×2 grid area ────────────────────────────── */
+        .tile-about {
+            display: none;   /* hidden until about view is activated */
+            cursor: default;
+        }
+
+        @media (min-width: 768px) {
+            .tile-about {
+                grid-column: 2 / 4;
+                grid-row: 1 / 3;
+                z-index: 2;
+            }
+        }
+
+        /* Always-open panel: hide compact header and close button */
+        .tile-about .tile-compact,
+        .tile-about .tile-close-btn { display: none; }
+
+        .tile-about .tile-expand {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            opacity: 1;
+        }
+
+        .tile-about .tile-expand-content { border-top: none; }
+
+        /* 2-column layout inside the about tile (left: bio+contact, right: skills) */
+        .about-tile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2.5vw, 2rem);
+            min-height: 0;
+        }
+
+        @media (max-width: 960px) {
+            .about-tile-grid { grid-template-columns: 1fr; }
+        }
+
+        .about-tile-left,
+        .about-tile-right {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .about-tile-right {
+            border-left: 1px solid rgba(255, 255, 255, 0.06);
+            padding-left: clamp(0.75rem, 1.5vw, 1.25rem);
+        }
+
+        /* Mobile: tile-about appears right after the sidebar */
+        @media (max-width: 767px) {
+            .tile-about {
+                order: 2;
+                min-height: clamp(28rem, 75vh, 40rem);
+            }
+        }
+
+        /* ─── Sidebar settings area ──────────────────────────────────────────────────── */
+        .sidebar-settings-wrap {
+            flex-shrink: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: clamp(0.35rem, 0.6vw, 0.5rem) clamp(0.75rem, 1.4vw, 1.25rem);
+        }
+
+        .sidebar-settings-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            width: 100%;
+            padding: clamp(0.28rem, 0.45vw, 0.38rem) clamp(0.4rem, 0.65vw, 0.55rem);
+            border-radius: 0.4rem;
+            font-size: clamp(0.62rem, 0.72vw, 0.68rem);
+            font-weight: 500;
+            color: rgb(71, 85, 105);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background 0.18s ease, color 0.18s ease;
+            text-align: left;
+        }
+        .sidebar-settings-btn:hover { background: rgba(255,255,255,0.04); color: rgb(100,116,139); }
+        .sidebar-settings-btn.is-open { color: rgb(100,116,139); }
+        .sidebar-settings-btn svg { flex-shrink: 0; transition: transform 0.28s var(--ease-water-soft); }
+        .sidebar-settings-btn.is-open svg { transform: rotate(45deg); }
+
+        /* Settings panel — slides in above the button */
+        .sidebar-settings-panel {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.28s var(--ease-water-soft), opacity 0.22s ease;
+        }
+        .sidebar-settings-panel.is-open {
+            max-height: 6rem;
+            opacity: 1;
+            padding-bottom: clamp(0.25rem, 0.5vw, 0.4rem);
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: clamp(0.25rem, 0.45vw, 0.35rem) clamp(0.4rem, 0.65vw, 0.55rem);
+            border-radius: 0.4rem;
+            transition: background 0.15s ease;
+        }
+        .settings-row:hover { background: rgba(255,255,255,0.03); }
+        .settings-row-label {
+            font-size: clamp(0.62rem, 0.72vw, 0.68rem);
+            color: rgb(148, 163, 184);
+            user-select: none;
+            cursor: pointer;
+        }
+
+        /* iOS-style toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 1.75rem;
+            height: 1rem;
+            flex-shrink: 0;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            border-radius: 1rem;
+            background: rgba(51, 65, 85, 0.9);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
+            cursor: pointer;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 0.7rem;
+            height: 0.7rem;
+            left: 0.15rem;
+            top: 0.15rem;
+            border-radius: 50%;
+            background: rgb(100, 116, 139);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: rgba(56, 189, 248, 0.3);
+            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35);
+        }
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(0.75rem);
+            background: rgb(56, 189, 248);
+        }
+
+
+        /* ─── Showcase image modal (tile + full page share markup) ─────────────── */
+        .showcase-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .showcase-modal.is-open { display: flex; }
+        .showcase-modal-content {
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .showcase-modal-content img {
+            width: 100%;
+            height: auto;
+            max-height: 50vh;
+            object-fit: contain;
+            display: block;
+        }
+        .showcase-modal-description { padding: 1.5rem; color: #cbd5e1; }
+        .showcase-modal-video-section { padding: 0 1.5rem 1.5rem 1.5rem; }
+        .showcase-modal-video-section video {
+            width: 100%;
+            border-radius: 0.5rem;
+            background-color: #000;
+        }
+        .showcase-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .showcase-modal-close:hover { color: #bbb; }
+        .showcase-modal-prev, .showcase-modal-next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            transition: 0.3s ease;
+            border-radius: 3px;
+            user-select: none;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+        .showcase-modal-prev { left: 1.5rem; }
+        .showcase-modal-next { right: 1.5rem; }
+        .showcase-modal-prev:hover, .showcase-modal-next:hover { background-color: rgba(0, 0, 0, 0.7); }
+
+        /* ─── Accessibility: disable all motion for users who prefer it ─────────── */
+        @media (prefers-reduced-motion: reduce) {
+            .section-tile,
+            .tile-expand,
+            .tile-icon,
+            .tile-close-btn,
+            .section-tile::before,
+            .section-tile::after {
+                transition: none !important;
+                animation: none !important;
+            }
+            /* Freeze wave nudge at zero */
+            .section-tile {
+                --wave-x: 0 !important;
+                --wave-y: 0 !important;
+            }
+            .tile-grid,
+            .section-tile {
+                transition: none !important;
+            }
+            /* Show expanded content immediately (no fade-in animation) */
+            .section-tile.is-expanded .tile-expand {
+                animation: none;
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-300 leading-relaxed antialiased selection:bg-sky-500 selection:text-white">
 
-<!-- Header -->
-<header class="sticky top-0 z-50 backdrop-blur-lg bg-slate-900/70 border-b border-slate-800">
-    <nav class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <div class="flex items-center">
-                <a href="#home" class="text-xl font-bold text-white hover:text-sky-400 transition-colors">
-                    Andrew Fagan
-                </a>
-            </div>
-            <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-4">
-                    <a href="#about" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">About</a>
-                    <a href="#project" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">Project</a>
-                    <a href="#showcase" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">Showcase</a>
-                    <a href="#articles" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">Articles</a>
-                    <a href="#documentation" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">Documentation</a>
-                    <a href="#skills" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">Skills</a>
-                    <a href="#contact" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">Contact</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-</header>
+<div class="landing-shell w-[98%] max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-5">
 
-<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Shared documentation tree icons (used by tile-docs) -->
+    <svg class="hidden" aria-hidden="true">
+        <symbol id="icon-folder" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /></symbol>
+        <symbol id="icon-md" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm11.586 2.586a.5.5 0 00-.854-.353L12 8.414l-2.732-2.186a.5.5 0 00-.854.353v8.372a.5.5 0 00.854.353L12 12.586l2.732 2.186a.5.5 0 00.854-.353V6.586z" clip-rule="evenodd" /></symbol>
+        <symbol id="icon-img" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" /></symbol>
+        <symbol id="icon-txt" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2.5a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5zm0 3a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5zm0 3a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></symbol>
+        <symbol id="icon-html" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.496 2.132a1 1 0 00-.992 0l-7 4A1 1 0 003 7v6a1 1 0 00.496.868l7 4a1 1 0 00.992 0l7-4A1 1 0 0017 13V7a1 1 0 00-.496-.868l-7-4zM4.646 12.433L10 15.283l5.354-2.85-1.32-.75-3.531 1.889a1 1 0 01-.992 0L5.965 11.683l-1.32.75zM4.654 8.567L10 5.717l5.346 2.85-5.346 2.85L4.654 8.567z" clip-rule="evenodd" /></symbol>
+    </svg>
 
-    <!-- Hero Section -->
-    <section id="home" class="min-h-screen flex items-center justify-center text-center fade-in-section is-visible">
-        <div class="py-20">
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
-                Hi, I'm <span class="text-sky-400 text-glow">Andrew Fagan</span>
-            </h1>
-            <p class="mt-4 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto">
-                A sophomore Computer Science student with a passion for real-time graphics, systems programming, and performance analysis.
-            </p>
-            <div class="mt-8 flex justify-center space-x-6">
-                <a href="https://github.com/Sparky015" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-sky-400 transition-colors" title="GitHub">
-                    <svg class="h-8 w-8" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd" /></svg>
-                </a>
-                <a href="https://www.linkedin.com/in/andrew-fagan-a6b9a2335/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-sky-400 transition-colors" title="LinkedIn">
-                    <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                </a>
-            </div>
-        </div>
-    </section>
+    <main class="tile-grid flex-1 min-h-0" id="tile-grid" role="main">
 
-    <!-- About Section -->
-    <section id="about" class="py-20 sm:py-32 fade-in-section">
-        <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">About Me</h2>
-        <div class="mt-8 text-slate-400 space-y-6 text-lg">
-            <p>
-                I am interested in the intersections of real-time 3D graphics, systems programming, and performance analysis. My journey started with a curiosity to understand the architecture of game engines and how complex visuals are made from the fundamental building blocks of programming.
-            </p>
-            <p>
-                This curiosity led me to deep diving into C++, rendering techniques, systems programming, and computer architecture. I love the challenge and puzzle-solving aspects of designing, building, and optimizing systems that work together to deliver consistent high performance.
-            </p>
-        </div>
-    </section>
+        <!-- Profile sidebar (left column, full height — always open) -->
+        <article class="section-tile sidebar-panel" data-tile-index="0" aria-label="Profile">
+            <div class="tile-expand">
+                <div class="tile-expand-inner">
+                    <div class="tile-expand-content">
+                        <!-- Identity card -->
+                        <div class="text-center">
+                            <h3 class="font-bold text-white" style="font-size:clamp(0.95rem,1.25vw,1.2rem)">Andrew Fagan</h3>
+                            <p class="text-slate-400 mt-1" style="font-size:clamp(0.65rem,0.78vw,0.75rem)">Graphics &amp; Engine Developer</p>
+                            <div class="mt-3 flex justify-center gap-3">
+                                <a href="https://github.com/Sparky015" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-sky-400 transition-colors" title="GitHub">
+                                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd"/></svg>
+                                </a>
+                                <a href="https://www.linkedin.com/in/andrew-fagan-a6b9a2335/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-sky-400 transition-colors" title="LinkedIn">
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                </a>
+                            </div>
+                        </div>
 
-    <!-- Project Section -->
-    <section id="project" class="py-20 sm:py-32 fade-in-section">
-        <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Featured Project</h2>
-        <div class="mt-12 bg-slate-800/50 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-            <div class="md:flex">
-                <div class="md:w-1/2 p-4 sm:p-6 lg:p-8 flex items-center">
-                    <div class="relative w-full aspect-[3/4] max-w-md mx-auto rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 transform-gpu hover:scale-105 transition-transform duration-300 ease-in-out">
-                        <img src="Assets/Main/Images/astral-engine-bistro-screenshot-cropped.png"
-                             alt="Astral Engine, Lumberyard Bistro Sample Screenshot"
-                             class="absolute inset-0 w-full h-full object-cover block">
+                        <!-- View navigation -->
+                        <div class="mt-5 pt-5 border-t border-white/[0.08]">
+                            <p class="text-slate-500 uppercase tracking-wider mb-2.5" style="font-size:0.6rem;font-weight:600">Explore</p>
+                            <div style="display:flex;flex-direction:column;gap:0.375rem">
+                                <button class="view-btn is-active" data-view="profiler" type="button">
+                                    <svg class="view-btn-icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                    Profiler
+                                </button>
+                                <button class="view-btn" data-view="graphics" type="button">
+                                    <svg class="view-btn-icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                                    Graphics Engine
+                                </button>
+                                <button class="view-btn" data-view="about" type="button">
+                                    <svg class="view-btn-icon w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    About Me
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="p-8 md:p-12 md:w-1/2 flex flex-col justify-center">
-                    <h3 class="text-2xl font-bold text-white">Astral Engine</h3>
-                    <p class="mt-2 text-slate-400">
-                        A work-in-progress 3D engine built from scratch using C++20 and Vulkan, designed with a focus on modern rendering architecture.
-                    </p>
-                    <ul class="mt-6 space-y-4">
-                        <li class="flex items-start">
-                            <svg class="h-6 w-6 text-sky-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span class="ml-3 text-slate-300"><strong class="font-semibold text-white">Physically-Based Vulkan Renderer:</strong> Features a Cook-Torrance BRDF, Image-Based Lighting, and HDR pipeline with both forward and deferred paths.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="h-6 w-6 text-sky-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span class="ml-3 text-slate-300"><strong class="font-semibold text-white">Frame Graph:</strong> Manages render pass resources, dependencies, and synchronization with automated barrier placement and pass culling.</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="h-6 w-6 text-sky-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span class="ml-3 text-slate-300"><strong class="font-semibold text-white">Performance-Focused:</strong> Includes a proof-of-concept suite of custom memory allocators and a memory profiler to research performance optimization.</span>
-                        </li>
-                    </ul>
-                    <div class="mt-8 flex flex-wrap gap-4">
-                        <a href="https://github.com/Sparky015/AstralEngine" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 transition-colors">
-                            View on GitHub
-                            <svg class="ml-2 -mr-1 h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path><path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path></svg>
-                        </a>
+                    <!-- Settings — always visible at the bottom of the sidebar -->
+                    <div class="sidebar-settings-wrap">
+                        <div class="sidebar-settings-panel" id="sidebar-settings-panel">
+                            <div class="settings-row">
+                                <label class="settings-row-label" for="toggle-hover-resize">Hover resize</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="toggle-hover-resize">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="sidebar-settings-btn" id="sidebar-settings-btn" type="button">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            Settings
+                        </button>
                     </div>
                 </div>
             </div>
+        </article>
+
+        <!-- Features -->
+        <article class="section-tile tile-project tile-no-mini-preview" data-tile-index="1" tabindex="0" role="button" aria-expanded="false">
+            <div class="tile-compact">
+                <div class="tile-icon">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                </div>
+                <div>
+                    <h2 class="tile-title">Features</h2>
+                    <span class="tile-subtitle">Profiling &amp; memory</span>
+                </div>
+            </div>
+            <button class="tile-close-btn" aria-label="Collapse section" type="button">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="tile-expand" aria-hidden="true">
+                <div class="tile-expand-inner">
+                    <div class="tile-expand-content">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-semibold text-white">Features</h3>
+                                <p class="text-xs text-slate-500 mt-0.5 features-tile-subtitle">Profiling and memory systems in Astral Engine</p>
+                            </div>
+                        </div>
+                        <!-- Graphics Engine features -->
+                        <div class="bento-panel" data-bento-view="graphics" hidden>
+                            <div class="bento-grid">
+                                <div class="bento-cell bento-cell--hero bento-cell--sky">
+                                    <span class="bento-kicker">Renderer</span>
+                                    <h4 class="bento-title">Vulkan PBR Pipeline</h4>
+                                    <p class="bento-desc">Cook-Torrance BRDF, image-based lighting, and an HDR pipeline with forward and deferred paths.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--violet">
+                                    <span class="bento-kicker">Architecture</span>
+                                    <h4 class="bento-title">Frame Graph</h4>
+                                    <p class="bento-desc">Automated barriers, pass culling, and resource dependency management.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--emerald">
+                                    <span class="bento-kicker">Lighting</span>
+                                    <h4 class="bento-title">Image-Based Lighting</h4>
+                                    <p class="bento-desc">Environment maps and prefiltered specular for physically grounded scenes.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--wide bento-cell--amber">
+                                    <span class="bento-kicker">Shadows</span>
+                                    <h4 class="bento-title">Cascaded Shadow Maps</h4>
+                                    <p class="bento-desc">Stable shadow quality from near camera detail out to the far clip plane.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--sky">
+                                    <span class="bento-kicker">Pipeline</span>
+                                    <h4 class="bento-title">Deferred Rendering</h4>
+                                    <p class="bento-desc">GBuffer views for albedo, normals, metallic, roughness, and emission.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--rose">
+                                    <span class="bento-kicker">Color</span>
+                                    <h4 class="bento-title">HDR Tonemapping</h4>
+                                    <p class="bento-desc">ACES, Reinhard, and unmapped HDR comparison modes.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--violet">
+                                    <span class="bento-kicker">Quality</span>
+                                    <h4 class="bento-title">MSAA &amp; Post FX</h4>
+                                    <p class="bento-desc">Multisampled anti-aliasing integrated into the render graph.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--wide bento-cell--emerald">
+                                    <span class="bento-kicker">Tools</span>
+                                    <h4 class="bento-title">Editor</h4>
+                                    <p class="bento-desc">Scene authoring, materials, hierarchy, renderer settings, and live debug views.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profiler features -->
+                        <div class="bento-panel" data-bento-view="profiler">
+                            <div class="bento-grid">
+                                <div class="bento-cell bento-cell--hero bento-cell--sky">
+                                    <span class="bento-kicker">Profiling</span>
+                                    <h4 class="bento-title">Scope Profiler</h4>
+                                    <p class="bento-desc">Instrument engine systems, render passes, and frame execution — export traces to Chrome's profiler.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--violet">
+                                    <span class="bento-kicker">Integration</span>
+                                    <h4 class="bento-title">Chrome Trace View</h4>
+                                    <p class="bento-desc">Timeline visualization compatible with chrome://tracing.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--emerald">
+                                    <span class="bento-kicker">Timing</span>
+                                    <h4 class="bento-title">Pass-Level Scopes</h4>
+                                    <p class="bento-desc">Per-pass and per-system timing to spot frame budget hotspots.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--wide bento-cell--amber">
+                                    <span class="bento-kicker">Memory</span>
+                                    <h4 class="bento-title">Allocation Tracker</h4>
+                                    <p class="bento-desc">Live stats by region, allocator type, thread, or global — with per-allocation stack traces.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--sky">
+                                    <span class="bento-kicker">Diagnostics</span>
+                                    <h4 class="bento-title">Hotspot Detection</h4>
+                                    <p class="bento-desc">Stack traces on every alloc/free to chase allocation spikes.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--rose">
+                                    <span class="bento-kicker">Runtime</span>
+                                    <h4 class="bento-title">Custom Allocators</h4>
+                                    <p class="bento-desc">Proof-of-concept allocator suite designed for performance research.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--violet">
+                                    <span class="bento-kicker">Visibility</span>
+                                    <h4 class="bento-title">Region Breakdown</h4>
+                                    <p class="bento-desc">Slice memory usage by engine region and allocator category.</p>
+                                </div>
+                                <div class="bento-cell bento-cell--wide bento-cell--emerald">
+                                    <span class="bento-kicker">Workflow</span>
+                                    <h4 class="bento-title">In-Editor Debug UI</h4>
+                                    <p class="bento-desc">Profiler and memory tools surfaced directly inside the editor for fast iteration.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Showcase -->
+        <article class="section-tile tile-showcase tile-no-mini-preview" data-tile-index="2" tabindex="0" role="button" aria-expanded="false">
+            <div class="tile-compact">
+                <div class="tile-icon">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                    <h2 class="tile-title">Showcase</h2>
+                    <span class="tile-subtitle">Rendered scenes</span>
+                </div>
+            </div>
+            <button class="tile-close-btn" aria-label="Collapse section" type="button">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="tile-expand" aria-hidden="true">
+                <div class="tile-expand-inner">
+                    <div class="tile-expand-content">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-semibold text-white">Astral Engine Showcase</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Rendered scenes and engine features</p>
+                            </div>
+                            <a href="showcase.html" target="_blank" rel="noopener noreferrer" class="expand-link-btn">View Full Page →</a>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="image-gallery">
+
+        <div class="group cursor-pointer image-item"
+             data-full-src="Assets/Showcase/astral-engine-bistro-screenshot.png"
+             data-title="Lumberyard Bistro Exterior"
+             data-description="Render of Amazon Lumberyard Scene in the Forward renderer path with PBR assets, IBL lighting, cascaded shadow maps, and MSAA x4"
+             data-video-src="Assets/Showcase/Videos/Bistro_Short_Video_SmallerFile.mov"
+        >
+            <div class="bg-slate-800/50 rounded-lg overflow-hidden ring-1 ring-white/10">
+                <img src="Assets/Showcase/astral-engine-bistro-screenshot.png" alt="Exterior view of a Amazon Lumberyard Bistro" class="w-full h-auto aspect-square object-cover transform-gpu group-hover:scale-105 transition-transform duration-300 ease-in-out">
+            </div>
+            <div class="mt-4">
+                <h3 class="text-sm font-semibold text-white">Bistro Exterior</h3>
+                <p class="text-xs text-slate-400 mt-1">A complex scene showcasing physically-based materials and cascaded shadow mapping</p>
+            </div>
         </div>
-    </section>
 
+        <div class="group cursor-pointer image-item"
+             data-full-src="Assets/Showcase/sponza-screenshot.png"
+             data-title="Sponza"
+             data-description="Render of Sponza scene in the Forward renderer path using cascaded shadow maps, image-based lighting solution, and more."
+             data-video-src="Assets/Showcase/Videos/Sponza_Short_Video_SmallerFile.mov"
+        >
+            <div class="bg-slate-800/50 rounded-lg overflow-hidden ring-1 ring-white/10">
+                <img src="Assets/Showcase/sponza-screenshot.png" alt="Exterior view of a Amazon Lumberyard Bistro" class="w-full h-auto aspect-square object-cover transform-gpu group-hover:scale-105 transition-transform duration-300 ease-in-out">
+            </div>
+            <div class="mt-4">
+                <h3 class="text-sm font-semibold text-white">Sponza</h3>
+                <p class="text-xs text-slate-400 mt-1">A classic reference scene showcasing my image-based lighting solution</p>
+            </div>
+        </div>
 
-    <!-- Showcase Section -->
-    <section id="showcase" class="py-20 sm:py-32 fade-in-section">
-        <div class="bg-slate-800/50 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-            <div class="p-8 md:p-12">
-                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl text-center">Project Showcase</h2>
-                <p class="mt-8 text-lg text-slate-400 text-center">
-                    Take a look at what Astral Engine can do with this collection of rendered pictures and GIFs.
+        <div class="group cursor-pointer image-item"
+             data-full-src="Assets/Showcase/pancake-with-smore-screenshot.png"
+             data-title="Cookie Stack and Smore - PBR Asset Workflow"
+             data-description="This is a scene with assets I made myself with PBR textures which I exported from Blender and inputted into Astral Engine"
+             data-video-src="Assets/Showcase/Videos/PancakeWithSmore_Short_Video_SmallerFile.mov"
+        >
+            <div class="bg-slate-800/50 rounded-lg overflow-hidden ring-1 ring-white/10">
+                <img src="Assets/Showcase/pancake-with-smore-screenshot.png" alt="Scene with assets I modeled and textured in Blender, which I exported into Astral Engine" class="w-full h-auto aspect-square object-cover transform-gpu group-hover:scale-105 transition-transform duration-300 ease-in-out">
+            </div>
+            <div class="mt-4">
+                <h3 class="text-sm font-semibold text-white">Cookie Stack and Smore</h3>
+                <p class="text-xs text-slate-400 mt-1">Scene with assets I modeled and textured in Blender, which I exported into Astral Engine</p>
+            </div>
+        </div>
+
+    </div>
+                        <div class="mt-8 mb-4">
+        <div class="text-center mb-6">
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                <span class="text-sky-400 text-glow">Features</span>
+            </h2>
+            <p class="mt-4 text-sm text-slate-400 max-w-2xl mx-auto">
+                Deep dive into the rendering techniques and systems implemented in Astral Engine
+            </p>
+        </div>
+
+        <div class="space-y-8">
+            <!-- Cascaded Shadow Maps -->
+            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">Cascaded Shadow Maps</h3>
+                <p class="text-slate-400 mb-6">
+                    Dynamic shadow rendering using cascaded shadow mapping to maintain shadow quality at both near and far distances.
                 </p>
-                <div class="mt-8 mb-8 flex justify-center">
-                    <a href="showcase.html" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 transition-colors">
-                        View Showcase
-                        <svg class="ml-2 -mr-1 h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    </a>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                        <source src="Assets/Showcase/Features/Cascaded Shadow Maps/Astral%20Cascaded%20Shadow%20Map%20-%20Cascades%20-%20Smaller.mov" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                        <source src="Assets/Showcase/Features/Cascaded Shadow Maps/Astral%20Cascaded%20Shadow%20Mapping%20-%20Movement%20-%20Smaller.mov" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
-                <div class="p-4 sm:p-6 lg:p-8 flex items-center justify-center">
-                    <div class="relative w-full aspect-[5/2] max-w-2xl mx-auto rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 transform-gpu hover:scale-105 transition-transform duration-300 ease-in-out">
-                        <img src="Assets/Main/Images/showcase-example.png"
-                             alt="Showcase example screenshot"
-                             class="absolute inset-0 w-full h-full object-cover block">
+            </div>
+
+            <!-- Deferred Rendering -->
+            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">Deferred Rendering Pipeline</h3>
+                <p class="text-slate-400 mb-6">
+                    View individual GBuffer images including full lighting, albedo, roughness, metallic, emission, and normals.
+                </p>
+                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                    <source src="Assets/Showcase/Features/Deferred Rendering/Astral%20Deferred%20Rendering%20-%20Smaller.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <!-- HDR Tonemapping -->
+            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">HDR Tonemapping</h3>
+                <p class="text-slate-400 mb-6">
+                    High dynamic range rendering with multiple tone mapping functions to compare ACES to other options.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <img src="Assets/Showcase/Features/HDR Tonemapping/Astral Tonemapping - Off.png" alt="HDR Tonemapping Off" class="w-full rounded-lg">
+                        <p class="text-sm text-slate-500 mt-2 text-center">No Tonemapping</p>
+                    </div>
+                    <div>
+                        <img src="Assets/Showcase/Features/HDR Tonemapping/Astral Tonemapping - Reinhard.png" alt="Reinhard Tonemapping" class="w-full rounded-lg">
+                        <p class="text-sm text-slate-500 mt-2 text-center">Reinhard</p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <img src="Assets/Showcase/Features/HDR Tonemapping/Astral Tonemapping - ACES.png" alt="ACES Tonemapping" class="w-full rounded-lg max-w-md mx-auto">
+                    <p class="text-sm text-slate-500 mt-2 text-center">ACES</p>
+                </div>
+            </div>
+
+            <!-- Scope Profiler -->
+            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">Performance Profiling Tools</h3>
+                <p class="text-slate-400 mb-6">
+                    Custom scope profiling integrated into Chrome's trace tool for viewing. Track performance timing and memory allocation frequency for engine systems, rendering passes, and frame execution to identify optimization opportunities.
+                </p>
+                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                    <source src="Assets/Showcase/Features/Scope Profiler/Astral Scope Profiler - Smaller.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <!-- Memory Allocation Tracker  -->
+            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">Memory Allocation Tracker</h3>
+                <p class="text-slate-400 mb-6">
+                    A memory allocation tracker that lets you view memory allocation statistics like memory usage or active allocations by Region, Allocator Type, Thread, or by Global. Additionally, it
+                    also shows stacktraces for every allocation and free, so you can track down allocation hotspots.
+                </p>
+                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                    <source src="Assets/Showcase/Features/Memory%20Allocation%20Tracker/Astral%20Memory%20Allocation%20Tracker%20UI%20-%20Smaller.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <!-- Editor -->
+            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+                <h3 class="text-lg font-bold text-white mb-4">Editor</h3>
+                <p class="text-slate-400 mb-6">
+                    A tool for creating and managing scenes. You can do things like create materials, add entities, change the environment map, access debug info and tools, viewing the
+                    scene hierarchy, access renderer settings, change camera settings, and change entity properties.
+                </p>
+                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                    <source src="Assets/Showcase/Features/Editor/Astral%20Editor%20-%20Smaller.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </article>
 
-    <!-- Articles Section -->
-    <section id="articles" class="py-20 sm:py-32 fade-in-section">
-        <div class="bg-slate-800/50 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-            <div class="p-8 md:p-12">
-                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl text-center">Articles</h2>
-                <p class="mt-8 text-lg text-slate-400 text-center">
+        <!-- Articles -->
+        <article class="section-tile tile-articles tile-no-mini-preview" data-tile-index="3" tabindex="0" role="button" aria-expanded="false" id="articles">
+            <div class="tile-compact">
+                <div class="tile-icon">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                </div>
+                <div>
+                    <h2 class="tile-title">Articles</h2>
+                    <span class="tile-subtitle">Long-form writing</span>
+                </div>
+            </div>
+            <button class="tile-close-btn" aria-label="Collapse section" type="button">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="tile-expand" aria-hidden="true">
+                <div class="tile-expand-inner">
+                    <div class="tile-expand-content">
+                        <div class="mb-4">
+                            <h3 class="text-base font-semibold text-white">Articles</h3>
+                            <p class="mt-0 mb-4 text-sm text-slate-400">
                     Longer form writings discussing a range of topics such as the development of Astral Engine, my thought process for a feature, and future plans.
                 </p>
-
-                <div class="mt-12 space-y-8">
+                        </div>
+                        <div class="space-y-4">
 
                     <!-- Article 2 - How I Reduced Per Frame Allocations By 95% With My Memory Allocation Tracker Tool  -->
                     <a href="Assets/Articles/PerFrameAllocationReduction/how_i_reduce_per_frame_allocations_by_95_percent_with_my_memory_allocation_tracker_tool.html"
@@ -179,11 +1435,11 @@
                   hover:shadow-xl transition-all cursor-pointer">
 
                         <!-- Article Content -->
-                        <div class="p-6 text-center">
-                            <h3 class="text-xl font-semibold text-white mb-4 mt-2">
+                        <div class="p-4 text-center">
+                            <h3 class="text-sm font-semibold text-white mb-4 mt-2">
                                 Reducing Per Frame Allocations By 95% With My Memory Allocation Tracker Tool
                             </h3>
-                            <p class="text-slate-400 mb-4">
+                            <p class="text-xs text-slate-400 mb-3">
                                 An overview of me using the Memory Allocation Tracker and Scope Profiler tools to <br>
                                 optimize for necessary allocations
                             </p>
@@ -195,7 +1451,7 @@
                         </div>
 
                         <!-- Centered Image -->
-                        <div class="relative w-full h-40 sm:h-64 overflow-hidden rounded-t-lg ring-1 ring-slate-700/30">
+                        <div class="relative w-full h-32 sm:h-40 overflow-hidden rounded-t-lg ring-1 ring-slate-700/30">
                             <img src="Assets/Articles/PerFrameAllocationReduction/Thumbnail.png"
                                  class="object-cover w-full h-full transition-transform duration-300 hover:scale-105" alt="Picture of Memory Allocation Tracker UI">
                         </div>
@@ -208,11 +1464,11 @@
                   hover:shadow-xl transition-all cursor-pointer">
 
                         <!-- Article Content -->
-                        <div class="p-6 text-center">
-                            <h3 class="text-xl font-semibold text-white mb-4 mt-2">
+                        <div class="p-4 text-center">
+                            <h3 class="text-sm font-semibold text-white mb-4 mt-2">
                                 Memory Allocation Tracker: Successes, Downfalls, and the Optimization Roadmap
                             </h3>
-                            <p class="text-slate-400 mb-4">
+                            <p class="text-xs text-slate-400 mb-3">
                                 My thoughts on the successes and downfalls of the Memory Allocation Tracker <br>
                                 and my plans for optimizing it.
                             </p>
@@ -224,7 +1480,7 @@
                         </div>
 
                         <!-- Centered Image -->
-                        <div class="relative w-full h-40 sm:h-64 overflow-hidden rounded-t-lg ring-1 ring-slate-700/30">
+                        <div class="relative w-full h-32 sm:h-40 overflow-hidden rounded-t-lg ring-1 ring-slate-700/30">
                             <img src="Assets/Articles/MemoryAllocationTrackerPerformanceAnalysis/Astral%20Memory%20Allocation%20Tracking%20Article%20Image.png"
                                  alt="Memory Allocation Tracker Thumbnail"
                                  class="object-cover w-full h-full transition-transform duration-300 hover:scale-105">
@@ -232,146 +1488,1246 @@
                     </a>
 
                     <!-- Placeholder for more articles -->
-                    <div class="text-center py-8">
-                        <p class="text-slate-500 italic">More articles coming soon...</p>
+                    <div class="text-center py-4">
+                        <p class="text-xs text-slate-500 italic">More articles coming soon...</p>
                     </div>
 
                 </div>
-            </div>
-        </div>
-    </section>
-
-
-
-
-    <!-- Documentation Section -->
-    <section id="documentation" class="py-20 sm:py-32 fade-in-section">
-        <div class="bg-slate-800/50 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10">
-            <div class="p-8 md:p-12">
-                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl text-center">Design & Analysis</h2>
-                <p class="mt-8 text-lg text-slate-400 text-center">
-                    I have compiled documentation that goes through my thought process, problem-solving, and analysis for features in Astral Engine.
-                </p>
-                <div class="mt-8 mb-8 flex justify-center">
-                    <a href="documentation.html" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 transition-colors">
-                        View Project Documentation
-                        <svg class="ml-2 -mr-1 h-5 w-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                    </a>
-                </div>
-                <div class="p-4 sm:p-6 lg:p-8 flex items-center justify-center">
-                    <div class="relative w-full aspect-[5/2] max-w-2xl mx-auto rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 transform-gpu hover:scale-105 transition-transform duration-300 ease-in-out">
-                        <img src="Assets/Main/Images/documentation-example-screenshot.png"
-                             alt="Documentation example screenshot"
-                             class="absolute inset-0 w-full h-full object-cover block">
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </article>
 
-    <!-- Skills Section -->
-    <section id="skills" class="py-20 sm:py-32 fade-in-section">
-        <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Technical Skills</h2>
-        <div class="mt-8">
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold text-white">Languages</h3>
-                <div class="mt-2 flex flex-wrap gap-2">
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">C++</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">C</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Python</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">GLSL</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">HLSL</span>
+        <!-- Documentation -->
+        <article class="section-tile tile-docs tile-no-mini-preview" data-tile-index="4" tabindex="0" role="button" aria-expanded="false">
+            <div class="tile-compact">
+                <div class="tile-icon">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <div>
+                    <h2 class="tile-title">Documentation</h2>
+                    <span class="tile-subtitle">Design &amp; Analysis</span>
                 </div>
             </div>
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold text-white">Skills & Technologies</h3>
-                <div class="mt-2 flex flex-wrap gap-2">
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Vulkan</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">OpenGL</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Memory Management</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Profiling</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Multithreading</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Concurrency</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">GPU Programming</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Compute Shaders</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Physically-Based Rendering</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Debugging</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">CMake</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Git</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">GitHub Actions CI/CD</span>
+            <button class="tile-close-btn" aria-label="Collapse section" type="button">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="tile-expand" aria-hidden="true">
+                <div class="tile-expand-inner">
+                    <div class="tile-expand-content">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-base font-semibold text-white">Project Documentation</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Design documents, problem analyses, and research notes</p>
+                            </div>
+                            <a href="documentation.html" target="_blank" rel="noopener noreferrer" class="expand-link-btn">View Full Page →</a>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-xl ring-1 ring-white/10 p-4 sm:p-6 font-mono text-sm">
+<ul class="space-y-2">
+                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Documentation</span></div>
+                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Astral-Editor</span></div>
+                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                <li><a href="Assets/Documentation/Astral-Editor/Features.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Features.md - Overview of Editor Features</span></a></li>
+                            </ul>
+                        </li>
+                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Astral-Runtime</span></div>
+                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Asset Manager</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Asset%20Manager/Asset%20Manager%20Architecture.png" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Asset Manager Architecture.png - Picture of Asset Manager Architecture</span></a></li>
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Asset%20Manager/Problem-Analysis.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md - Problem Analysis for Asset Manager</span></a></li>
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Asset%20Manager/Research-and-Planning.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Research-and-Planning.md - Planning for Asset Manager</span></a></li>
+                                    </ul>
+                                </li>
+
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Core</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Containers</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Core/Containers/BriefDescription.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">BriefDescription.md - Brief Description of Implemented Data Structures</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Events</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Core/Events/Documentation.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Documentation.md - Thinking Behind Event System</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Memory Allocators</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Core/Memory%20Allocators/Information.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Information.md - Description of Memory Allocators & More</span></a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Debugging</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Debugging/Features.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Features.md - Overview of Debugging Features</span></a></li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">ECS</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/ECS/Problem-Analysis.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md - Problem Analysis for ECS</span></a></li>
+                                        <li><a href="Assets/Documentation/Astral-Runtime/ECS/Research-and-Planning.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Research-and-Planning.md - Planning and Thought Process for ECS</span></a></li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Overall</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Overall/Features.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Features.md - In Progress</span></a></li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Profiling Tools</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Memory Tracking &amp; Visualization</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Information.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Information.md - Reasons for Allocators and Memory Tracking and Research References</span></a></li>
+                                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Tracking Planning</span></div>
+                                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Tracking%20Planning/Ideas.txt" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-400"><use xlink:href="#icon-txt"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Ideas.txt</span></a></li>
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Tracking%20Planning/Memory%20Tracking%20System%20Architecture.png" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Memory Tracking System Architecture.png</span></a></li>
+                                                    </ul>
+                                                </li>
+                                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Visualization Planning</span></div>
+                                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Ideas.txt" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-400"><use xlink:href="#icon-txt"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Ideas.txt</span></a></li>
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Memory%20Visualization%20Architecture.jpg" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Memory Visualization Architecture.jpg</span></a></li>
+                                                        <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Visualization%20ImGui%20Architecture.jpg" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Visualization ImGui Architecture.jpg</span></a></li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Scope Profiler</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Scope%20Profiler/Information.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Information.md - In Progress</span></a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Renderer</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Structure.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Structure.md - Overview of the Systems in the Renderer</span></a></li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Color Management</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Color%20Management/Research-Analysis.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Research-Analysis.md - In Progress</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Render Graph</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Graph/Problem-Analysis.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md - Problem Analysis for Render Graph </span></a></li>
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Graph/Research-Analysis.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Research-Analysis.md - Analysis of Render Graph</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Render Paths</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Paths/Deferred.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Deferred.md - Overview of Deferred Path</span></a></li>
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Paths/Forward.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Forward.md - Overview of Forward Path</span></a></li>
+                                            </ul>
+                                        </li>
+                                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Renderer Hardware Interface</span></div>
+                                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                                <li><a href="Assets/Documentation/Astral-Runtime/Renderer/Renderer%20Hardware%20Interface/Problem-Analysis.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md - Problem Analysis for Renderer Hardware Interface</span></a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Scenes</span></div>
+                                    <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Scenes/Problem-Analysis.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-sky-400"><use xlink:href="#icon-md"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Problem-Analysis.md - Problem Analysis for Scenes</span></a></li>
+                                        <li><a href="Assets/Documentation/Astral-Runtime/Scenes/Scene%20Architecture.png" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-purple-400"><use xlink:href="#icon-img"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Scene Architecture.png - Picture of Scene Architecture</span></a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><div class="flex items-center"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-slate-500"><use xlink:href="#icon-folder"></use></svg><span class="text-slate-300">Doxygen</span></div>
+                            <ul class="space-y-2 pl-6 mt-2 border-l border-slate-700">
+                                <li><a href="Assets/Documentation/Docs.html" target="_blank" rel="noopener noreferrer" class="flex items-center group"><svg class="w-5 h-5 mr-3 flex-shrink-0 text-green-400"><use xlink:href="#icon-html"></use></svg><span class="text-slate-400 group-hover:text-white transition-colors">Docs.html (View Code Documentation)</span></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div>
-                <h3 class="text-lg font-semibold text-white">Tools & Software</h3>
-                <div class="mt-2 flex flex-wrap gap-2">
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">NVIDIA Nsight</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">RenderDoc</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Xcode Metal Debugger</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Intel VTune</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">AMD uProf</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Blender</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Substance Painter</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Unreal</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Unity</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">CLion</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Visual Studio</span>
-                    <span class="bg-slate-800 text-sky-300 px-3 py-1 rounded-full text-sm font-medium">Xcode</span>
+        </article>
+
+        <!-- About Me tile — spans the full 2×2 area, shown when "About Me" view is active -->
+        <article class="section-tile tile-about" id="tile-about" role="region" aria-label="About Me">
+            <div class="tile-expand">
+                <div class="tile-expand-inner">
+                    <div class="tile-expand-content">
+                        <div class="about-tile-grid">
+
+                            <!-- Left column: identity, bio, contact -->
+                            <div class="about-tile-left space-y-5">
+                                <div class="text-center about-hero">
+                                    <h3 class="text-2xl font-extrabold text-white">Hi, I'm <span class="text-sky-400 text-glow">Andrew Fagan</span></h3>
+                                    <p class="mt-2 text-sm text-slate-400 max-w-xs mx-auto">A sophomore Computer Science student with a passion for real-time graphics, systems programming, and performance analysis.</p>
+                                    <div class="mt-3 flex justify-center gap-4">
+                                        <a href="https://github.com/Sparky015" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-sky-400 transition-colors" title="GitHub">
+                                            <svg class="h-7 w-7" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd"/></svg>
+                                        </a>
+                                        <a href="https://www.linkedin.com/in/andrew-fagan-a6b9a2335/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-sky-400 transition-colors" title="LinkedIn">
+                                            <svg class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-base font-semibold text-white mb-2">About Me</h3>
+                                    <div class="text-sm text-slate-400 space-y-2 leading-relaxed about-body">
+                                        <p>I am interested in the intersections of real-time 3D graphics, systems programming, and performance analysis. My journey started with a curiosity to understand the architecture of game engines and how complex visuals are made from the fundamental building blocks of programming.</p>
+                                        <p>This curiosity led me to deep diving into C++, rendering techniques, systems programming, and computer architecture. I love the challenge and puzzle-solving aspects of designing, building, and optimizing systems that work together to deliver consistent high performance.</p>
+                                    </div>
+                                </div>
+
+                                <div class="text-center pt-4 border-t border-white/[0.08] about-contact">
+                                    <h3 class="text-base font-semibold text-white">Get In Touch</h3>
+                                    <p class="mt-2 text-sm text-slate-400 max-w-sm mx-auto">I'm actively seeking internship opportunities for Summer 2026 in graphics or systems software engineering. I'm always excited to connect with new people, so please feel free to reach out!</p>
+                                    <a href="https://www.linkedin.com/in/andrew-fagan-a6b9a2335/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center mt-3 px-5 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors">
+                                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                        Connect on LinkedIn
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Right column: technical skills -->
+                            <div class="about-tile-right about-skills">
+                                <h3 class="text-base font-semibold text-white mb-4">Technical Skills</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <h4 class="text-[0.65rem] font-semibold text-slate-500 uppercase tracking-wider mb-2">Languages</h4>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <span class="skill-badge">C++</span><span class="skill-badge">C</span><span class="skill-badge">Python</span><span class="skill-badge">GLSL</span><span class="skill-badge">HLSL</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-[0.65rem] font-semibold text-slate-500 uppercase tracking-wider mb-2">Skills &amp; Technologies</h4>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <span class="skill-badge">Vulkan</span><span class="skill-badge">OpenGL</span><span class="skill-badge">Memory Management</span><span class="skill-badge">Profiling</span><span class="skill-badge">Multithreading</span><span class="skill-badge">Concurrency</span><span class="skill-badge">GPU Programming</span><span class="skill-badge">Compute Shaders</span><span class="skill-badge">Physically-Based Rendering</span><span class="skill-badge">Debugging</span><span class="skill-badge">CMake</span><span class="skill-badge">Git</span><span class="skill-badge">GitHub Actions CI/CD</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-[0.65rem] font-semibold text-slate-500 uppercase tracking-wider mb-2">Tools &amp; Software</h4>
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <span class="skill-badge">NVIDIA Nsight</span><span class="skill-badge">RenderDoc</span><span class="skill-badge">Xcode Metal Debugger</span><span class="skill-badge">Intel VTune</span><span class="skill-badge">AMD uProf</span><span class="skill-badge">Blender</span><span class="skill-badge">Substance Painter</span><span class="skill-badge">Unreal</span><span class="skill-badge">Unity</span><span class="skill-badge">CLion</span><span class="skill-badge">Visual Studio</span><span class="skill-badge">Xcode</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
+        </article>
+
+    </main>
+
+
+<!-- Showcase gallery modal -->
+<div id="showcase-image-modal" class="showcase-modal" aria-hidden="true">
+    <span class="showcase-modal-close" aria-label="Close">&times;</span>
+    <div class="showcase-modal-content">
+        <img id="showcase-modal-image" src="" alt="Full size image">
+        <div class="showcase-modal-description">
+            <h3 id="showcase-modal-title" class="text-xl font-bold text-white mb-2"></h3>
+            <p id="showcase-modal-description" class="text-base text-slate-400"></p>
         </div>
-    </section>
-
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 sm:py-32 text-center fade-in-section">
-        <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Get In Touch</h2>
-        <p class="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
-            I'm actively seeking internship opportunities for Summer 2026 in graphics or systems software engineering. I'm always excited to connect with new people, so please feel free to reach out!
-        </p>
-        <div class="mt-8">
-            <a href="https://www.linkedin.com/in/andrew-fagan-a6b9a2335/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-center text-white bg-sky-600 rounded-lg hover:bg-sky-700 focus:ring-4 focus:outline-none focus:ring-sky-300 transition-colors">
-                <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                Connect on LinkedIn
-            </a>
-        </div>
-    </section>
-</main>
-
-<!-- Footer -->
-<footer class="border-t border-slate-800">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="py-8 text-center text-sm text-slate-500">
-            <p>&copy; 2026 Andrew Fagan. All rights reserved.</p>
+        <div class="showcase-modal-video-section">
+            <h4 class="text-lg font-semibold text-white mb-3">Watch Video</h4>
+            <video id="showcase-modal-video" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         </div>
     </div>
-</footer>
+    <button type="button" class="showcase-modal-prev" id="showcase-modal-prev" aria-label="Previous">&#10094;</button>
+    <button type="button" class="showcase-modal-next" id="showcase-modal-next" aria-label="Next">&#10095;</button>
+</div>
+
+    <footer class="flex-shrink-0 border-t border-slate-800/80 py-2 sm:py-3 text-center text-xs text-slate-500">
+        <p>&copy; 2026 Andrew Fagan. All rights reserved.</p>
+    </footer>
+</div>
 
 <script>
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
-    });
+/* All tile interaction logic is wrapped in an IIFE to avoid polluting the global scope */
+(function () {
+    const grid = document.getElementById('tile-grid');
+    const tiles = Array.from(grid.querySelectorAll('.section-tile:not(.tile-about)'));
 
-    // Fade-in sections on scroll
-    const sections = document.querySelectorAll('.fade-in-section');
-    const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
+    /* Detect user preferences once — used throughout to skip animations */
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    /* finePointer = true means the device has a real mouse (not touch-only) */
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    /* Track which tile is currently open and which is mid-animation */
+    let expandedTile = null;
+    let animatingTile = null;
+
+    /* Peek state — which tile is currently showing the hover preview */
+    let peekTile = null;
+    /* Cached pixel dimensions of a tile at its fully-expanded size (all expandable tiles
+       share the same expanded area, so we only need to measure once) */
+    let expandedDims = null;
+
+    /* User preference: whether the grid resizes on tile hover */
+    let hoverResizeEnabled = false;
+
+    /* ── clip-path helpers ─────────────────────────────────────── */
+
+    /* Returns a Promise that resolves when the tile's clip-path CSS transition ends.
+       A 700ms safety timeout ensures it always resolves even if transitionend misfires. */
+    function waitForClipPath(tile) {
+        if (prefersReducedMotion) return Promise.resolve();
+        return new Promise(resolve => {
+            let done = false;
+            const finish = () => {
+                if (done) return;
+                done = true;
+                tile.removeEventListener('transitionend', onEnd);
+                clearTimeout(fallback);
+                resolve();
+            };
+            const onEnd = e => {
+                /* Only resolve on the clip-path property of the tile itself, not a child */
+                if (e.target === tile && e.propertyName === 'clip-path') finish();
+            };
+            const fallback = setTimeout(finish, 700);
+            tile.addEventListener('transitionend', onEnd);
+        });
+    }
+
+    /* Measure where the tile sits in its resting grid cell without touching
+       the DOM visually: briefly swap out is-expanded, measure, restore. */
+    function measureRestingRect(tile) {
+        tile.classList.remove('is-expanded'); /* temporarily remove expanded state */
+        tile.offsetHeight;                    /* force layout reflow */
+        const r = tile.getBoundingClientRect();
+        tile.classList.add('is-expanded');    /* restore expanded state */
+        tile.offsetHeight;                    /* force another reflow to re-apply */
+        return { top: r.top, left: r.left, width: r.width, height: r.height };
+    }
+
+    /* Called when a tile starts collapsing — stagger-fades the other tiles back in
+       so they don't all pop back at once */
+    function beginSiblingRestore(collapsingTile) {
+        const step = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--stagger-step')) || 55;
+        tiles.forEach((t, i) => {
+            if (t === collapsingTile || t.classList.contains('sidebar-panel')) return;
+            t.style.transitionDelay = `${i * step}ms`; /* each tile delays by 55ms × its index */
+        });
+        /* Remove has-expanded to let the CSS opacity rules fade the tiles back in */
+        grid.classList.remove('has-expanded');
+        document.body.classList.remove('has-expanded');
+        grid.classList.add('is-restoring-tiles');
+    }
+
+    /* Clean up stagger delays once the restore animation finishes, then re-peek siblings */
+    function clearSiblingRestore() {
+        grid.classList.remove('is-restoring-tiles');
+        tiles.forEach(t => { t.style.transitionDelay = ''; });
+        /* Siblings have faded back in — restore their always-on peek previews */
+        requestAnimationFrame(applyAllPeeks);
+    }
+
+    /* Build an inset() clip-path that crops the (large) tile's paint area
+       down to just the (small) cell rectangle.
+       This is the key trick: the tile is already at its full 2×2 size in the DOM,
+       but we clip it to look like the small cell, then animate the clip away. */
+    function clipForCell(largeBounds, cellBounds) {
+        const top    = cellBounds.top    - largeBounds.top;
+        const left   = cellBounds.left   - largeBounds.left;
+        const right  = largeBounds.right  - (cellBounds.left + cellBounds.width);
+        const bottom = largeBounds.bottom - (cellBounds.top  + cellBounds.height);
+        /* round 1rem matches the tile's border-radius so the clip looks correct */
+        return `inset(${top}px ${right}px ${bottom}px ${left}px round 1rem)`;
+    }
+
+    const SCALE_EXPAND_TRANSITION =
+        `transform var(--duration-expand) var(--ease-expand),` +
+        `width var(--duration-expand) var(--ease-expand),` +
+        `height var(--duration-expand) var(--ease-expand)`;
+
+    function usesScaledCanvas(tile) {
+        return tile.classList.contains('tile-scaled-canvas');
+    }
+
+    /* Scale to tile width; uniform X/Y preserves aspect ratio. Extra height is clipped in peek. */
+    function widthFitContentScale(availW, contentW) {
+        if (contentW < 1) return 1;
+        return availW / contentW;
+    }
+
+    /* Scale factor to fit the expanded content canvas into a collapsed cell */
+    function collapsedContentScale(tile, cellBounds) {
+        if (!expandedDims) return { scaleX: 1, scaleY: 1 };
+        const scale = widthFitContentScale(cellBounds.width, expandedDims.width);
+        return { scaleX: scale, scaleY: scale };
+    }
+
+    /* Expanded tiles share one 2×2 area; scale toward the corner that matches this tile's cell */
+    function cellTransformOrigin(tile) {
+        if (window.innerWidth < 768) return 'top left';
+        if (tile.classList.contains('tile-showcase')) return 'top right';
+        if (tile.classList.contains('tile-articles')) return 'bottom left';
+        if (tile.classList.contains('tile-docs')) return 'bottom right';
+        return 'top left';
+    }
+
+    function setScaledExpandInner(expandInner, scaleX, scaleY, origin = 'top left') {
+        if (!expandInner || !expandedDims) return;
+        expandInner.style.width           = `${expandedDims.width}px`;
+        expandInner.style.height          = `${expandedDims.height}px`;
+        expandInner.style.transformOrigin = origin;
+        expandInner.style.transform       = `scale(${scaleX}, ${scaleY})`;
+        expandInner.style.flexShrink      = '0';
+    }
+
+    function clearScaledExpandInner(expandInner) {
+        if (!expandInner) return;
+        expandInner.style.transition      = '';
+        expandInner.style.transform       = '';
+        expandInner.style.width           = '';
+        expandInner.style.height          = '';
+        expandInner.style.transformOrigin = '';
+        expandInner.style.flexShrink      = '';
+    }
+
+    function animateScaledExpandInner(expandInner, scaleX, scaleY, width, height, origin) {
+        if (!expandInner) return;
+        if (origin) expandInner.style.transformOrigin = origin;
+        expandInner.style.transition = SCALE_EXPAND_TRANSITION;
+        expandInner.style.transform  = `scale(${scaleX}, ${scaleY})`;
+        expandInner.style.width      = width;
+        expandInner.style.height     = height;
+    }
+
+    /* ── Expand a tile ─────────────────────────────────────────── */
+    async function expandTile(tile) {
+        if (expandedTile === tile || animatingTile) return;
+        /* If another tile is already open, collapse it first (no sibling restore yet) */
+        if (expandedTile) await collapseTile(expandedTile, false, true);
+
+        animatingTile = tile;
+
+        /* Detect whether we're coming from the peek (hover-preview) state so we can
+           run a seamless scale animation instead of a content-swap crossfade. */
+        const fromPeek      = tile.classList.contains('is-peek');
+        const scaledCanvas  = usesScaledCanvas(tile);
+        const scaleContent  = fromPeek || scaledCanvas;
+        const peekScaleX    = tile._peekScaleX || 1;
+        const peekScaleY    = tile._peekScaleY || 1;
+
+        /* Measure tile position BEFORE clearing hover — the clip starts from the
+           hover-enlarged cell, making the motion continuous with the ripple effect. */
+        const small = tile.getBoundingClientRect();
+
+        if (fromPeek) {
+            /* Lock the compact header at opacity 0 via inline style so it doesn't flash
+               back when we atomically swap is-peek → is-expanding + is-from-peek. */
+            const compact = tile.querySelector('.tile-compact');
+            if (compact) { compact.style.opacity = '0'; compact.style.transition = 'none'; }
+            /* Atomically remove is-peek and add is-expanding + is-from-peek so the CSS rule
+               `.is-expanding.is-from-peek .tile-expand { display: flex; position: absolute }`
+               keeps the expand panel visible throughout the clip-path animation. */
+            tile.classList.remove('is-peek');
+            clearPeekPanelPosition(tile.querySelector('.tile-expand'));
+            if (peekTile === tile) peekTile = null;
+            delete tile._peekScaleX;
+            delete tile._peekScaleY;
+        } else if (scaledCanvas) {
+            const compact = tile.querySelector('.tile-compact');
+            if (compact) { compact.style.opacity = '0'; compact.style.transition = 'none'; }
+        }
+        clearRipple(); /* clear hover highlight / grid resize on every expand path */
+
+        /* Add both classes at the same time: is-expanding suppresses display swaps
+           while is-expanded moves the tile to the 2×2 grid area */
+        tile.classList.add('is-expanding');
+        tile.classList.add('is-expanded');
+        if (scaleContent) tile.classList.add('is-from-peek');
+        tile.setAttribute('aria-expanded', 'true');
+        tile.querySelector('.tile-expand').setAttribute('aria-hidden', 'false');
+        grid.classList.add('has-expanded');
+        document.body.classList.add('has-expanded');
+        tile.offsetHeight; /* force reflow so the browser registers the grid change */
+
+        if (!prefersReducedMotion) {
+            /* Capture the new (large) bounding rect after the grid has reflowed */
+            const large = tile.getBoundingClientRect();
+            const expandInner = tile.querySelector('.tile-expand-inner');
+
+            /* Set clip instantly to the small position (no transition),
+               then in the next frame animate it to full reveal. */
+            tile.style.transition = 'none';
+            tile.style.clipPath   = clipForCell(large, small);
+            tile.offsetHeight; /* flush the instant clip */
+
+            tile.style.transition = `clip-path var(--duration-expand) var(--ease-expand)`;
+            tile.style.clipPath   = 'inset(0px 0px 0px 0px round 0px)'; /* fully revealed */
+
+            if (scaleContent && expandInner) {
+                if (fromPeek) {
+                    /* Simultaneously animate the expand-inner scale from peek size → 1.
+                       The expandInner already has the peek transform from startPeek() applied as
+                       inline styles (width, height, transformOrigin, transform, flexShrink). */
+                    animateScaledExpandInner(expandInner, 1, 1, '100%', '100%');
+                } else {
+                    const origin = cellTransformOrigin(tile);
+                    /* Scaled-canvas path without peek: start at collapsed scale, grow to full */
+                    const { scaleX, scaleY } = collapsedContentScale(tile, small);
+                    setScaledExpandInner(expandInner, scaleX, scaleY, origin);
+                    expandInner.offsetHeight;
+                    animateScaledExpandInner(expandInner, 1, 1, '100%', '100%', origin);
+                }
+            }
+
+            await waitForClipPath(tile);
+            tile.style.transition = '';
+            tile.style.clipPath   = '';
+
+            /* Clean up expandInner inline styles — CSS takes over from here */
+            if (expandInner) clearScaledExpandInner(expandInner);
+
+            if (!scaleContent) {
+                /* Non-peek path: crossfade compact header + mini-preview out, then let
+                   the expand content's own fade-in animation take over. */
+                const miniPreview = tile.querySelector('.tile-mini-preview');
+                const compact     = tile.querySelector('.tile-compact');
+                const fadeMs = 160;
+                [miniPreview, compact].forEach(el => {
+                    if (!el) return;
+                    el.style.transition = `opacity ${fadeMs}ms ease`;
+                    el.style.opacity    = '0';
+                });
+                await new Promise(resolve => setTimeout(resolve, fadeMs));
+            }
+        }
+
+        /* Removing is-expanding switches display: none on mini-preview/compact
+           (already invisible) and reveals the expand panel via CSS. */
+        tile.classList.remove('is-expanding');
+        if (scaledCanvas) tile.classList.remove('is-from-peek');
+
+        /* Clean up inline styles now that CSS rules have taken over */
+        ['tile-mini-preview', 'tile-compact'].forEach(cls => {
+            const el = tile.querySelector('.' + cls);
+            if (el) { el.style.transition = ''; el.style.opacity = ''; }
+        });
+
+        expandedTile  = tile;
+        animatingTile = null;
+    }
+
+    /* ── Collapse a tile ───────────────────────────────────────── */
+    /* focusTile: return keyboard focus to the tile after collapsing
+       skipSiblingRestore: true when we're about to expand a different tile immediately */
+    async function collapseTile(tile, focusTile, skipSiblingRestore) {
+        if (!tile || animatingTile) return;
+
+        const scaledCanvas = usesScaledCanvas(tile);
+        const fromPeek = tile.classList.contains('is-from-peek');
+        const scaleContent = fromPeek || scaledCanvas;
+        if (!scaledCanvas) endPeek(tile);
+
+        animatingTile = tile;
+        if (expandedTile === tile) expandedTile = null;
+
+        tile.classList.add('is-collapsing');
+        if (!scaleContent) tile.classList.remove('is-from-peek');
+        tile.setAttribute('aria-expanded', 'false');
+        tile.querySelector('.tile-expand').setAttribute('aria-hidden', 'true');
+
+        if (!prefersReducedMotion) {
+            const large = tile.getBoundingClientRect();
+            const small = measureRestingRect(tile);
+            const expandInner = tile.querySelector('.tile-expand-inner');
+            const origin = cellTransformOrigin(tile);
+
+            if (scaleContent && expandInner && expandedDims) {
+                if (!fromPeek) tile.classList.add('is-from-peek');
+                setScaledExpandInner(expandInner, 1, 1, origin);
+                expandInner.style.width  = '100%';
+                expandInner.style.height = '100%';
+                expandInner.offsetHeight;
+            }
+
+            tile.style.transition = 'none';
+            tile.style.clipPath = 'inset(0px 0px 0px 0px round 0px)';
+            tile.offsetHeight;
+
+            tile.style.transition = `clip-path var(--duration-expand) var(--ease-expand)`;
+            tile.style.clipPath = clipForCell(large, small);
+
+            if (scaleContent && expandInner) {
+                const { scaleX, scaleY } = collapsedContentScale(tile, small);
+                animateScaledExpandInner(
+                    expandInner,
+                    scaleX,
+                    scaleY,
+                    `${expandedDims.width}px`,
+                    `${expandedDims.height}px`,
+                    origin
+                );
+            }
+
+            if (!skipSiblingRestore && !grid.querySelector('.is-expanded:not(.is-collapsing)')) {
+                beginSiblingRestore(tile);
+            }
+
+            await waitForClipPath(tile);
+            tile.style.transition = '';
+            tile.style.clipPath = '';
+        } else {
+            /* No animation — just remove the classes immediately */
+            if (!skipSiblingRestore) {
+                grid.classList.remove('has-expanded');
+                document.body.classList.remove('has-expanded');
+            }
+        }
+
+        /* Collapse state off and peek back on in one turn — avoids a blank frame */
+        tile.classList.remove('is-expanded', 'is-collapsing', 'is-from-peek');
+        restorePeekAfterCollapse(tile);
+
+        if (!skipSiblingRestore) {
+            /* Wait for the sibling fade-in stagger to finish before clearing delays */
+            const step = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--stagger-step')) || 55;
+            const fadeMs = prefersReducedMotion ? 0 : (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--duration-water')) || 0.65) * 1000;
+            const expandMs = prefersReducedMotion ? 0 : (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--duration-expand')) || 0.5) * 1000;
+            /* How much longer the stagger lasts beyond the collapse animation */
+            const remaining = Math.max(0, fadeMs + (tiles.length - 1) * step - expandMs);
+            if (!prefersReducedMotion && remaining > 0) {
+                await new Promise(resolve => setTimeout(resolve, remaining));
+            }
+            clearSiblingRestore();
+        }
+
+        animatingTile = null;
+        if (focusTile) tile.focus(); /* return focus for keyboard users */
+        requestAnimationFrame(cacheTileLayout);
+    }
+
+    /* ── Per-tile event listeners ──────────────────────────────── */
+    tiles.forEach(tile => {
+        const closeBtn = tile.querySelector('.tile-close-btn');
+
+        /* Click on the tile body to expand it */
+        tile.addEventListener('click', e => {
+            if (tile.classList.contains('sidebar-panel')) return; /* sidebar is not expandable */
+            if (animatingTile) return;                            /* ignore clicks during animation */
+            if (e.target.closest('a')) return;                   /* let link clicks pass through */
+            if (e.target.closest('.tile-close-btn')) return;     /* close button has its own handler */
+            if (tile.classList.contains('is-expanded')) return;  /* already expanded */
+            expandTile(tile);
+        });
+
+        /* Keyboard: Enter or Space expands the tile (mirrors click behavior) */
+        tile.addEventListener('keydown', e => {
+            if (tile.classList.contains('sidebar-panel')) return;
+            if (animatingTile) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault(); /* prevent page scroll on Space */
+                if (tile.classList.contains('is-expanded')) return;
+                expandTile(tile);
             }
         });
-    }, {
-        threshold: 0.1
+
+        /* Close button inside each expandable tile */
+        if (closeBtn) {
+            closeBtn.addEventListener('click', e => {
+                e.stopPropagation(); /* prevent the tile's own click handler from firing */
+                collapseTile(tile, true); /* true = return focus to the tile */
+            });
+        }
     });
 
-    sections.forEach(section => {
-        observer.observe(section);
+    /* Global Escape key: collapse whatever tile is open */
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && expandedTile && !animatingTile) collapseTile(expandedTile, true);
     });
+
+    /* Click outside the expanded tile to collapse it (capture phase so it runs first) */
+    document.addEventListener('pointerdown', e => {
+        if (!expandedTile || animatingTile) return;
+        if (expandedTile.contains(e.target)) return; /* click was inside the tile — ignore */
+        /* Sidebar tabs switch views — let switchView collapse; don't start collapse here */
+        if (e.target.closest('.sidebar-panel .view-btn')) return;
+        collapseTile(expandedTile, false);
+    }, true);
+
+    /* ── Hover ripple — desktop only ───────────────────────────── */
+    /* On hover, the grid column/row containing the hovered tile grows
+       while the opposite column/row shrinks, creating a "weight shift" effect. */
+    let hoveredTile = null;
+    let tileLayout = []; /* cached center points of each tile, used by the wave calculation */
+    const waveAmp = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--wave-amp')) || 2;
+
+    /* tile index → grid column (1=sidebar, 2=middle, 3=right) and row                */
+    /* DOM order: sidebar(0) project(1) showcase(2) articles(3) docs(4)               */
+    /* Grid CSS:  project→col2/row1  articles→col2/row2  showcase→col3/row1  docs→col3/row2 */
+    const tileGridCol = [0, 1, 2, 1, 2]; /* 0=sidebar, 1=col2(middle), 2=col3(right) */
+    const tileGridRow = [null, 0, 0, 1, 1]; /* null=spans both rows, 0=top, 1=bottom   */
+
+    /* Base fr values matching the CSS: 1fr 1.75fr 1.75fr / 1fr 1fr */
+    const BASE_COLS = [1, 1.75, 1.75];
+    const BASE_ROWS = [1, 1];
+    const COL_GROW  = 0.35; /* how much the hovered column grows (taken from the opposite column) */
+    const ROW_GROW  = 0.25; /* same for rows */
+
+    /* Store each tile's center so the wave can calculate distances from the cursor */
+    function cacheTileLayout() {
+        tileLayout = tiles.map(tile => {
+            const r = tile.getBoundingClientRect();
+            return { cx: r.left + r.width * 0.5, cy: r.top + r.height * 0.5 };
+        });
+    }
+
+    /* Measure the pixel dimensions a tile occupies when fully expanded (grid-column 2/4,
+       grid-row 1/3).  All expandable tiles share the same expanded area so we pick the first
+       one, temporarily simulate the expanded state, measure, then instantly restore.
+       The double-rAF caller below ensures this runs after the initial layout is stable. */
+    function cacheExpandedDims() {
+        const ref = tiles.find(t => !t.classList.contains('sidebar-panel'));
+        if (!ref) return;
+        grid.classList.add('has-expanded');
+        ref.classList.add('is-expanded');
+        ref.offsetHeight;
+        const r = ref.getBoundingClientRect();
+        ref.classList.remove('is-expanded');
+        grid.classList.remove('has-expanded');
+        ref.offsetHeight;
+        expandedDims = { width: r.width, height: r.height };
+    }
+
+    function clearRippleStyles() {
+        grid.style.gridTemplateColumns = '';
+        grid.style.gridTemplateRows = '';
+    }
+
+    /* Remove hover state from all tiles and reset grid proportions */
+    function clearRipple() {
+        tiles.forEach(t => t.classList.remove('is-hovered'));
+        clearRippleStyles();
+        requestAnimationFrame(refreshAllPeeks);
+    }
+
+    /* ── Peek helpers — always-on scaled real content preview ─────────── */
+
+    function clearPeekPanelPosition(expand) {
+        if (!expand) return;
+        expand.style.inset = '';
+        expand.style.top = '';
+        expand.style.left = '';
+        expand.style.right = '';
+        expand.style.bottom = '';
+    }
+
+    /* Core: write scale transform + fixed dimensions onto a tile's expandInner.
+       Peek panel sits below .tile-compact so content does not show behind the title. */
+    function applyPeekScale(tile) {
+        if (!expandedDims || prefersReducedMotion) return false;
+        const expand = tile.querySelector('.tile-expand');
+        if (!expand) return false;
+        const compact = tile.querySelector('.tile-compact');
+        const compactH = compact ? compact.getBoundingClientRect().height : 0;
+        expand.style.inset = 'auto';
+        expand.style.top = `${compactH}px`;
+        expand.style.left = '0';
+        expand.style.right = '0';
+        expand.style.bottom = '0';
+        tile.offsetHeight; /* flush layout so the peek panel has real dimensions */
+        const expandRect = expand.getBoundingClientRect();
+        let availW = expandRect.width;
+        let availH = expandRect.height;
+        if (availW < 10 || availH < 10) {
+            const tileRect = tile.getBoundingClientRect();
+            availW = tileRect.width;
+            availH = Math.max(tileRect.height - compactH, 1);
+        }
+        if (availW < 10 || availH < 10) return false;
+        const scale = widthFitContentScale(availW, expandedDims.width);
+        const expandInner = tile.querySelector('.tile-expand-inner');
+        if (!expandInner) return false;
+        /* Smooth scale refits during hover-resize; expand/collapse set their own transitions */
+        if (usesScaledCanvas(tile) && !animatingTile) {
+            expandInner.style.transition = `transform var(--duration-water) var(--ease-water)`;
+        } else if (animatingTile) {
+            expandInner.style.transition = '';
+        }
+        expandInner.style.width           = `${expandedDims.width}px`;
+        expandInner.style.height          = `${expandedDims.height}px`;
+        expandInner.style.transformOrigin = 'top left';
+        expandInner.style.transform       = `scale(${scale})`;
+        expandInner.style.flexShrink      = '0';
+        tile._peekScaleX = scale;
+        tile._peekScaleY = scale;
+        return true;
+    }
+
+    /* Apply the peek state to a tile (idempotent — safe to call when already peeking). */
+    function startPeek(tile) {
+        if (animatingTile || expandedTile) return;
+        if (tile.classList.contains('sidebar-panel') || tile.classList.contains('is-expanded')) return;
+        if (!tile.classList.contains('is-peek')) {
+            tile.classList.add('is-peek');
+        }
+        tile.offsetHeight; /* apply inset:0 overlay before first measure */
+        if (!applyPeekScale(tile)) {
+            tile.classList.remove('is-peek');
+            return;
+        }
+        /* Re-measure once layout has settled (first pass can run before absolute overlay sizes) */
+        requestAnimationFrame(() => {
+            if (tile.classList.contains('is-peek')) applyPeekScale(tile);
+        });
+    }
+
+    /* Re-apply peek immediately after collapse — bypasses startPeek's animatingTile guard */
+    function restorePeekAfterCollapse(tile) {
+        if (tile.classList.contains('sidebar-panel')) return;
+        const expandInner = tile.querySelector('.tile-expand-inner');
+        if (!tile.classList.contains('is-peek')) {
+            tile.classList.add('is-peek');
+        }
+        tile.offsetHeight;
+        if (!applyPeekScale(tile)) {
+            tile.classList.remove('is-peek');
+            if (expandInner) clearScaledExpandInner(expandInner);
+            return;
+        }
+        requestAnimationFrame(() => {
+            if (tile.classList.contains('is-peek')) applyPeekScale(tile);
+        });
+    }
+
+    /* Refresh the scale on an already-peeking tile (e.g. after resize). */
+    function refreshPeek(tile) {
+        if (!tile.classList.contains('is-peek')) return;
+        applyPeekScale(tile);
+    }
+
+    /* Remove peek state from a tile — clears the scale transform and the class. */
+    function endPeek(tile) {
+        if (!tile || !tile.classList.contains('is-peek')) return;
+        tile.classList.remove('is-peek');
+        clearPeekPanelPosition(tile.querySelector('.tile-expand'));
+        const expandInner = tile.querySelector('.tile-expand-inner');
+        if (expandInner) {
+            expandInner.style.width          = '';
+            expandInner.style.height         = '';
+            expandInner.style.transform      = '';
+            expandInner.style.transformOrigin = '';
+            expandInner.style.flexShrink     = '';
+        }
+        if (peekTile === tile) peekTile = null;
+        delete tile._peekScaleX;
+        delete tile._peekScaleY;
+    }
+
+    /* Apply peek to ALL eligible collapsed tiles at once (called on load and after resize). */
+    function applyAllPeeks() {
+        tiles.forEach(tile => {
+            if (!tile.classList.contains('sidebar-panel') &&
+                !tile.classList.contains('is-expanded') &&
+                !tile.classList.contains('is-expanding')) {
+                startPeek(tile);
+            }
+        });
+    }
+
+    /* Re-measure and refresh peek scales on all currently peeking tiles. */
+    function refreshAllPeeks() {
+        tiles.forEach(tile => {
+            if (tile.classList.contains('is-peek')) {
+                refreshPeek(tile);
+            } else {
+                startPeek(tile);
+            }
+        });
+    }
+
+    /* Adjust grid proportions so the hovered tile's column and row grow */
+    function applyRipple(sourceIndex) {
+        if (!finePointer || expandedTile || sourceIndex < 0) return;
+        if (window.innerWidth < 768) return; /* grid layout only exists on desktop */
+
+        if (sourceIndex === 0) { clearRipple(); return; } /* sidebar never triggers ripple */
+
+        /* Mark the hovered tile and reset wave offsets on all tiles */
+        tiles.forEach((tile, i) => {
+            tile.classList.toggle('is-hovered', i === sourceIndex);
+            tile.style.setProperty('--wave-x', '0px');
+            tile.style.setProperty('--wave-y', '0px');
+        });
+
+        if (prefersReducedMotion || !hoverResizeEnabled) return;
+
+        const hCol = tileGridCol[sourceIndex]; /* which of the 3 columns the tile is in */
+        const hRow = tileGridRow[sourceIndex]; /* which of the 2 rows the tile is in */
+
+        /* Grow the hovered column, shrink the other non-sidebar column */
+        const cols = [...BASE_COLS];
+        cols[hCol]           += COL_GROW;
+        cols[hCol === 1 ? 2 : 1] -= COL_GROW;
+
+        /* Grow the hovered row, shrink the other row */
+        const rows = [...BASE_ROWS];
+        rows[hRow]         += ROW_GROW;
+        rows[1 - hRow]     -= ROW_GROW;
+
+        /* Apply the new fr values — CSS transitions them smoothly */
+        grid.style.gridTemplateColumns = cols.map(v => `${v}fr`).join(' ');
+        grid.style.gridTemplateRows    = rows.map(v => `${v}fr`).join(' ');
+    }
+
+    /* Update which tile is hovered and trigger the ripple grid change */
+    function setHoveredTile(tile) {
+        if (expandedTile) return; /* no hover effects while a tile is expanded */
+        /* Treat tiles not in our interactive array (e.g. tile-about) the same as no tile */
+        if (tile && !tiles.includes(tile)) tile = null;
+        if (!tile) {
+            if (hoveredTile) {
+                hoveredTile = null;
+                clearRipple();
+            }
+            return;
+        }
+        if (tile === hoveredTile) return; /* no change */
+        hoveredTile = tile;
+        applyRipple(tiles.indexOf(tile));
+        /* Grid fr units change tile size — re-fit peek scales after layout updates */
+        requestAnimationFrame(() => requestAnimationFrame(refreshAllPeeks));
+    }
+
+    /* Cache tile positions and expanded dimensions, then apply peek to all tiles */
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        cacheTileLayout();
+        cacheExpandedDims();
+        applyAllPeeks();
+    }));
+    window.addEventListener('resize', () => {
+        if (!animatingTile) {
+            cacheTileLayout();
+            cacheExpandedDims();
+            refreshAllPeeks();
+            /* Re-apply ripple after resize so the grid proportions stay correct */
+            if (!expandedTile && hoveredTile) applyRipple(tiles.indexOf(hoveredTile));
+        }
+    });
+
+    /* Re-fit peek previews after the hover ripple finishes resizing grid rows/cols */
+    grid.addEventListener('transitionend', e => {
+        if (e.target !== grid || expandedTile || animatingTile) return;
+        if (e.propertyName === 'grid-template-columns' || e.propertyName === 'grid-template-rows') {
+            refreshAllPeeks();
+        }
+    });
+
+    /* mouseenter on each tile — sidebar entering clears the ripple */
+    tiles.forEach((tile, i) => {
+        /* Sidebar (index 0) is fixed — entering it clears any active ripple */
+        if (i === 0) {
+            tile.addEventListener('mouseenter', () => setHoveredTile(null));
+        } else {
+            tile.addEventListener('mouseenter', () => setHoveredTile(tile));
+        }
+    });
+
+    /* ── Idle wave effect — cursor in the gap between tiles ─────── */
+    /* When the mouse is over the grid but not on any tile, each tile gently
+       nudges toward the cursor using a damped sinusoidal wave based on distance. */
+    if (finePointer) {
+        /* Per-tile wave state: current (x,y) position and target (tx,ty) */
+        const waveState = tiles.map(() => ({ x: 0, y: 0, tx: 0, ty: 0 }));
+        let pointerRaf = null;  /* rAF handle so we don't schedule multiple frames */
+        let pendingTile = null; /* tile under the cursor, updated on mousemove */
+
+        /* Main animation loop — runs once per rAF, then reschedules itself only
+           if tiles are still moving (avoids running when nothing is happening) */
+        function onPointerFrame() {
+            pointerRaf = null;
+
+            /* Sync hover state if the cursor moved to a different tile */
+            if (pendingTile !== hoveredTile) {
+                setHoveredTile(pendingTile);
+            }
+
+            /* Wave mode: cursor is in the gap between tiles (pendingTile is null) */
+            if (!prefersReducedMotion && !expandedTile && !hoveredTile) {
+                let moving = false;
+                tiles.forEach((tile, i) => {
+                    const s = waveState[i];
+                    /* Lerp current position toward the target with a factor of 0.055 (springy) */
+                    s.x += (s.tx - s.x) * 0.055;
+                    s.y += (s.ty - s.y) * 0.055;
+                    /* Keep looping if any tile hasn't reached its target yet */
+                    if (Math.abs(s.tx - s.x) > 0.015 || Math.abs(s.ty - s.y) > 0.015) moving = true;
+                    tile.style.setProperty('--wave-x', `${s.x.toFixed(2)}px`);
+                    tile.style.setProperty('--wave-y', `${s.y.toFixed(2)}px`);
+                });
+                if (moving) pointerRaf = requestAnimationFrame(onPointerFrame);
+            } else if (!expandedTile) {
+                /* Ripple mode (hovering a tile): zero out wave offsets */
+                tiles.forEach(tile => {
+                    tile.style.setProperty('--wave-x', '0px');
+                    tile.style.setProperty('--wave-y', '0px');
+                });
+            }
+        }
+
+        /* Schedule a single rAF — deduplicates rapid mousemove events */
+        function schedulePointerFrame() {
+            if (!pointerRaf) pointerRaf = requestAnimationFrame(onPointerFrame);
+        }
+
+        grid.addEventListener('mousemove', e => {
+            if (expandedTile) return;
+            pendingTile = e.target.closest('.section-tile');
+
+            /* Compute wave target only when the cursor is in the gap (not on a tile) */
+            if (!prefersReducedMotion && !pendingTile) {
+                const px = e.clientX;
+                const py = e.clientY;
+                tiles.forEach((tile, i) => {
+                    const layout = tileLayout[i];
+                    if (!layout) return;
+                    /* Vector from cursor to tile center */
+                    const dx = layout.cx - px;
+                    const dy = layout.cy - py;
+                    const dist = Math.hypot(dx, dy) || 1;
+                    /* Normalized direction — tiles nudge away from the cursor */
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    /* Sinusoidal ripple ring: sin makes waves at different distances,
+                       the per-tile phase offset (i * 0.35) staggers the rings */
+                    const ring = Math.sin(dist * 0.02 + i * 0.35);
+                    /* Exponential falloff: tiles far from the cursor are barely affected */
+                    const damp = Math.exp(-dist * 0.0016);
+                    const amp = waveAmp * 1.35 * ring * damp;
+                    waveState[i].tx = nx * amp;
+                    waveState[i].ty = ny * amp;
+                });
+            }
+            schedulePointerFrame();
+        });
+
+        /* Mouse left the grid entirely — settle all tiles back to zero */
+        grid.addEventListener('mouseleave', () => {
+            pendingTile = null;
+            hoveredTile = null;
+            clearRipple();
+            waveState.forEach(s => { s.tx = 0; s.ty = 0; });
+            schedulePointerFrame();
+        });
+    }
+
+    /* ── View switcher (sidebar "Graphics Engine" / "Profiler" / "About Me" buttons) */
+    const viewBtns = document.querySelectorAll('.sidebar-panel .view-btn');
+    const aboutTile = document.getElementById('tile-about');
+    /* All non-sidebar tiles are the "content" tiles shown in graphics/profiler views */
+    const contentTileEls = tiles.filter(t => !t.classList.contains('sidebar-panel'));
+    const CONTENT_VIEWS = new Set(['graphics', 'profiler']);
+    let currentView = 'profiler';
+    const VIEW_FADE_MS = 180;
+    const featuresTile = document.querySelector('.tile-project');
+    const featuresSubtitle = featuresTile?.querySelector('.tile-subtitle');
+    const featuresExpandSubtitle = featuresTile?.querySelector('.features-tile-subtitle');
+
+    function updateFeaturesBento(view) {
+        if (!featuresTile) return;
+        featuresTile.querySelectorAll('[data-bento-view]').forEach(panel => {
+            panel.hidden = panel.dataset.bentoView !== view;
+        });
+        const subtitle = view === 'graphics'
+            ? 'Rendering & pipeline'
+            : 'Profiling & memory';
+        if (featuresSubtitle) featuresSubtitle.textContent = subtitle;
+        if (featuresExpandSubtitle) {
+            featuresExpandSubtitle.textContent = view === 'graphics'
+                ? 'Rendering pipeline and graphics systems in Astral Engine'
+                : 'Profiling and memory systems in Astral Engine';
+        }
+    }
+
+    updateFeaturesBento(currentView);
+
+    async function switchView(targetView) {
+        if (targetView === currentView) return;
+
+        /* Force-collapse any expanded tile immediately before switching */
+        if (expandedTile) {
+            const t = expandedTile;
+            expandedTile = null;
+            animatingTile = null;
+            t.classList.remove('is-expanded', 'is-expanding', 'is-collapsing');
+            t.setAttribute('aria-expanded', 'false');
+            const expPanel = t.querySelector('.tile-expand');
+            if (expPanel) expPanel.setAttribute('aria-hidden', 'true');
+            t.style.clipPath = '';
+            t.style.transition = '';
+            ['tile-mini-preview', 'tile-compact'].forEach(cls => {
+                const el = t.querySelector('.' + cls);
+                if (el) { el.style.transition = ''; el.style.opacity = ''; }
+            });
+            grid.classList.remove('has-expanded', 'is-restoring-tiles');
+            document.body.classList.remove('has-expanded');
+            tiles.forEach(t2 => { t2.style.transitionDelay = ''; t2.style.opacity = ''; t2.style.transition = ''; });
+        }
+
+        /* Block switches mid-animation */
+        if (animatingTile) return;
+
+        const prevView = currentView;
+        currentView = targetView;
+        viewBtns.forEach(btn => btn.classList.toggle('is-active', btn.dataset.view === targetView));
+        if (CONTENT_VIEWS.has(targetView)) updateFeaturesBento(targetView);
+
+        const mobile = window.innerWidth < 768;
+        const toContent = CONTENT_VIEWS.has(targetView);
+        const fromContent = CONTENT_VIEWS.has(prevView);
+
+        if (targetView === 'about') {
+            if (mobile) {
+                contentTileEls.forEach(t => { t.style.display = 'none'; });
+                aboutTile.style.display = 'flex';
+                aboutTile.style.opacity = '1';
+            } else {
+                /* Fade out content tiles */
+                contentTileEls.forEach(t => {
+                    t.style.transition = `opacity ${VIEW_FADE_MS}ms ease`;
+                    t.style.opacity = '0';
+                    t.style.pointerEvents = 'none';
+                });
+                await new Promise(r => setTimeout(r, VIEW_FADE_MS + 20));
+
+                /* Fade in the about tile */
+                aboutTile.style.display = 'flex';
+                aboutTile.style.opacity = '0';
+                aboutTile.offsetHeight; /* force reflow so transition fires */
+                aboutTile.style.transition = `opacity ${VIEW_FADE_MS}ms ease`;
+                aboutTile.style.opacity = '1';
+                await new Promise(r => setTimeout(r, VIEW_FADE_MS));
+                aboutTile.style.transition = '';
+            }
+        } else if (toContent && !fromContent) {
+            /* Switching from About Me back to a content view */
+            if (mobile) {
+                aboutTile.style.opacity = '0';
+                aboutTile.style.display = 'none';
+                contentTileEls.forEach(t => { t.style.display = ''; });
+            } else {
+                /* Fade out the about tile */
+                aboutTile.style.transition = `opacity ${VIEW_FADE_MS}ms ease`;
+                aboutTile.style.opacity = '0';
+                await new Promise(r => setTimeout(r, VIEW_FADE_MS + 20));
+                aboutTile.style.display = 'none';
+                aboutTile.style.transition = '';
+
+                /* Stagger-fade content tiles back in */
+                contentTileEls.forEach(t => { t.style.opacity = '0'; t.style.pointerEvents = ''; });
+                contentTileEls[0]?.offsetHeight; /* reflow */
+                contentTileEls.forEach((t, i) => {
+                    t.style.transition = `opacity ${VIEW_FADE_MS}ms ease ${i * 45}ms`;
+                    t.style.opacity = '1';
+                });
+                await new Promise(r => setTimeout(r, VIEW_FADE_MS + (contentTileEls.length - 1) * 45));
+                contentTileEls.forEach(t => { t.style.transition = ''; t.style.opacity = ''; });
+            }
+        }
+        /* graphics ↔ profiler: same four tiles, no visibility change needed */
+
+        clearRipple();
+        cacheTileLayout();
+    }
+
+    viewBtns.forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+
+    /* ── Settings panel (gear button at bottom of sidebar) ─────────────────────── */
+    const settingsBtn   = document.getElementById('sidebar-settings-btn');
+    const settingsPanel = document.getElementById('sidebar-settings-panel');
+    const hoverToggle   = document.getElementById('toggle-hover-resize');
+
+    settingsBtn.addEventListener('click', () => {
+        const isOpen = settingsPanel.classList.toggle('is-open');
+        settingsBtn.classList.toggle('is-open', isOpen);
+    });
+
+    hoverToggle.addEventListener('change', () => {
+        hoverResizeEnabled = hoverToggle.checked;
+        if (!hoverResizeEnabled) {
+            clearRippleStyles(); /* immediately snap grid back to base proportions */
+        } else if (hoveredTile) {
+            applyRipple(tiles.indexOf(hoveredTile)); /* re-apply if currently hovering */
+        }
+    });
+    /* ── Showcase gallery modal (image-item clicks inside expanded tile) ─────── */
+    (function initShowcaseModal() {
+        const modal = document.getElementById('showcase-image-modal');
+        if (!modal) return;
+        const modalImage = document.getElementById('showcase-modal-image');
+        const modalTitle = document.getElementById('showcase-modal-title');
+        const modalDescription = document.getElementById('showcase-modal-description');
+        const modalVideo = document.getElementById('showcase-modal-video');
+        const closeBtn = modal.querySelector('.showcase-modal-close');
+        const prevBtn = document.getElementById('showcase-modal-prev');
+        const nextBtn = document.getElementById('showcase-modal-next');
+        const galleryItems = Array.from(document.querySelectorAll('#tile-grid .tile-showcase .image-item'));
+        let currentImageIndex = 0;
+
+        function openModal(item) {
+            modalImage.src = item.dataset.fullSrc;
+            modalTitle.textContent = item.dataset.title;
+            modalDescription.textContent = item.dataset.description;
+            const videoSrc = item.dataset.videoSrc;
+            if (videoSrc) {
+                modalVideo.querySelector('source').src = videoSrc;
+                modalVideo.load();
+            }
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeModal() {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            modalVideo.pause();
+            modalVideo.currentTime = 0;
+        }
+
+        function plusSlides(n) {
+            modalVideo.pause();
+            modalVideo.currentTime = 0;
+            currentImageIndex = (currentImageIndex + n + galleryItems.length) % galleryItems.length;
+            openModal(galleryItems[currentImageIndex]);
+        }
+
+        galleryItems.forEach((item, index) => {
+            item.addEventListener('click', e => {
+                if (!item.closest('.tile-showcase')?.classList.contains('is-expanded')) return;
+                e.stopPropagation();
+                currentImageIndex = index;
+                openModal(item);
+            });
+        });
+
+        closeBtn.addEventListener('click', closeModal);
+        prevBtn.addEventListener('click', () => plusSlides(-1));
+        nextBtn.addEventListener('click', () => plusSlides(1));
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', e => {
+            if (!modal.classList.contains('is-open')) return;
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft') plusSlides(-1);
+            if (e.key === 'ArrowRight') plusSlides(1);
+        });
+    })();
+
+
+})();
 </script>
 </body>
 </html>
