@@ -24,10 +24,6 @@
             --stagger-step: 55ms;  /* delay between each tile fading back in after collapse */
             --wave-amp: 2px;       /* max translation distance for the idle wave effect */
 
-            /* How much extra grid weight the hovered row/column gains.
-               Neighbors give up this weight (closest shrink most) so the
-               fixed gap is preserved and only the tile dimensions change. */
-            --tile-grow: 0.5;
             --ease-ripple: cubic-bezier(0.22, 0.72, 0.28, 1);
         }
 
@@ -88,10 +84,6 @@
                 grid-template-rows: 1fr 1fr;
                 height: min(92dvh, 960px);
                 max-height: min(92dvh, 960px);
-                /* Smooth column/row resize when hovering (the ripple effect) */
-                transition:
-                    grid-template-columns var(--duration-water) var(--ease-water),
-                    grid-template-rows var(--duration-water) var(--ease-water);
             }
 
             /* Explicit grid placement for each tile */
@@ -124,16 +116,6 @@
             /* Tighter padding inside the sidebar on small screens */
             .sidebar-panel .tile-expand-content {
                 padding: 1rem 1.1rem;
-            }
-
-            .sidebar-panel .tile-expand-content .about-hero h3 {
-                font-size: 1.25rem;
-            }
-
-            .sidebar-panel .tile-expand-content .about-body p,
-            .sidebar-panel .tile-expand-content .about-contact p,
-            .sidebar-panel .tile-expand-content .about-hero p {
-                font-size: 0.8rem;
             }
         }
 
@@ -340,35 +322,31 @@
             transition: opacity 0.2s var(--ease-water);
         }
 
-        /* Peek panel: overlay below the compact header (top offset set in JS) */
-        .section-tile.is-peek .tile-expand {
-            display: flex !important;
-            opacity: 1 !important;
-            animation: none !important;
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            flex: none;
-            min-height: 0;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Full-tile overlay during peek→expand / expand→peek clip-path animations */
+        /* Peek panel and peek-path expand/collapse overlays */
+        .section-tile.is-peek .tile-expand,
         .section-tile.is-expanding.is-from-peek .tile-expand,
         .section-tile.is-collapsing.is-from-peek .tile-expand {
             display: flex !important;
             opacity: 1 !important;
             animation: none !important;
             position: absolute;
-            inset: 0;
             flex: none;
             min-height: 0;
-            overflow: visible;
             pointer-events: none;
             z-index: 1;
+        }
+
+        .section-tile.is-peek .tile-expand {
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+        }
+
+        .section-tile.is-expanding.is-from-peek .tile-expand,
+        .section-tile.is-collapsing.is-from-peek .tile-expand {
+            inset: 0;
+            overflow: visible;
         }
 
         .section-tile.is-expanding.is-from-peek,
@@ -384,9 +362,7 @@
            Absolute only during peek/expand animation — not when fully expanded (scroll needs flex). */
         .section-tile.is-peek .tile-expand-inner,
         .section-tile.is-expanding.is-from-peek .tile-expand-inner,
-        .section-tile.is-collapsing.is-from-peek .tile-expand-inner,
-        .section-tile.tile-scaled-canvas.is-expanding .tile-expand-inner,
-        .section-tile.tile-scaled-canvas.is-collapsing .tile-expand-inner {
+        .section-tile.is-collapsing.is-from-peek .tile-expand-inner {
             position: absolute;
             top: 0;
             left: 0;
@@ -395,43 +371,10 @@
             overflow: hidden;
         }
 
-        /* Scaled-canvas tiles keep content visible through expand/collapse */
-        .section-tile.tile-scaled-canvas.is-expanding .tile-expand,
-        .section-tile.tile-scaled-canvas.is-collapsing .tile-expand {
-            display: flex !important;
-            opacity: 1 !important;
-            animation: none !important;
-            position: absolute;
-            inset: 0;
-            flex: none;
-            min-height: 0;
-            overflow: visible;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .section-tile.tile-scaled-canvas.is-expanding {
-            overflow: visible;
-        }
-
-        /* Scaled-canvas tiles show content throughout expand — no post-expand fade */
-        .section-tile.tile-scaled-canvas.is-expanded:not(.is-expanding):not(.is-collapsing) .tile-expand {
-            display: flex;
-            opacity: 1;
-            animation: none;
-        }
-
-        /* Smooth scale when hover-resize or window resize refits peek previews */
-        .section-tile.tile-scaled-canvas.is-peek .tile-expand-inner {
-            transition: transform var(--duration-water) var(--ease-water);
-        }
-
         /* Remove the top separator line while peeking (looks odd when scaled) */
         .section-tile.is-peek .tile-expand-content,
         .section-tile.is-expanding.is-from-peek .tile-expand-content,
-        .section-tile.is-collapsing.is-from-peek .tile-expand-content,
-        .section-tile.tile-scaled-canvas.is-expanding .tile-expand-content,
-        .section-tile.tile-scaled-canvas.is-collapsing .tile-expand-content {
+        .section-tile.is-collapsing.is-from-peek .tile-expand-content {
             border-top: none;
         }
 
@@ -461,69 +404,29 @@
             cursor: default; /* not clickable, so don't show pointer */
         }
 
-        /* Hide the parts that only make sense on collapsible tiles */
+        /* Always-open panels: hide compact header and close button */
         .sidebar-panel .tile-compact,
-        .sidebar-panel .tile-close-btn {
+        .sidebar-panel .tile-close-btn,
+        .tile-about .tile-compact,
+        .tile-about .tile-close-btn {
             display: none;
         }
 
-        /* Show the expand panel permanently (sidebar is always "expanded") */
-        .sidebar-panel .tile-expand {
+        .sidebar-panel .tile-expand,
+        .tile-about .tile-expand {
             display: flex;
             flex: 1;
             min-height: 0;
             opacity: 1;
         }
 
-        .sidebar-panel .tile-expand-content {
+        .sidebar-panel .tile-expand-content,
+        .tile-about .tile-expand-content {
             border-top: none;
+        }
+
+        .sidebar-panel .tile-expand-content {
             padding: clamp(0.65rem, 1.2vw, 1.1rem) clamp(0.75rem, 1.4vw, 1.25rem);
-        }
-
-        .sidebar-panel .tile-expand-content .about-hero h3 {
-            font-size: clamp(1rem, 1.35vw, 1.35rem);
-        }
-
-        .sidebar-panel .tile-expand-content .about-hero p {
-            font-size: clamp(0.7rem, 0.85vw, 0.8rem);
-        }
-
-        .sidebar-panel .tile-expand-content .about-hero svg {
-            width: 1.35rem;
-            height: 1.35rem;
-        }
-
-        .sidebar-panel .tile-expand-content h3 {
-            font-size: clamp(0.8rem, 0.95vw, 0.9rem);
-        }
-
-        .sidebar-panel .tile-expand-content .about-body p {
-            font-size: clamp(0.68rem, 0.78vw, 0.75rem);
-            line-height: 1.55;
-        }
-
-        .sidebar-panel .tile-expand-content .about-contact p {
-            font-size: clamp(0.68rem, 0.78vw, 0.75rem);
-        }
-
-        .sidebar-panel .tile-expand-content .about-contact a.expand-link-btn,
-        .sidebar-panel .tile-expand-content .about-contact a.bg-sky-600 {
-            font-size: clamp(0.65rem, 0.75vw, 0.75rem);
-            padding: 0.4rem 0.85rem;
-        }
-
-        .sidebar-panel .tile-expand-content .about-contact a.bg-sky-600 svg {
-            width: 0.9rem;
-            height: 0.9rem;
-        }
-
-        .sidebar-panel .tile-expand-content .space-y-6 > * + * {
-            margin-top: clamp(0.75rem, 1.5vh, 1.25rem);
-        }
-
-        .sidebar-panel .skill-badge {
-            font-size: clamp(0.58rem, 0.65vw, 0.65rem);
-            padding: 0.2rem 0.5rem;
         }
 
         /* Content slides up and fades in after the clip-path animation finishes */
@@ -608,26 +511,6 @@
             color: rgb(125, 211, 252);
         }
 
-        .expand-link-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            background: rgba(56, 189, 248, 0.08);
-            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.28);
-            color: rgb(56, 189, 248);
-            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .expand-link-btn:hover {
-            background: rgba(56, 189, 248, 0.16);
-            color: rgb(125, 211, 252);
-            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.45);
-        }
-
         /* ─── Sidebar view-switch navigation buttons ──────────────────────────────── */
         .view-btn {
             display: flex;
@@ -672,19 +555,6 @@
             }
         }
 
-        /* Always-open panel: hide compact header and close button */
-        .tile-about .tile-compact,
-        .tile-about .tile-close-btn { display: none; }
-
-        .tile-about .tile-expand {
-            display: flex;
-            flex: 1;
-            min-height: 0;
-            opacity: 1;
-        }
-
-        .tile-about .tile-expand-content { border-top: none; }
-
         /* 2-column layout inside the about tile (left: bio+contact, right: skills) */
         .about-tile-grid {
             display: grid;
@@ -715,102 +585,6 @@
                 min-height: clamp(28rem, 75vh, 40rem);
             }
         }
-
-        /* ─── Sidebar settings area ──────────────────────────────────────────────────── */
-        .sidebar-settings-wrap {
-            flex-shrink: 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            padding: clamp(0.35rem, 0.6vw, 0.5rem) clamp(0.75rem, 1.4vw, 1.25rem);
-        }
-
-        .sidebar-settings-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            width: 100%;
-            padding: clamp(0.28rem, 0.45vw, 0.38rem) clamp(0.4rem, 0.65vw, 0.55rem);
-            border-radius: 0.4rem;
-            font-size: clamp(0.62rem, 0.72vw, 0.68rem);
-            font-weight: 500;
-            color: rgb(71, 85, 105);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: background 0.18s ease, color 0.18s ease;
-            text-align: left;
-        }
-        .sidebar-settings-btn:hover { background: rgba(255,255,255,0.04); color: rgb(100,116,139); }
-        .sidebar-settings-btn.is-open { color: rgb(100,116,139); }
-        .sidebar-settings-btn svg { flex-shrink: 0; transition: transform 0.28s var(--ease-water-soft); }
-        .sidebar-settings-btn.is-open svg { transform: rotate(45deg); }
-
-        /* Settings panel — slides in above the button */
-        .sidebar-settings-panel {
-            overflow: hidden;
-            max-height: 0;
-            opacity: 0;
-            transition: max-height 0.28s var(--ease-water-soft), opacity 0.22s ease;
-        }
-        .sidebar-settings-panel.is-open {
-            max-height: 6rem;
-            opacity: 1;
-            padding-bottom: clamp(0.25rem, 0.5vw, 0.4rem);
-        }
-
-        .settings-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            padding: clamp(0.25rem, 0.45vw, 0.35rem) clamp(0.4rem, 0.65vw, 0.55rem);
-            border-radius: 0.4rem;
-            transition: background 0.15s ease;
-        }
-        .settings-row:hover { background: rgba(255,255,255,0.03); }
-        .settings-row-label {
-            font-size: clamp(0.62rem, 0.72vw, 0.68rem);
-            color: rgb(148, 163, 184);
-            user-select: none;
-            cursor: pointer;
-        }
-
-        /* iOS-style toggle switch */
-        .toggle-switch {
-            position: relative;
-            width: 1.75rem;
-            height: 1rem;
-            flex-shrink: 0;
-        }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-        .toggle-slider {
-            position: absolute;
-            inset: 0;
-            border-radius: 1rem;
-            background: rgba(51, 65, 85, 0.9);
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07);
-            cursor: pointer;
-            transition: background 0.2s ease, box-shadow 0.2s ease;
-        }
-        .toggle-slider::before {
-            content: '';
-            position: absolute;
-            width: 0.7rem;
-            height: 0.7rem;
-            left: 0.15rem;
-            top: 0.15rem;
-            border-radius: 50%;
-            background: rgb(100, 116, 139);
-            transition: transform 0.2s ease, background 0.2s ease;
-        }
-        .toggle-switch input:checked + .toggle-slider {
-            background: rgba(56, 189, 248, 0.3);
-            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.35);
-        }
-        .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(0.75rem);
-            background: rgb(56, 189, 248);
-        }
-
 
         /* ─── Showcase image modal (tile + full page share markup) ─────────────── */
         .showcase-modal {
@@ -937,7 +711,7 @@
             box-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
         }
 
-        /* ─── Flat, view-aware documentation decks ─── */
+        /* ─── Documentation decks ─── */
         .docs-group + .docs-group { margin-top: 1.1rem; }
 
         .docs-group-label {
@@ -1046,7 +820,22 @@
         .doc-card--html{ --doc-glow: rgba(52, 211, 153, 0.18); }
         .doc-card--html .doc-card-badge { background: rgba(52, 211, 153, 0.14); color: #6ee7b7; }
 
-        /* Global links shared across views */
+        .showcase-feature-card {
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        @media (min-width: 640px) {
+            .showcase-feature-card { padding: 1.5rem; }
+        }
+
+        .showcase-video {
+            width: 100%;
+            border-radius: 0.5rem;
+            background: #000;
+        }
+
         .docs-global {
             margin-top: 1.2rem;
             padding-top: 1rem;
@@ -1060,7 +849,6 @@
 
     <!-- Shared documentation tree icons (used by tile-docs) -->
     <svg class="hidden" aria-hidden="true">
-        <symbol id="icon-folder" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /></symbol>
         <symbol id="icon-md" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm11.586 2.586a.5.5 0 00-.854-.353L12 8.414l-2.732-2.186a.5.5 0 00-.854.353v8.372a.5.5 0 00.854.353L12 12.586l2.732 2.186a.5.5 0 00.854-.353V6.586z" clip-rule="evenodd" /></symbol>
         <symbol id="icon-img" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" /></symbol>
         <symbol id="icon-txt" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2.5a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5zm0 3a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5zm0 3a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></symbol>
@@ -1103,31 +891,12 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Settings — always visible at the bottom of the sidebar -->
-                    <div class="sidebar-settings-wrap">
-                        <div class="sidebar-settings-panel" id="sidebar-settings-panel">
-                            <div class="settings-row">
-                                <label class="settings-row-label" for="toggle-hover-resize">Hover resize</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="toggle-hover-resize">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <button class="sidebar-settings-btn" id="sidebar-settings-btn" type="button">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            Settings
-                        </button>
-                    </div>
                 </div>
             </div>
         </article>
 
         <!-- Graphics Engine Showcase -->
-        <article class="section-tile tile-showcase tile-showcase-graphics tile-no-mini-preview" data-tile-index="1" tabindex="0" role="button" aria-expanded="false">
+        <article class="section-tile tile-showcase tile-showcase-graphics" data-tile-index="1" tabindex="0" role="button" aria-expanded="false">
             <div class="tile-compact">
                 <div class="tile-icon">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -1143,13 +912,13 @@
             <div class="tile-expand" aria-hidden="true">
                 <div class="tile-expand-inner">
                     <div class="tile-expand-content">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="docs-header">
                             <div>
                                 <h3 class="text-base font-semibold text-white">Graphics Showcase</h3>
-                                <p class="text-xs text-slate-500 mt-0.5 showcase-tile-subtitle">Rendered scenes and rendering features in Astral Engine</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Rendered scenes and rendering features in Astral Engine</p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="image-gallery">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
         <div class="group cursor-pointer image-item"
              data-full-src="Assets/Showcase/astral-engine-bistro-screenshot.png"
@@ -1209,17 +978,17 @@
 
         <div class="space-y-8">
             <!-- Cascaded Shadow Maps -->
-            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+            <div class="showcase-feature-card">
                 <h3 class="text-lg font-bold text-white mb-4">Cascaded Shadow Maps</h3>
                 <p class="text-slate-400 mb-6">
                     Dynamic shadow rendering using cascaded shadow mapping to maintain shadow quality at both near and far distances.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                    <video controls autoplay muted loop class="showcase-video">
                         <source src="Assets/Showcase/Features/Cascaded Shadow Maps/Astral%20Cascaded%20Shadow%20Map%20-%20Cascades%20-%20Smaller.mov" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
-                    <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                    <video controls autoplay muted loop class="showcase-video">
                         <source src="Assets/Showcase/Features/Cascaded Shadow Maps/Astral%20Cascaded%20Shadow%20Mapping%20-%20Movement%20-%20Smaller.mov" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
@@ -1227,19 +996,19 @@
             </div>
 
             <!-- Deferred Rendering -->
-            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+            <div class="showcase-feature-card">
                 <h3 class="text-lg font-bold text-white mb-4">Deferred Rendering Pipeline</h3>
                 <p class="text-slate-400 mb-6">
                     View individual GBuffer images including full lighting, albedo, roughness, metallic, emission, and normals.
                 </p>
-                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                <video controls autoplay muted loop class="showcase-video">
                     <source src="Assets/Showcase/Features/Deferred Rendering/Astral%20Deferred%20Rendering%20-%20Smaller.mov" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
 
             <!-- HDR Tonemapping -->
-            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+            <div class="showcase-feature-card">
                 <h3 class="text-lg font-bold text-white mb-4">HDR Tonemapping</h3>
                 <p class="text-slate-400 mb-6">
                     High dynamic range rendering with multiple tone mapping functions to compare ACES to other options.
@@ -1261,13 +1030,13 @@
             </div>
 
             <!-- Editor -->
-            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+            <div class="showcase-feature-card">
                 <h3 class="text-lg font-bold text-white mb-4">Editor</h3>
                 <p class="text-slate-400 mb-6">
                     A tool for creating and managing scenes. You can do things like create materials, add entities, change the environment map, access debug info and tools, viewing the
                     scene hierarchy, access renderer settings, change camera settings, and change entity properties.
                 </p>
-                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                <video controls autoplay muted loop class="showcase-video">
                     <source src="Assets/Showcase/Features/Editor/Astral%20Editor%20-%20Smaller.mov" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -1280,7 +1049,7 @@
         </article>
 
         <!-- Profiler Showcase -->
-        <article class="section-tile tile-showcase tile-showcase-profiler tile-no-mini-preview" data-tile-index="2" tabindex="0" role="button" aria-expanded="false">
+        <article class="section-tile tile-showcase tile-showcase-profiler" data-tile-index="2" tabindex="0" role="button" aria-expanded="false">
             <div class="tile-compact">
                 <div class="tile-icon">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -1296,34 +1065,34 @@
             <div class="tile-expand" aria-hidden="true">
                 <div class="tile-expand-inner">
                     <div class="tile-expand-content">
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="docs-header">
                             <div>
                                 <h3 class="text-base font-semibold text-white">Profiler Showcase</h3>
-                                <p class="text-xs text-slate-500 mt-0.5 showcase-tile-subtitle">Profiling and memory tooling in Astral Engine</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Profiling and memory tooling in Astral Engine</p>
                             </div>
                         </div>
                         <div class="mt-8 mb-4">
         <div class="space-y-8">
             <!-- Scope Profiler -->
-            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+            <div class="showcase-feature-card">
                 <h3 class="text-lg font-bold text-white mb-4">Performance Profiling Tools</h3>
                 <p class="text-slate-400 mb-6">
                     Custom scope profiling integrated into Chrome's trace tool for viewing. Track performance timing and memory allocation frequency for engine systems, rendering passes, and frame execution to identify optimization opportunities.
                 </p>
-                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                <video controls autoplay muted loop class="showcase-video">
                     <source src="Assets/Showcase/Features/Scope Profiler/Astral Scope Profiler - Smaller.mov" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
 
             <!-- Memory Allocation Tracker  -->
-            <div class="bg-slate-800/30 rounded-lg p-4 sm:p-6 ring-1 ring-white/10">
+            <div class="showcase-feature-card">
                 <h3 class="text-lg font-bold text-white mb-4">Memory Allocation Tracker</h3>
                 <p class="text-slate-400 mb-6">
                     A memory allocation tracker that lets you view memory allocation statistics like memory usage or active allocations by Region, Allocator Type, Thread, or by Global. Additionally, it
                     also shows stacktraces for every allocation and free, so you can track down allocation hotspots.
                 </p>
-                <video controls autoplay muted loop class="w-full rounded-lg bg-black">
+                <video controls autoplay muted loop class="showcase-video">
                     <source src="Assets/Showcase/Features/Memory%20Allocation%20Tracker/Astral%20Memory%20Allocation%20Tracker%20UI%20-%20Smaller.mov" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
@@ -1336,7 +1105,7 @@
         </article>
 
         <!-- Articles -->
-        <article class="section-tile tile-articles tile-no-mini-preview" data-tile-index="3" tabindex="0" role="button" aria-expanded="false" id="articles">
+        <article class="section-tile tile-articles" data-tile-index="3" tabindex="0" role="button" aria-expanded="false" id="articles">
             <div class="tile-compact">
                 <div class="tile-icon">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
@@ -1431,7 +1200,7 @@
         </article>
 
         <!-- Documentation -->
-        <article class="section-tile tile-docs tile-no-mini-preview" data-tile-index="4" tabindex="0" role="button" aria-expanded="false">
+        <article class="section-tile tile-docs" data-tile-index="4" tabindex="0" role="button" aria-expanded="false">
             <div class="tile-compact">
                 <div class="tile-icon">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -1574,7 +1343,7 @@
                                 </div>
                             </div>
 
-                        <!-- Shared across both views -->
+                        <!-- Engine-wide documentation -->
                         <div class="docs-global">
                             <div class="docs-group-label">Engine-wide</div>
                             <div class="docs-deck">
@@ -1706,6 +1475,7 @@
 (function () {
     const grid = document.getElementById('tile-grid');
     const tiles = Array.from(grid.querySelectorAll('.section-tile:not(.tile-about)'));
+    const showcaseModal = document.getElementById('showcase-image-modal');
 
     /* Detect user preferences once — used throughout to skip animations */
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1716,14 +1486,9 @@
     let expandedTile = null;
     let animatingTile = null;
 
-    /* Peek state — which tile is currently showing the hover preview */
-    let peekTile = null;
     /* Cached pixel dimensions of a tile at its fully-expanded size (all expandable tiles
        share the same expanded area, so we only need to measure once) */
     let expandedDims = null;
-
-    /* User preference: whether the grid resizes on tile hover */
-    let hoverResizeEnabled = false;
 
     /* ── clip-path helpers ─────────────────────────────────────── */
 
@@ -1800,10 +1565,6 @@
         `width var(--duration-expand) var(--ease-expand),` +
         `height var(--duration-expand) var(--ease-expand)`;
 
-    function usesScaledCanvas(tile) {
-        return tile.classList.contains('tile-scaled-canvas');
-    }
-
     /* Scale to tile width; uniform X/Y preserves aspect ratio. Extra height is clipped in peek. */
     function widthFitContentScale(availW, contentW) {
         if (contentW < 1) return 1;
@@ -1811,16 +1572,16 @@
     }
 
     /* Scale factor to fit the expanded content canvas into a collapsed cell */
-    function collapsedContentScale(tile, cellBounds) {
-        if (!expandedDims) return { scaleX: 1, scaleY: 1 };
-        const scale = widthFitContentScale(cellBounds.width, expandedDims.width);
-        return { scaleX: scale, scaleY: scale };
+    function collapsedContentScale(cellBounds) {
+        if (!expandedDims) return 1;
+        return widthFitContentScale(cellBounds.width, expandedDims.width);
     }
 
     /* Expanded tiles share one 2×2 area; scale toward the corner that matches this tile's cell */
     function cellTransformOrigin(tile) {
         if (window.innerWidth < 768) return 'top left';
-        if (tile.classList.contains('tile-showcase')) return 'top right';
+        if (tile.classList.contains('tile-showcase-graphics')) return 'top left';
+        if (tile.classList.contains('tile-showcase-profiler')) return 'top right';
         if (tile.classList.contains('tile-articles')) return 'bottom left';
         if (tile.classList.contains('tile-docs')) return 'bottom right';
         return 'top left';
@@ -1854,14 +1615,16 @@
         expandInner.style.height     = height;
     }
 
+    function resetCompactStyles(tile) {
+        const compact = tile.querySelector('.tile-compact');
+        if (compact) { compact.style.transition = ''; compact.style.opacity = ''; }
+    }
+
     /* Jump to the post-expand DOM/CSS state with no clip-path or content animation */
     function applyInstantExpand(tile) {
         if (tile.classList.contains('is-peek')) {
             tile.classList.remove('is-peek');
             clearPeekPanelPosition(tile.querySelector('.tile-expand'));
-            if (peekTile === tile) peekTile = null;
-            delete tile._peekScaleX;
-            delete tile._peekScaleY;
         }
 
         clearRipple();
@@ -1879,10 +1642,7 @@
         const expandInner = tile.querySelector('.tile-expand-inner');
         if (expandInner) clearScaledExpandInner(expandInner);
 
-        ['tile-mini-preview', 'tile-compact'].forEach(cls => {
-            const el = tile.querySelector('.' + cls);
-            if (el) { el.style.transition = ''; el.style.opacity = ''; }
-        });
+        resetCompactStyles(tile);
 
         expandedTile = tile;
     }
@@ -1902,14 +1662,9 @@
 
         /* Detect whether we're coming from the peek (hover-preview) state so we can
            run a seamless scale animation instead of a content-swap crossfade. */
-        const fromPeek      = tile.classList.contains('is-peek');
-        const scaledCanvas  = usesScaledCanvas(tile);
-        const scaleContent  = fromPeek || scaledCanvas;
-        const peekScaleX    = tile._peekScaleX || 1;
-        const peekScaleY    = tile._peekScaleY || 1;
+        const fromPeek = tile.classList.contains('is-peek');
 
-        /* Measure tile position BEFORE clearing hover — the clip starts from the
-           hover-enlarged cell, making the motion continuous with the ripple effect. */
+        /* Measure tile position before clearing hover highlight */
         const small = tile.getBoundingClientRect();
 
         if (fromPeek) {
@@ -1922,20 +1677,14 @@
                keeps the expand panel visible throughout the clip-path animation. */
             tile.classList.remove('is-peek');
             clearPeekPanelPosition(tile.querySelector('.tile-expand'));
-            if (peekTile === tile) peekTile = null;
-            delete tile._peekScaleX;
-            delete tile._peekScaleY;
-        } else if (scaledCanvas) {
-            const compact = tile.querySelector('.tile-compact');
-            if (compact) { compact.style.opacity = '0'; compact.style.transition = 'none'; }
         }
-        clearRipple(); /* clear hover highlight / grid resize on every expand path */
+        clearRipple();
 
         /* Add both classes at the same time: is-expanding suppresses display swaps
            while is-expanded moves the tile to the 2×2 grid area */
         tile.classList.add('is-expanding');
         tile.classList.add('is-expanded');
-        if (scaleContent) tile.classList.add('is-from-peek');
+        if (fromPeek) tile.classList.add('is-from-peek');
         tile.setAttribute('aria-expanded', 'true');
         tile.querySelector('.tile-expand').setAttribute('aria-hidden', 'false');
         grid.classList.add('has-expanded');
@@ -1956,20 +1705,11 @@
             tile.style.transition = `clip-path var(--duration-expand) var(--ease-expand)`;
             tile.style.clipPath   = 'inset(0px 0px 0px 0px round 0px)'; /* fully revealed */
 
-            if (scaleContent && expandInner) {
-                if (fromPeek) {
-                    /* Simultaneously animate the expand-inner scale from peek size → 1.
-                       The expandInner already has the peek transform from startPeek() applied as
-                       inline styles (width, height, transformOrigin, transform, flexShrink). */
-                    animateScaledExpandInner(expandInner, 1, 1, '100%', '100%');
-                } else {
-                    const origin = cellTransformOrigin(tile);
-                    /* Scaled-canvas path without peek: start at collapsed scale, grow to full */
-                    const { scaleX, scaleY } = collapsedContentScale(tile, small);
-                    setScaledExpandInner(expandInner, scaleX, scaleY, origin);
-                    expandInner.offsetHeight;
-                    animateScaledExpandInner(expandInner, 1, 1, '100%', '100%', origin);
-                }
+            if (fromPeek && expandInner) {
+                /* Simultaneously animate the expand-inner scale from peek size → 1.
+                   The expandInner already has the peek transform from startPeek() applied as
+                   inline styles (width, height, transformOrigin, transform, flexShrink). */
+                animateScaledExpandInner(expandInner, 1, 1, '100%', '100%');
             }
 
             await waitForClipPath(tile);
@@ -1979,31 +1719,22 @@
             /* Clean up expandInner inline styles — CSS takes over from here */
             if (expandInner) clearScaledExpandInner(expandInner);
 
-            if (!scaleContent) {
-                /* Non-peek path: crossfade compact header + mini-preview out, then let
-                   the expand content's own fade-in animation take over. */
-                const miniPreview = tile.querySelector('.tile-mini-preview');
-                const compact     = tile.querySelector('.tile-compact');
+            if (!fromPeek) {
+                /* Non-peek path: crossfade compact header out, then let the expand fade-in run. */
+                const compact = tile.querySelector('.tile-compact');
                 const fadeMs = 160;
-                [miniPreview, compact].forEach(el => {
-                    if (!el) return;
-                    el.style.transition = `opacity ${fadeMs}ms ease`;
-                    el.style.opacity    = '0';
-                });
+                if (compact) {
+                    compact.style.transition = `opacity ${fadeMs}ms ease`;
+                    compact.style.opacity = '0';
+                }
                 await new Promise(resolve => setTimeout(resolve, fadeMs));
             }
         }
 
-        /* Removing is-expanding switches display: none on mini-preview/compact
-           (already invisible) and reveals the expand panel via CSS. */
+        /* Removing is-expanding reveals the expand panel via CSS. */
         tile.classList.remove('is-expanding');
-        if (scaledCanvas) tile.classList.remove('is-from-peek');
 
-        /* Clean up inline styles now that CSS rules have taken over */
-        ['tile-mini-preview', 'tile-compact'].forEach(cls => {
-            const el = tile.querySelector('.' + cls);
-            if (el) { el.style.transition = ''; el.style.opacity = ''; }
-        });
+        resetCompactStyles(tile);
 
         expandedTile  = tile;
         animatingTile = null;
@@ -2015,11 +1746,10 @@
     async function collapseTile(tile, focusTile, skipSiblingRestore) {
         if (!tile || animatingTile) return;
 
-        const scaledCanvas = usesScaledCanvas(tile);
         const fromPeek = tile.classList.contains('is-from-peek');
         const wasInstant = tile.classList.contains('is-instant-expanded');
-        const scaleContent = fromPeek || scaledCanvas || wasInstant;
-        if (!scaledCanvas && !wasInstant) endPeek(tile);
+        const scaleContent = fromPeek || wasInstant;
+        if (!wasInstant) endPeek(tile);
 
         animatingTile = tile;
         if (expandedTile === tile) expandedTile = null;
@@ -2051,11 +1781,11 @@
             tile.style.clipPath = clipForCell(large, small);
 
             if (scaleContent && expandInner) {
-                const { scaleX, scaleY } = collapsedContentScale(tile, small);
+                const scale = collapsedContentScale(small);
                 animateScaledExpandInner(
                     expandInner,
-                    scaleX,
-                    scaleY,
+                    scale,
+                    scale,
                     `${expandedDims.width}px`,
                     `${expandedDims.height}px`,
                     origin
@@ -2080,7 +1810,7 @@
         /* Collapse state off and peek back on in one turn — avoids a blank frame */
         tile.classList.remove('is-expanded', 'is-collapsing', 'is-from-peek', 'is-instant-expanded');
         if (!grid.querySelector('.is-instant-expanded')) grid.classList.remove('has-instant-expanded');
-        restorePeekAfterCollapse(tile);
+        startPeek(tile, { force: true });
 
         if (!skipSiblingRestore) {
             /* Wait for the sibling fade-in stagger to finish before clearing delays */
@@ -2151,8 +1881,7 @@
     /* Global Escape key: collapse whatever tile is open */
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && expandedTile && !animatingTile) {
-            const showcaseModal = document.getElementById('showcase-image-modal');
-            if (showcaseModal?.classList.contains('is-open')) return;
+            if (showcaseModal.classList.contains('is-open')) return;
             collapseTile(expandedTile, true);
         }
     });
@@ -2160,8 +1889,7 @@
     /* Click outside the expanded tile to collapse it (capture phase so it runs first) */
     document.addEventListener('pointerdown', e => {
         if (!expandedTile || animatingTile) return;
-        const showcaseModal = document.getElementById('showcase-image-modal');
-        if (showcaseModal?.classList.contains('is-open') && showcaseModal.contains(e.target)) return;
+        if (showcaseModal.classList.contains('is-open') && showcaseModal.contains(e.target)) return;
         if (expandedTile.contains(e.target)) return; /* click was inside the tile — ignore */
         /* Sidebar tabs switch views — let switchView collapse; don't start collapse here */
         if (e.target.closest('.sidebar-panel .view-btn')) return;
@@ -2169,23 +1897,9 @@
     }, true);
 
     /* ── Hover ripple — desktop only ───────────────────────────── */
-    /* On hover, the grid column/row containing the hovered tile grows
-       while the opposite column/row shrinks, creating a "weight shift" effect. */
     let hoveredTile = null;
     let tileLayout = []; /* cached center points of each tile, used by the wave calculation */
     const waveAmp = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--wave-amp')) || 2;
-
-    /* tile index → grid column (1=sidebar, 2=middle, 3=right) and row                */
-    /* DOM order: sidebar(0) project(1) showcase(2) articles(3) docs(4)               */
-    /* Grid CSS:  project→col2/row1  articles→col2/row2  showcase→col3/row1  docs→col3/row2 */
-    const tileGridCol = [0, 1, 2, 1, 2]; /* 0=sidebar, 1=col2(middle), 2=col3(right) */
-    const tileGridRow = [null, 0, 0, 1, 1]; /* null=spans both rows, 0=top, 1=bottom   */
-
-    /* Base fr values matching the CSS: 1fr 1.75fr 1.75fr / 1fr 1fr */
-    const BASE_COLS = [1, 1.75, 1.75];
-    const BASE_ROWS = [1, 1];
-    const COL_GROW  = 0.35; /* how much the hovered column grows (taken from the opposite column) */
-    const ROW_GROW  = 0.25; /* same for rows */
 
     /* Store each tile's center so the wave can calculate distances from the cursor */
     function cacheTileLayout() {
@@ -2212,16 +1926,9 @@
         expandedDims = { width: r.width, height: r.height };
     }
 
-    function clearRippleStyles() {
-        grid.style.gridTemplateColumns = '';
-        grid.style.gridTemplateRows = '';
-    }
-
-    /* Remove hover state from all tiles and reset grid proportions */
+    /* Remove hover highlight from all tiles */
     function clearRipple() {
         tiles.forEach(t => t.classList.remove('is-hovered'));
-        clearRippleStyles();
-        requestAnimationFrame(refreshAllPeeks);
     }
 
     /* ── Peek helpers — always-on scaled real content preview ─────────── */
@@ -2261,25 +1968,19 @@
         const scale = widthFitContentScale(availW, expandedDims.width);
         const expandInner = tile.querySelector('.tile-expand-inner');
         if (!expandInner) return false;
-        /* Smooth scale refits during hover-resize; expand/collapse set their own transitions */
-        if (usesScaledCanvas(tile) && !animatingTile) {
-            expandInner.style.transition = `transform var(--duration-water) var(--ease-water)`;
-        } else if (animatingTile) {
-            expandInner.style.transition = '';
-        }
+        if (animatingTile) expandInner.style.transition = '';
         expandInner.style.width           = `${expandedDims.width}px`;
         expandInner.style.height          = `${expandedDims.height}px`;
         expandInner.style.transformOrigin = 'top left';
         expandInner.style.transform       = `scale(${scale})`;
         expandInner.style.flexShrink      = '0';
-        tile._peekScaleX = scale;
-        tile._peekScaleY = scale;
         return true;
     }
 
     /* Apply the peek state to a tile (idempotent — safe to call when already peeking). */
-    function startPeek(tile) {
-        if (animatingTile || expandedTile) return;
+    function startPeek(tile, { force = false } = {}) {
+        if (!force && animatingTile) return;
+        if (!force && expandedTile) return;
         if (tile.classList.contains('sidebar-panel') || tile.classList.contains('is-expanded')) return;
         if (!tile.classList.contains('is-peek')) {
             tile.classList.add('is-peek');
@@ -2295,50 +1996,17 @@
         });
     }
 
-    /* Re-apply peek immediately after collapse — bypasses startPeek's animatingTile guard */
-    function restorePeekAfterCollapse(tile) {
-        if (tile.classList.contains('sidebar-panel')) return;
-        const expandInner = tile.querySelector('.tile-expand-inner');
-        if (!tile.classList.contains('is-peek')) {
-            tile.classList.add('is-peek');
-        }
-        tile.offsetHeight;
-        if (!applyPeekScale(tile)) {
-            tile.classList.remove('is-peek');
-            if (expandInner) clearScaledExpandInner(expandInner);
-            return;
-        }
-        requestAnimationFrame(() => {
-            if (tile.classList.contains('is-peek')) applyPeekScale(tile);
-        });
-    }
-
-    /* Refresh the scale on an already-peeking tile (e.g. after resize). */
-    function refreshPeek(tile) {
-        if (!tile.classList.contains('is-peek')) return;
-        applyPeekScale(tile);
-    }
-
     /* Remove peek state from a tile — clears the scale transform and the class. */
     function endPeek(tile) {
         if (!tile || !tile.classList.contains('is-peek')) return;
         tile.classList.remove('is-peek');
         clearPeekPanelPosition(tile.querySelector('.tile-expand'));
-        const expandInner = tile.querySelector('.tile-expand-inner');
-        if (expandInner) {
-            expandInner.style.width          = '';
-            expandInner.style.height         = '';
-            expandInner.style.transform      = '';
-            expandInner.style.transformOrigin = '';
-            expandInner.style.flexShrink     = '';
-        }
-        if (peekTile === tile) peekTile = null;
-        delete tile._peekScaleX;
-        delete tile._peekScaleY;
+        clearScaledExpandInner(tile.querySelector('.tile-expand-inner'));
     }
 
     /* Apply peek to ALL eligible collapsed tiles at once (called on load and after resize). */
     function applyAllPeeks() {
+        if (prefersReducedMotion) return;
         tiles.forEach(tile => {
             if (!tile.classList.contains('sidebar-panel') &&
                 !tile.classList.contains('is-expanded') &&
@@ -2348,56 +2016,37 @@
         });
     }
 
-    /* Re-measure and refresh peek scales on all currently peeking tiles. */
+    /* Re-measure and refresh peek scales on all tiles (e.g. after resize). */
     function refreshAllPeeks() {
+        if (prefersReducedMotion) return;
         tiles.forEach(tile => {
             if (tile.classList.contains('is-peek')) {
-                refreshPeek(tile);
-            } else {
+                applyPeekScale(tile);
+            } else if (!tile.classList.contains('sidebar-panel') &&
+                !tile.classList.contains('is-expanded') &&
+                !tile.classList.contains('is-expanding')) {
                 startPeek(tile);
             }
         });
     }
 
-    /* Adjust grid proportions so the hovered tile's column and row grow */
     function applyRipple(sourceIndex) {
         if (!finePointer || expandedTile || sourceIndex < 0) return;
         if (window.innerWidth < 768) return; /* grid layout only exists on desktop */
 
         if (sourceIndex === 0) { clearRipple(); return; } /* sidebar never triggers ripple */
 
-        /* Mark the hovered tile and reset wave offsets on all tiles */
         tiles.forEach((tile, i) => {
             tile.classList.toggle('is-hovered', i === sourceIndex);
             tile.style.setProperty('--wave-x', '0px');
             tile.style.setProperty('--wave-y', '0px');
         });
-
-        if (prefersReducedMotion || !hoverResizeEnabled) return;
-
-        const hCol = tileGridCol[sourceIndex]; /* which of the 3 columns the tile is in */
-        const hRow = tileGridRow[sourceIndex]; /* which of the 2 rows the tile is in */
-
-        /* Grow the hovered column, shrink the other non-sidebar column */
-        const cols = [...BASE_COLS];
-        cols[hCol]           += COL_GROW;
-        cols[hCol === 1 ? 2 : 1] -= COL_GROW;
-
-        /* Grow the hovered row, shrink the other row */
-        const rows = [...BASE_ROWS];
-        rows[hRow]         += ROW_GROW;
-        rows[1 - hRow]     -= ROW_GROW;
-
-        /* Apply the new fr values — CSS transitions them smoothly */
-        grid.style.gridTemplateColumns = cols.map(v => `${v}fr`).join(' ');
-        grid.style.gridTemplateRows    = rows.map(v => `${v}fr`).join(' ');
     }
 
-    /* Update which tile is hovered and trigger the ripple grid change */
+    /* Update which tile is hovered and apply hover highlight */
     function setHoveredTile(tile) {
         if (expandedTile) return; /* no hover effects while a tile is expanded */
-        /* Treat tiles not in our interactive array (e.g. tile-about) the same as no tile */
-        if (tile && !tiles.includes(tile)) tile = null;
+        if (tile && (!tiles.includes(tile) || tile.classList.contains('sidebar-panel'))) tile = null;
         if (!tile) {
             if (hoveredTile) {
                 hoveredTile = null;
@@ -2408,8 +2057,6 @@
         if (tile === hoveredTile) return; /* no change */
         hoveredTile = tile;
         applyRipple(tiles.indexOf(tile));
-        /* Grid fr units change tile size — re-fit peek scales after layout updates */
-        requestAnimationFrame(() => requestAnimationFrame(refreshAllPeeks));
     }
 
     /* Cache tile positions and expanded dimensions, then apply peek to all tiles */
@@ -2425,26 +2072,7 @@
             cacheTileLayout();
             cacheExpandedDims();
             refreshAllPeeks();
-            /* Re-apply ripple after resize so the grid proportions stay correct */
             if (!expandedTile && hoveredTile) applyRipple(tiles.indexOf(hoveredTile));
-        }
-    });
-
-    /* Re-fit peek previews after the hover ripple finishes resizing grid rows/cols */
-    grid.addEventListener('transitionend', e => {
-        if (e.target !== grid || expandedTile || animatingTile) return;
-        if (e.propertyName === 'grid-template-columns' || e.propertyName === 'grid-template-rows') {
-            refreshAllPeeks();
-        }
-    });
-
-    /* mouseenter on each tile — sidebar entering clears the ripple */
-    tiles.forEach((tile, i) => {
-        /* Sidebar (index 0) is fixed — entering it clears any active ripple */
-        if (i === 0) {
-            tile.addEventListener('mouseenter', () => setHoveredTile(null));
-        } else {
-            tile.addEventListener('mouseenter', () => setHoveredTile(tile));
         }
     });
 
@@ -2539,14 +2167,13 @@
     /* ── View switcher (sidebar "Astral" / "About Me" buttons) */
     const viewBtns = document.querySelectorAll('.sidebar-panel .view-btn');
     const aboutTile = document.getElementById('tile-about');
-    /* All non-sidebar tiles are the "content" tiles shown in the astral view */
     const contentTileEls = tiles.filter(t => !t.classList.contains('sidebar-panel'));
-    const CONTENT_VIEWS = new Set(['astral']);
-    let currentView = 'astral';
+    let showAbout = false;
     const VIEW_FADE_MS = 180;
 
     async function switchView(targetView) {
-        if (targetView === currentView) return;
+        const wantAbout = targetView === 'about';
+        if (wantAbout === showAbout) return;
 
         /* Force-collapse any expanded tile immediately before switching */
         if (expandedTile) {
@@ -2559,10 +2186,7 @@
             if (expPanel) expPanel.setAttribute('aria-hidden', 'true');
             t.style.clipPath = '';
             t.style.transition = '';
-            ['tile-mini-preview', 'tile-compact'].forEach(cls => {
-                const el = t.querySelector('.' + cls);
-                if (el) { el.style.transition = ''; el.style.opacity = ''; }
-            });
+            resetCompactStyles(t);
             grid.classList.remove('has-expanded', 'is-restoring-tiles');
             document.body.classList.remove('has-expanded');
             tiles.forEach(t2 => { t2.style.transitionDelay = ''; t2.style.opacity = ''; t2.style.transition = ''; });
@@ -2571,15 +2195,12 @@
         /* Block switches mid-animation */
         if (animatingTile) return;
 
-        const prevView = currentView;
-        currentView = targetView;
+        showAbout = wantAbout;
         viewBtns.forEach(btn => btn.classList.toggle('is-active', btn.dataset.view === targetView));
 
         const mobile = window.innerWidth < 768;
-        const toContent = CONTENT_VIEWS.has(targetView);
-        const fromContent = CONTENT_VIEWS.has(prevView);
 
-        if (targetView === 'about') {
+        if (wantAbout) {
             if (mobile) {
                 contentTileEls.forEach(t => { t.style.display = 'none'; });
                 aboutTile.style.display = 'flex';
@@ -2602,8 +2223,8 @@
                 await new Promise(r => setTimeout(r, VIEW_FADE_MS));
                 aboutTile.style.transition = '';
             }
-        } else if (toContent && !fromContent) {
-            /* Switching from About Me back to a content view */
+        } else {
+            /* Switching from About Me back to content tiles */
             if (mobile) {
                 aboutTile.style.opacity = '0';
                 aboutTile.style.display = 'none';
@@ -2627,7 +2248,6 @@
                 contentTileEls.forEach(t => { t.style.transition = ''; t.style.opacity = ''; });
             }
         }
-        /* graphics ↔ profiler: same four tiles; Features and Showcase panels swap via update* helpers */
 
         clearRipple();
         cacheTileLayout();
@@ -2635,28 +2255,9 @@
 
     viewBtns.forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
 
-    /* ── Settings panel (gear button at bottom of sidebar) ─────────────────────── */
-    const settingsBtn   = document.getElementById('sidebar-settings-btn');
-    const settingsPanel = document.getElementById('sidebar-settings-panel');
-    const hoverToggle   = document.getElementById('toggle-hover-resize');
-
-    settingsBtn.addEventListener('click', () => {
-        const isOpen = settingsPanel.classList.toggle('is-open');
-        settingsBtn.classList.toggle('is-open', isOpen);
-    });
-
-    hoverToggle.addEventListener('change', () => {
-        hoverResizeEnabled = hoverToggle.checked;
-        if (!hoverResizeEnabled) {
-            clearRippleStyles(); /* immediately snap grid back to base proportions */
-        } else if (hoveredTile) {
-            applyRipple(tiles.indexOf(hoveredTile)); /* re-apply if currently hovering */
-        }
-    });
     /* ── Showcase gallery modal (image-item clicks inside expanded tile) ─────── */
-    (function initShowcaseModal() {
-        const modal = document.getElementById('showcase-image-modal');
-        if (!modal) return;
+    if (showcaseModal) {
+        const modal = showcaseModal;
         const modalImage = document.getElementById('showcase-modal-image');
         const modalTitle = document.getElementById('showcase-modal-title');
         const modalDescription = document.getElementById('showcase-modal-description');
@@ -2664,7 +2265,7 @@
         const closeBtn = modal.querySelector('.showcase-modal-close');
         const prevBtn = document.getElementById('showcase-modal-prev');
         const nextBtn = document.getElementById('showcase-modal-next');
-        const galleryItems = Array.from(document.querySelectorAll('.tile-showcase .image-item'));
+        const galleryItems = Array.from(document.querySelectorAll('.tile-showcase-graphics .image-item'));
         let currentImageIndex = 0;
 
         function openModal(item) {
@@ -2696,7 +2297,7 @@
 
         galleryItems.forEach((item, index) => {
             item.addEventListener('click', e => {
-                if (!item.closest('.tile-showcase')?.classList.contains('is-expanded')) return;
+                if (!item.closest('.tile-showcase-graphics')?.classList.contains('is-expanded')) return;
                 e.stopPropagation();
                 currentImageIndex = index;
                 openModal(item);
@@ -2713,7 +2314,7 @@
             if (e.key === 'ArrowLeft') plusSlides(-1);
             if (e.key === 'ArrowRight') plusSlides(1);
         });
-    })();
+    }
 
 
 })();
