@@ -91,7 +91,7 @@
             .tile-showcase-graphics { grid-column: 2; grid-row: 1; }
             .tile-showcase-profiler { grid-column: 3; grid-row: 1; }
             .tile-articles { grid-column: 2; grid-row: 2; }
-            .tile-docs     { grid-column: 3; grid-row: 2; }
+            .tile-showcase-performance { grid-column: 3; grid-row: 2; }
         }
 
         /* Mobile: single-column stack — reorder tiles into a logical reading sequence */
@@ -100,7 +100,7 @@
             .tile-showcase-graphics { order: 2; }
             .tile-showcase-profiler { order: 3; }
             .tile-articles { order: 4; }
-            .tile-docs     { order: 5; }
+            .tile-showcase-performance { order: 5; }
 
             .section-tile {
                 flex: 0 0 auto; /* don't stretch/shrink — let min-height set the size */
@@ -681,7 +681,6 @@
             }
         }
 
-        /* ─── Documentation tile — refined file-tree explorer ─────────────────── */
         .docs-header {
             display: flex;
             align-items: flex-start;
@@ -689,136 +688,6 @@
             gap: 1rem;
             margin-bottom: 1rem;
         }
-
-        .docs-header .docs-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.65rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: rgb(56, 189, 248);
-            margin-bottom: 0.4rem;
-        }
-
-        .docs-header .docs-eyebrow::before {
-            content: "";
-            width: 0.4rem;
-            height: 0.4rem;
-            border-radius: 50%;
-            background: rgb(56, 189, 248);
-            box-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
-        }
-
-        /* ─── Documentation decks ─── */
-        .docs-group + .docs-group { margin-top: 1.1rem; }
-
-        .docs-group-label {
-            display: flex;
-            align-items: center;
-            gap: 0.55rem;
-            font-size: 0.62rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #64748b;
-            margin-bottom: 0.6rem;
-        }
-
-        .docs-group-label::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, rgba(148, 163, 184, 0.22), transparent);
-        }
-
-        .docs-deck {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 0.6rem;
-        }
-
-        .doc-card {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-            padding: 0.8rem 0.9rem;
-            border-radius: 0.85rem;
-            background: rgba(15, 23, 42, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            text-decoration: none;
-            overflow: hidden;
-            transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s var(--ease-water);
-        }
-
-        .doc-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse 80% 70% at 12% 0%, var(--doc-glow, rgba(56, 189, 248, 0.16)) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.18s ease;
-            pointer-events: none;
-        }
-
-        @media (hover: hover) {
-            .doc-card:hover {
-                border-color: rgba(255, 255, 255, 0.18);
-                background: rgba(30, 41, 59, 0.7);
-                transform: translateY(-2px);
-            }
-            .doc-card:hover::before { opacity: 1; }
-        }
-
-        .doc-card-head {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            position: relative;
-        }
-
-        .doc-card-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.28rem;
-            padding: 0.15rem 0.45rem;
-            border-radius: 0.45rem;
-            font-size: 0.58rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            background: rgba(148, 163, 184, 0.12);
-            color: #94a3b8;
-        }
-        .doc-card-badge svg { width: 0.85rem; height: 0.85rem; }
-
-        .doc-card-title {
-            font-size: 0.86rem;
-            font-weight: 600;
-            color: #e2e8f0;
-            line-height: 1.25;
-            position: relative;
-            transition: color 0.18s ease;
-        }
-        .doc-card:hover .doc-card-title { color: #fff; }
-
-        .doc-card-desc {
-            font-size: 0.74rem;
-            line-height: 1.5;
-            color: #7c8aa0;
-            position: relative;
-        }
-
-        /* Type accents */
-        .doc-card--md  { --doc-glow: rgba(56, 189, 248, 0.18); }
-        .doc-card--md  .doc-card-badge { background: rgba(56, 189, 248, 0.14); color: #7dd3fc; }
-        .doc-card--img { --doc-glow: rgba(139, 92, 246, 0.18); }
-        .doc-card--img .doc-card-badge { background: rgba(139, 92, 246, 0.14); color: #c4b5fd; }
-        .doc-card--txt { --doc-glow: rgba(148, 163, 184, 0.16); }
-        .doc-card--html{ --doc-glow: rgba(52, 211, 153, 0.18); }
-        .doc-card--html .doc-card-badge { background: rgba(52, 211, 153, 0.14); color: #6ee7b7; }
 
         .showcase-feature-card {
             background: rgba(30, 41, 59, 0.3);
@@ -836,24 +705,17 @@
             background: #000;
         }
 
-        .docs-global {
-            margin-top: 1.2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.07);
+        .video-compare-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            text-align: center;
         }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-300 leading-relaxed antialiased selection:bg-sky-500 selection:text-white">
 
 <div class="landing-shell w-[98%] max-w-[1800px] mx-auto px-3 sm:px-4 lg:px-5">
-
-    <!-- Shared documentation tree icons (used by tile-docs) -->
-    <svg class="hidden" aria-hidden="true">
-        <symbol id="icon-md" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm11.586 2.586a.5.5 0 00-.854-.353L12 8.414l-2.732-2.186a.5.5 0 00-.854.353v8.372a.5.5 0 00.854.353L12 12.586l2.732 2.186a.5.5 0 00.854-.353V6.586z" clip-rule="evenodd" /></symbol>
-        <symbol id="icon-img" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" /></symbol>
-        <symbol id="icon-txt" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 2.5a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5zm0 3a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5zm0 3a.5.5 0 01.5-.5h6a.5.5 0 010 1h-6a.5.5 0 01-.5-.5z" clip-rule="evenodd" /></symbol>
-        <symbol id="icon-html" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.496 2.132a1 1 0 00-.992 0l-7 4A1 1 0 003 7v6a1 1 0 00.496.868l7 4a1 1 0 00.992 0l7-4A1 1 0 0017 13V7a1 1 0 00-.496-.868l-7-4zM4.646 12.433L10 15.283l5.354-2.85-1.32-.75-3.531 1.889a1 1 0 01-.992 0L5.965 11.683l-1.32.75zM4.654 8.567L10 5.717l5.346 2.85-5.346 2.85L4.654 8.567z" clip-rule="evenodd" /></symbol>
-    </svg>
 
     <main class="tile-grid flex-1 min-h-0" id="tile-grid" role="main">
 
@@ -902,7 +764,7 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
                 <div>
-                    <h2 class="tile-title">Graphics Showcase</h2>
+                    <h2 class="tile-title">Graphics Engine Showcase</h2>
                     <span class="tile-subtitle">Rendered scenes</span>
                 </div>
             </div>
@@ -914,7 +776,7 @@
                     <div class="tile-expand-content">
                         <div class="docs-header">
                             <div>
-                                <h3 class="text-base font-semibold text-white">Graphics Showcase</h3>
+                                <h3 class="text-base font-semibold text-white">Graphics Engine Showcase</h3>
                                 <p class="text-xs text-slate-500 mt-0.5">Rendered scenes and rendering features in Astral Engine</p>
                             </div>
                         </div>
@@ -1199,15 +1061,15 @@
             </div>
         </article>
 
-        <!-- Documentation -->
-        <article class="section-tile tile-docs" data-tile-index="4" tabindex="0" role="button" aria-expanded="false">
+        <!-- Performance Optimizations -->
+        <article class="section-tile tile-showcase tile-showcase-performance" data-tile-index="4" tabindex="0" role="button" aria-expanded="false">
             <div class="tile-compact">
                 <div class="tile-icon">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
                 <div>
-                    <h2 class="tile-title">Documentation</h2>
-                    <span class="tile-subtitle">Design &amp; Analysis</span>
+                    <h2 class="tile-title">Performance Optimizations</h2>
+                    <span class="tile-subtitle">Before &amp; after</span>
                 </div>
             </div>
             <button class="tile-close-btn" aria-label="Collapse section" type="button">
@@ -1218,151 +1080,44 @@
                     <div class="tile-expand-content">
                         <div class="docs-header">
                             <div>
-                                <span class="docs-eyebrow">Design &amp; Analysis</span>
-                                <h3 class="text-base font-semibold text-white">Project Documentation</h3>
-                                <p class="text-xs text-slate-500 mt-0.5">Design documents, problem analyses, and research notes</p>
+                                <h3 class="text-base font-semibold text-white">Performance Optimizations</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Comparisons showcasing performance optimizations in Astral Engine</p>
                             </div>
                         </div>
-                        <!-- Profiler docs -->
-                            <div class="docs-group">
-                                <div class="docs-group-label">Memory Tracking &amp; Visualization</div>
-                                <div class="docs-deck">
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Information.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Information</span></div>
-                                        <span class="doc-card-desc">Why allocators &amp; memory tracking exist, with research references.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--img" href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Tracking%20Planning/Memory%20Tracking%20System%20Architecture.png" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-img"></use></svg>IMG</span><span class="doc-card-title">Tracking System Architecture</span></div>
-                                        <span class="doc-card-desc">Diagram of the memory tracking system.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--img" href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Memory%20Visualization%20Architecture.jpg" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-img"></use></svg>IMG</span><span class="doc-card-title">Visualization Architecture</span></div>
-                                        <span class="doc-card-desc">Diagram of the memory visualization layer.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--img" href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Visualization%20ImGui%20Architecture.jpg" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-img"></use></svg>IMG</span><span class="doc-card-title">Visualization ImGui Architecture</span></div>
-                                        <span class="doc-card-desc">ImGui-based visualization layout.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--txt" href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Tracking%20Planning/Ideas.txt" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-txt"></use></svg>TXT</span><span class="doc-card-title">Tracking — Ideas</span></div>
-                                        <span class="doc-card-desc">Working notes for the tracking system.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--txt" href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Memory%20Tracking%20&%20Visualization/Visualization%20Planning/Ideas.txt" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-txt"></use></svg>TXT</span><span class="doc-card-title">Visualization — Ideas</span></div>
-                                        <span class="doc-card-desc">Working notes for the visualization layer.</span>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="docs-group">
-                                <div class="docs-group-label">Profiler · Allocators · Debugging</div>
-                                <div class="docs-deck">
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Profiling%20Tools/Scope%20Profiler/Information.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Scope Profiler</span></div>
-                                        <span class="doc-card-desc">Frame &amp; system instrumentation overview. (In progress)</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Core/Memory%20Allocators/Information.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Memory Allocators</span></div>
-                                        <span class="doc-card-desc">Allocator designs and their rationale.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Debugging/Features.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Debugging Features</span></div>
-                                        <span class="doc-card-desc">Overview of in-engine debugging tools.</span>
-                                    </a>
-                                </div>
-                            </div>
-                        <!-- Graphics Engine docs -->
-                            <div class="docs-group">
-                                <div class="docs-group-label">Renderer</div>
-                                <div class="docs-deck">
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Renderer/Structure.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Renderer Structure</span></div>
-                                        <span class="doc-card-desc">Overview of the systems inside the renderer.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Graph/Problem-Analysis.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Render Graph — Problem Analysis</span></div>
-                                        <span class="doc-card-desc">Problems the frame graph solves.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Graph/Research-Analysis.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Render Graph — Research</span></div>
-                                        <span class="doc-card-desc">Analysis behind the render graph design.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Renderer/Color%20Management/Research-Analysis.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Color Management</span></div>
-                                        <span class="doc-card-desc">HDR / color pipeline research. (In progress)</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Renderer/Renderer%20Hardware%20Interface/Problem-Analysis.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Renderer Hardware Interface</span></div>
-                                        <span class="doc-card-desc">Problem analysis for the RHI abstraction.</span>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="docs-group">
-                                <div class="docs-group-label">Render Paths</div>
-                                <div class="docs-deck">
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Paths/Deferred.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Deferred Path</span></div>
-                                        <span class="doc-card-desc">Overview of the deferred rendering path.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Renderer/Render%20Paths/Forward.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Forward Path</span></div>
-                                        <span class="doc-card-desc">Overview of the forward rendering path.</span>
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="docs-group">
-                                <div class="docs-group-label">Scenes &amp; Assets</div>
-                                <div class="docs-deck">
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Scenes/Problem-Analysis.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Scenes — Problem Analysis</span></div>
-                                        <span class="doc-card-desc">Design problems for the scene system.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--img" href="Assets/Documentation/Astral-Runtime/Scenes/Scene%20Architecture.png" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-img"></use></svg>IMG</span><span class="doc-card-title">Scene Architecture</span></div>
-                                        <span class="doc-card-desc">Diagram of the scene architecture.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Asset%20Manager/Problem-Analysis.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Asset Manager — Problem Analysis</span></div>
-                                        <span class="doc-card-desc">Problems the asset manager addresses.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Asset%20Manager/Research-and-Planning.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Asset Manager — Planning</span></div>
-                                        <span class="doc-card-desc">Research and planning for the asset manager.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--img" href="Assets/Documentation/Astral-Runtime/Asset%20Manager/Asset%20Manager%20Architecture.png" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-img"></use></svg>IMG</span><span class="doc-card-title">Asset Manager Architecture</span></div>
-                                        <span class="doc-card-desc">Diagram of the asset manager architecture.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/ECS/Problem-Analysis.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">ECS — Problem Analysis</span></div>
-                                        <span class="doc-card-desc">Problem analysis for the entity-component system.</span>
-                                    </a>
-                                    <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/ECS/Research-and-Planning.html" target="_blank" rel="noopener noreferrer">
-                                        <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">ECS — Planning</span></div>
-                                        <span class="doc-card-desc">Thought process and planning for the ECS.</span>
-                                    </a>
-                                </div>
+                        <div class="mt-8 mb-4">
+                            <div class="text-center mb-6">
+                                <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white">
+                                    <span class="text-sky-400 text-glow">Optimizations</span>
+                                </h2>
+                                <p class="mt-4 text-sm text-slate-400 max-w-2xl mx-auto">
+                                    Comparions of performance optimization impacts in Astral Engine
+                                </p>
                             </div>
 
-                        <!-- Engine-wide documentation -->
-                        <div class="docs-global">
-                            <div class="docs-group-label">Engine-wide</div>
-                            <div class="docs-deck">
-                                <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Editor/Features.html" target="_blank" rel="noopener noreferrer">
-                                    <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Editor Features</span></div>
-                                    <span class="doc-card-desc">Overview of the Astral editor features.</span>
-                                </a>
-                                <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Core/Containers/BriefDescription.html" target="_blank" rel="noopener noreferrer">
-                                    <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Containers</span></div>
-                                    <span class="doc-card-desc">Brief description of implemented data structures.</span>
-                                </a>
-                                <a class="doc-card doc-card--md" href="Assets/Documentation/Astral-Runtime/Core/Events/Documentation.html" target="_blank" rel="noopener noreferrer">
-                                    <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-md"></use></svg>MD</span><span class="doc-card-title">Event System</span></div>
-                                    <span class="doc-card-desc">Thinking behind the event system.</span>
-                                </a>
-                                <a class="doc-card doc-card--html" href="Assets/Documentation/Docs.html" target="_blank" rel="noopener noreferrer">
-                                    <div class="doc-card-head"><span class="doc-card-badge"><svg><use xlink:href="#icon-html"></use></svg>HTML</span><span class="doc-card-title">Code Documentation</span></div>
-                                    <span class="doc-card-desc">Generated Doxygen API reference.</span>
-                                </a>
+                            <div class="space-y-8">
+                                <!-- Multithreaded Asset Loading -->
+                                <div class="showcase-feature-card">
+                                    <h3 class="text-lg font-bold text-white mb-4">Multithreaded Asset Loading</h3>
+                                    <p class="text-slate-400 mb-6">
+                                        Before and after of the multithreaded asset loading comparing the orignal single thread implementation with the new multithreaded implementation (both using Metal)
+                                    </p>
+                                    <div class="synced-video-pair grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <video class="showcase-video synced-video" muted playsinline preload="auto" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback">
+                                                <source src="Assets/Performance_Optimizations/Metal_Single_Thread_Asset_Load_720p.mov" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            <p class="video-compare-label">Before</p>
+                                        </div>
+                                        <div>
+                                            <video class="showcase-video synced-video" muted playsinline preload="auto" disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback">
+                                                <source src="Assets/Performance_Optimizations/Metal_Multithreaded_Asset_Load_720p.mov" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                            <p class="video-compare-label">After</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1583,7 +1338,7 @@
         if (tile.classList.contains('tile-showcase-graphics')) return 'top left';
         if (tile.classList.contains('tile-showcase-profiler')) return 'top right';
         if (tile.classList.contains('tile-articles')) return 'bottom left';
-        if (tile.classList.contains('tile-docs')) return 'bottom right';
+        if (tile.classList.contains('tile-showcase-performance')) return 'bottom right';
         return 'top left';
     }
 
@@ -2316,6 +2071,75 @@
         });
     }
 
+
+    /* ── Synced before/after video pairs (start together, restart together) ── */
+    function whenVideoReady(video) {
+        return new Promise(resolve => {
+            if (video.readyState >= 3) resolve();
+            else video.addEventListener('canplay', resolve, { once: true });
+        });
+    }
+
+    function seekVideoToStart(video) {
+        return new Promise(resolve => {
+            /* Already at the start — avoid a no-op seek that may never fire seeked */
+            if (video.currentTime <= 0.001) {
+                resolve();
+                return;
+            }
+            const onSeeked = () => {
+                video.removeEventListener('seeked', onSeeked);
+                resolve();
+            };
+            video.addEventListener('seeked', onSeeked);
+            video.currentTime = 0;
+        });
+    }
+
+    function nextPaint() {
+        return new Promise(resolve => {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+    }
+
+    function syncVideoPair(pairEl) {
+        const videos = Array.from(pairEl.querySelectorAll('video.synced-video'));
+        if (videos.length < 2) return;
+
+        let restarting = false;
+        let endedCount = 0;
+
+        async function restartBoth() {
+            if (restarting) return;
+            restarting = true;
+            endedCount = 0;
+            try {
+                videos.forEach(v => v.pause());
+                /* Wait for BOTH seeks to finish before playing — otherwise the first
+                   frames after a loop (especially on the longer Before clip) get skipped */
+                await Promise.all(videos.map(seekVideoToStart));
+                await Promise.all(videos.map(whenVideoReady));
+                await nextPaint();
+                await Promise.all(videos.map(v => v.play().catch(() => {})));
+            } finally {
+                restarting = false;
+            }
+        }
+
+        function onEnded() {
+            endedCount += 1;
+            if (endedCount >= videos.length) restartBoth();
+        }
+
+        videos.forEach(v => {
+            v.loop = false;
+            v.addEventListener('ended', onEnded);
+        });
+
+        Promise.all(videos.map(whenVideoReady)).then(restartBoth);
+    }
+
+    document.querySelectorAll('.synced-video-pair').forEach(syncVideoPair);
 
 })();
 </script>
