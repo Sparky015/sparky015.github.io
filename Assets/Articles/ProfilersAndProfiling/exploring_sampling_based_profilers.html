@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploring the Reliability of Sampling-Based Profilers - Andrew Fagan</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .article-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 leading-relaxed antialiased selection:bg-sky-500 selection:text-white">
+
+<!-- Header -->
+<header class="sticky top-0 z-50 backdrop-blur-lg bg-slate-900/70 border-b border-slate-800">
+    <nav class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center">
+                <a href="../../../index.html" class="text-xl font-bold text-white hover:text-sky-400 transition-colors">
+                    Andrew Fagan
+                </a>
+            </div>
+            <div>
+                <a href="../../../index.html#articles" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">← Back to Articles</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
+    <!-- Article Header -->
+    <article>
+        <header class="mb-12">
+            <div class="mb-6">
+                <a href="../../../index.html#articles" class="inline-flex items-center text-sky-400 hover:text-sky-300 transition-colors text-sm font-medium">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
+                    Back to Articles
+                </a>
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight">
+                Exploring the Reliability of Sampling-Based Profilers
+            </h1>
+            <div class="flex items-center gap-4 text-slate-400 text-sm">
+                <time datetime="2026-5-6">May 6, 2026 (posted Aug 19, 2026)</time>
+                <span>•</span>
+                <span> 11 min read</span>
+            </div>
+        </header>
+
+        <!-- Article Content -->
+        <div class="article-content text-slate-300 text-lg">
+            <p>
+                Over the course of the semester, I explored profiling and the reliability of sampling-based profilers. I covered multiple areas such as sampling
+                mode options, sampling-based profilers vs alternatives, and investigated the extent to which sampling-based profilers produce reliable results.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Set Up & Environment</h2>
+            <p>
+                First, I chose to use the profilers AMD uProf and Intel VTune. I chose AMD uProf as it gave me access to the hardware counters of my CPU,
+                and I chose Intel VTune because it was a competitor to the AMD uProf profiler that I could use to double check if uProf’s outputs were reasonable.
+                Then, I explored the sampling mode options that profilers provided. The sampling mode options available included Time-Based Sampling (TBS),
+                Event-Based Sampling (EBS), Instruction-Based Sampling (IBS), and Precise Event-Based Sampling (PEBS). Time-Based Sampling and Event-Based Sampling
+                are available on both profilers, but Instruction-Based Sampling is exclusive to AMD hardware, and Precise Event-Based Sampling is exclusive to Intel hardware. For reference,
+                I can only use the AMD exclusive modes for the later investigations, but I explored both Intel and AMD options.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Time-Based Sampling Profilers</h2>
+            <p>
+                Time-Based Sampling is accomplished using an OS timer. Every 10 milliseconds (or whatever the interval is set to), the application is interrupted.
+                Then, the profiler samples all the active instruction pointers and collects call stacks for each sampled instruction pointer. After the application
+                ends, the profiler will process the data collected and output it. The advantage of Time-Based Sampling is that it can run on any CPU in user space
+                without any manufacturer specific knowledge. Additionally, it is possible to measure how long threads that are blocked/sleeping with time-based sampling
+                (as opposed to hardware based modes where the sleeping threads would never make it to the hardware counters).
+                 However, a big disadvantage is that it can suffer from something called skid. Skid refers to the delay
+                between a process being interrupted and the profiler being able to collect the instruction pointers. When a hardware interrupt occurs, the CPU must
+                flush out all instructions in its pipeline before it can handle the interrupt. This means the sampled instruction pointers could be several or many
+                instructions after the actual instructions that were being executed when the OS timer elapsed the sampling interval. Additionally, the hardware interrupt takes
+                time to be delievered, but the CPU will keep executing instructions in the meantime.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Event-Based Sampling Profilers</h2>
+            <p>
+                For Event-Based Sampling, a similar strategy to Time-Based Sampling is used except instead of relying on an OS timer, it uses the performance
+                monitor counters (PMC) on the CPU to attribute events to instructions and parent functions. In Event-Based Sampling, the PMC is set to count
+                every time a specific event happens such as a L1 cache miss or a branch misprediction. Once the PMC reaches a configured threshold of a certain
+                event type occurring, it sends a hardware interrupt and records the instruction pointers. The advantage with Event-Based Sampling is that it
+                allows you to assess how well a function is being executed on the hardware with specific hardware events guiding you. The disadvantage is that
+                it also suffers from skid because it also relies on hardware interrupts to capture instruction pointers. Therefore, it also can misattribute
+                events to instructions several or many instructions after the PMC triggered the interrupt.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">PEBS & IBS Profilers</h2>
+            <p>
+                This is where Precise Event-Based Sampling and Instruction-Based Sampling are beneficial. These are the CPU vendor-specific solutions to fix skid.
+                Precise Event-Based Sampling is very similar to regular Event-Based Sampling. However, the difference is what happens after the PMC overflows.
+                With the precise version, there is not a hardware interrupt right away. Instead, the hardware assists the profiler and writes the instruction
+                pointers right when the PMC overflows to a buffer. This greatly reduces the cause of skid and makes the attribution to instructions more precise.
+
+                For Instruction-Based Sampling, a different approach is taken. It tags micro-ops and tracks everything that happens with that instruction as it
+                goes through the pipeline on the CPU. It tags every Nth micro-ops (N is a configured number) and records every event that is caused from it such
+                as a cache miss or a misaligned load to a hardware buffer. If the instruction is retired, then it is written to storage on the hardware and sends
+                an interrupt to the OS for the profiler to process it. This mostly eliminates skid. The key takeaway here is that, for a sampling-based profiler, using
+                time-based sampling or event-based sampling introduces a subtle inaccuracy in attribution to instructions when profiling which can potentially
+                affect the accuracy of the results. Precise Event-Based Sampling and Instruction-Based Sampling result in more accurate outputs as they fix skid.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Flaws of Sampling-Based Profilers</h2>
+            <p>
+                While profiler sampling modes have been getting more and more accurate, there are inherent flaws to a sampling-based profiler. They mainly revolve around the fact that the profiler has to 
+                randomly sample the application at different points of time to slowly converge on a profile of the application. One flaw is that because the sampling happens at relatively fixed intervals, 
+                it could miss cyclic events that happen during the sample interval. This means the profiler would completely misrepresent the actual work being done because every sample is missing that 
+                cyclic event. For example, video games compute work on a per frame basis. A game could potentially need around 10 ms to complete its work for a frame. That basis is actually not a stretch 
+                because it is between two common frame rates (16.6 ms for 60 frames per second and 8.33 ms for 120 frames per second). In this scenario, a sampling-based profiler with a sampler interval of 
+                10 ms (the default in uProf and VTune) would cyclically sample near the same work in a frame over and over and completely miss large portions of work done in a frame. Even though some profilers
+                 jitter the sampling interval, there is risk of the frame time aligning with the sampling interval which would cause an uneven distribution of function times. Another flaw is that profilers have some 
+                 overhead that could affect the 
+                 cache behavior of a program, possibly altering the performance of the application slightly. These flaws are inherent to the design of sampling-based profilers, but they can be accounted for 
+                 and mitigated. I should also note that there are other profiler types such as in-code instrumentation and Processor Traces (supported on specific Intel and Apple CPU architectures) that can 
+                 help fill in the gaps. The Processor Trace profilers complement sampling-based profilers very well as it involves recording every single branch taken and the cycle count of when the branch 
+                 was taken. This means the whole application flow can be reconstructed with cycle accurate function and branch block attributions. Therefore, you can deterministically get the exact cycles a 
+                 function took. However, the downside is that Processor Traces are typically only performed for a few seconds because it records so much data.
+            </p>
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Investigations & Experiments</h2>
+            <p>
+                I did a series of investigations to determine the
+                reliability of sampling-based profilers. This included comparing sampling-based profilers to in-code instrumentation, comparing hardware
+                counter-based sampling with user space time-based sampling, and evaluating the stability of the function time ranking. The operating system for these
+                investigations was Ubuntu Linux with an AMD CPU. I will omit the specifics of the
+                results as the profiling was done on a codebase that is not mine.
+            </p>
+
+            <p>
+                First, I investigated the accuracy of sampling-based profilers vs in-code instrumentation. In-code instrumentation involves recording time stamps between
+                two points in the code to determine the length of an interval with precision. Therefore, it is a good benchmark to consider if the flaws of sampling-based
+                profilers actually affect the profiling result significantly. The codebase
+                already utilized in-code instrumentation that measured the timings of phases. The goal of this investigation was to
+                determine if the sampling-based profilers would agree with the in-code instrumentation on which phases were taking the most time.
+                I ran a test benchmark with the memory stats instrumentation on. Then, I used the uProf and VTune profilers with Time-Based Sampling to profile
+                the codebase using the same benchmark. The inline instrumentation reported a breakdown of 82.33% and 17.37% for the phase A and phase B respectively. Then,
+                I used the sampling-based profilers, which reported roughly 83.15% and 16.85% for phase A and phase B respectively.
+                So, the two methods are within a percent of each other for time attribution to the phases. Additionally, when you look at the
+                overall time spent during the sum of the phases over the course of the program, they are also roughly the same. The inline instrumentation reported that the
+                sum of the two phases accounted for 8.4275% of the program time, and the sampling profilers reported around 8.1852%. That is within about 0.2% of the inline
+                instrumentation. The takeaway here is that the inline instrumentation and the sampling-based profiler roughly agreed on the time attribution, even though one method was precisely measuring intervals of time, while the other was sampling points in time and aggregating the data.
+            </p>
+
+            <p>
+                After that, I investigated how close hardware counter-based sampling was compared to timing-based sampling in ranking functions in a program from
+                most time to least time spent in a function exclusively. I used both Event-Based Sampling and Instruction-Based Sampling with uProf on the
+                benchmark code and compared their results to the Time-Based Sampling results to see if both report the same functions for the most time spent down
+                to least time spent. Both results indeed did match up well at the most expensive functions side. There was some switching as you went deeper down
+                the list, but that is expected as there is more chance of variance regardless of sampling type. This is because as the function times get smaller,
+                the number of samples decrease for each function. This is where hardware counter sampling modes such as IBS and PEBS can make a difference because
+                they effectively remove skid. Therefore, they are more accurate for functions with lower samples, because they are able to better attribute those samples to
+                the correct instructions and functions and not neighboring instructions and functions. Additionally, hardware counter sampling modes often allow for higher sampling rates than the
+                max supported sampling rate of time-based sampling in the uProf and VTune profilers. However, the main takeaway is that the results between the
+                hardware counter-based sampling and the time-based sampling roughly agreed on the expensive functions in a program.
+            </p>
+
+            <p>
+                Next, I investigated the reliability of the function time ranking in profiler outputs. I accomplished this by analyzing the profiler results of
+                ten runs. I used Time-Based Sampling in the VTune profiler on the benchmark code. I exported the results of all ten runs as CSV files and
+                then imported the data into Excel. I took the average and standard deviation of the times reported for each function in the profiler output over
+                the ten runs. Furthermore, for each run data point, I tracked the function time of the function three places above the current function and three
+                places below the current function. Then, I used a two-sided tail test to examine how much overlap the current function has with the functions three
+                places above and below it. This gauges how likely the function is to switch at least three places in the profiler result and, therefore, the
+                reliability of the profiler results in ranking the expensive functions of a program. After running this calculation for all the functions, I
+                analyzed that the overlap reached a 5% threshold when exclusive function times got down to about 1% of the overall program time. Conversely,
+                this means, at least with this context and application, that when a function has above 1% of overall program time exclusively, there is a 95+%
+                probability that the function will reliably appear in roughly the same ranking relative to other functions.
+            </p>
+
+            <p>
+                After that, I investigated the secondary effects that changing or removing a function has on the profiler results. I accomplished this by going
+                through the benchmark code and finding a function that is relatively self-contained (in terms of dependencies on its logic actually being executed
+                ) and removing it. In this case, I removed a tree balancing function as it was the most self-contained function that
+                I could find that did not cause a crash when I removed the function implementation. So, I ran the benchmark code ten times without the
+                tree balancing function stubbed out and ten times with that function stubbed out. That tree balancing function (which was a specific case balancing function)
+                had an average inclusive timing
+                of about 4.169 seconds. So, the expected time savings from stubbing the function would be 4.169 seconds from the overall program time, which was
+                on average 36.7671 seconds. However, the actual resulting average program time after stubbing the function out was 33.25 seconds. This means the
+                actual difference was 3.5112 seconds. Therefore, there must be secondary effects from stubbing out a function that the profiler won’t obviously
+                make known. For example, one secondary effect would be that because one of the balance helper functions got stubbed out, the tree could become
+                unbalanced. This would lead to algorithmically longer execution, which can be seen in the profiler with the self-time of the
+                main tree balance function. Its time went from around on average 5.44 seconds to 7.22 seconds, which would make sense as the
+                balance function would have to travel down the tree further because the tree is sometimes not being balanced. But this would actually
+                overcompensate for the actual difference as the expected gain was only off by 0.66 seconds and not 1.78 seconds. This means that there
+                are other secondary effects that are resulting in a program speed up of at least 1.12 seconds. It could be algorithmically or microarchitecturally
+                based, but it is hard to tell what exactly changed without an in-depth comparison of both profiles. Furthermore, any changes to the environment size,
+                linking order,
+                or code layout can affect the data alignment of the program, which can additionally make predicting any secondary effects difficult. The
+                main takeaway is that it is hard to anticipate the secondary effects and magnitude of those effects when changing a function or removing a function.
+            </p>
+
+            <p>
+                Finally, I investigated the extrema of variability in the ranking of function timings between runs. For this, I used VTune with Time-Based
+                Sampling on the benchmark code. I profiled ten runs and examined the function times between runs in Excel and compared them with function
+                times three places above and three places below a function, similar to what I did when investigating the reliability of ranking expensive
+                functions in profiler outputs. The difference is, this time, I only looked at the closest data points between the function and the neighboring
+                functions 3 places away. For example, when comparing the function and the function three places above it, I would take the maximum time of the
+                function and the minimum time of the function three places above it and check if the maximum time was bigger than the minimum time of the
+                function three places above it. If it was, then they overlapped for at least one run. Additionally, I removed the top two timings and bottom two
+                timings for each data set to help with any outliers. Effectively, this checks if a function can overlap with the functions three places above
+                and below that function for at least one run. Analyzing the results of the check, the first overlaps start to appear with functions around exclusively
+                1% of program time. Therefore, at least for this program context, the profiler can reliably rank the function timings with function timings above 1%.
+            </p>
+
+
+            <h2 class="text-2xl font-bold text-white mt-10 mb-4">Conclusion</h2>
+            <p>
+                Sampling-based profilers provide a unique and relatively reliable way to profile an application with low overhead. Profilers include several
+                different sampling modes such as Time-Based Sampling (TBS), Event-Based Sampling (EBS), Instruction-Based Sampling (IBS), and Precise
+                Event-Based Sampling (PEBS). The IBS and PEBS modes are improvements over the TBS and EBS modes as TBS and EBS suffer from skid while IBS and
+                PEBS are designed to eliminate skid, which helps improve data attribution to instructions. Multiple investigations were done to determine the
+                reliability of sampling-based profilers. This included comparing sampling-based profilers to in-code instrumentation, comparing hardware
+                counter-based sampling with user space time-based sampling, and evaluating the stability of the function time ranking. The findings suggest that
+                sampling-based profilers are reliable when you have a high number of samples. The more samples you have, the more reliable the results. However,
+                with small amounts of samples, the results tend to be less reliable. It should be noted that the threshold number of samples that makes results
+                reliable could vary from application to application. Strategies to increase the number of samples for all functions could include lowering the
+                sampling interval to sample more times in a second. Additionally, prefer IBS and PEBS sampling modes as these tend to offer lower sampling intervals
+                than TBS while also greatly reducing misattribution of data from skid. However, note that lowering the sampling interval would result in more
+                samples but could also introduce a little more profiler overhead.
+            </p>
+
+        </div>
+    </article>
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-slate-800 mt-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="py-8 text-center text-sm text-slate-500">
+            <p>&copy; 2026 Andrew Fagan. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
