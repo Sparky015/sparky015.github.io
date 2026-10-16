@@ -2142,13 +2142,13 @@
             restarting = true;
             endedCount = 0;
             try {
-                videos.forEach(video => video.pause());
+                videos.forEach(v => v.pause());
                 /* Wait for BOTH seeks to finish before playing — otherwise the first
                    frames after a loop (especially on the longer Before clip) get skipped */
                 await Promise.all(videos.map(seekVideoToStart));
                 await Promise.all(videos.map(whenVideoReady));
                 await nextPaint();
-                await Promise.all(videos.map(video => video.play().catch(() => {})));
+                await Promise.all(videos.map(v => v.play().catch(() => {})));
             } finally {
                 restarting = false;
             }
@@ -2159,21 +2159,9 @@
             if (endedCount >= videos.length) restartBoth();
         }
 
-        videos.forEach(video => {
-            video.loop = false;
-            video.addEventListener('ended', onEnded);
-
-            video.addEventListener('play', () => {
-                if (restarting) return;
-                restartBoth();
-            });
-
-            video.addEventListener('pause', () => {
-                if (restarting || video.ended || video.seeking) return;
-                videos.forEach(otherVideo => {
-                    if (otherVideo !== video && !otherVideo.paused) otherVideo.pause();
-                });
-            });
+        videos.forEach(v => {
+            v.loop = false;
+            v.addEventListener('ended', onEnded);
         });
 
         Promise.all(videos.map(whenVideoReady)).then(restartBoth);
