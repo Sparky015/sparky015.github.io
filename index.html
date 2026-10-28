@@ -942,12 +942,37 @@
                             </div>
                         </div>
                         <div class="mt-8 mb-4">
+
+
+
         <div class="space-y-8">
+
+            <!-- Profiler  -->
+            <div class="showcase-feature-card">
+                <h3 class="text-lg font-bold text-white mb-4">Memory Profiler</h3>
+                <p class="text-slate-400 mb-6">
+                    A memory profiler that provides detailed, context-aware data to assess an application's memory usage and allocations.
+                    A few features include:
+                    <br>• Viewing memory allocation statistics like memory usage or active allocations with options to filter by memory region, allocator type, or thread
+                    <br>• Creating and viewing instrumented traces to provide application context around the memory usage trends and spikes
+                    <br>• A call tree that includes every memory allocation/free captured for identifying potentially problematic code paths
+                    <br>• Stacktraces for every allocation and free to enable function-level allocation hotspot attribution
+                </p>
+
+
+
+                <video controls autoplay muted loop class="showcase-video">
+                    <source src="Assets/Showcase/Features/Profiler/Memory_Profiler.mov" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
             <!-- Scope Profiler -->
             <div class="showcase-feature-card">
-                <h3 class="text-lg font-bold text-white mb-4">Performance Profiling Tools</h3>
+                <h3 class="text-lg font-bold text-white mb-4">Scope Instrumentation Profiling Tool</h3>
                 <p class="text-slate-400 mb-6">
-                    Custom scope profiling integrated into Chrome's trace tool for viewing. Track performance timing and memory allocation frequency for engine systems, rendering passes, and frame execution to identify optimization opportunities.
+                    A custom scope profiling API that is supported by the memory profiler and also compatible with Chrome's and Perfetto's trace tool for viewing.
+                    Useful for providing overviews that can be used to track performance timing and memory allocation frequency for engine systems, rendering passes, and frame execution to identify optimization opportunities.
                 </p>
                 <video controls autoplay muted loop class="showcase-video">
                     <source src="Assets/Showcase/Features/Scope Profiler/Astral Scope Profiler - Smaller.mov" type="video/mp4">
@@ -955,18 +980,7 @@
                 </video>
             </div>
 
-            <!-- Memory Allocation Tracker  -->
-            <div class="showcase-feature-card">
-                <h3 class="text-lg font-bold text-white mb-4">Memory Allocation Tracker</h3>
-                <p class="text-slate-400 mb-6">
-                    A memory allocation tracker that lets you view memory allocation statistics like memory usage or active allocations by Region, Allocator Type, Thread, or by Global. Additionally, it
-                    also shows stacktraces for every allocation and free, so you can track down allocation hotspots.
-                </p>
-                <video controls autoplay muted loop class="showcase-video">
-                    <source src="Assets/Showcase/Features/Memory%20Allocation%20Tracker/Astral%20Memory%20Allocation%20Tracker%20UI%20-%20Smaller.mov" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
+
         </div>
     </div>
                     </div>
@@ -1023,11 +1037,11 @@
                         <!-- Centered Image -->
 <!--                        <div class="relative w-full h-32 sm:h-40 overflow-hidden rounded-t-lg ring-1 ring-slate-700/30">-->
 <!--                            <img src="Assets/Articles/PerFrameAllocationReduction/Thumbnail.png"-->
-<!--                                 class="object-cover w-full h-full transition-transform duration-300 hover:scale-105" alt="Picture of Memory Allocation Tracker UI">-->
+<!--                                 class="object-cover w-full h-full transition-transform duration-300 hover:scale-105" alt="Picture of Profiler UI">-->
 <!--                        </div>-->
                     </a>
 
-                    <!-- Article 2 - How I Reduced Per Frame Allocations By 95% With My Memory Allocation Tracker Tool  -->
+                    <!-- Article 2 - How I Reduced Per Frame Allocations By 95% With My Profiler Tool  -->
                     <a href="Assets/Articles/PerFrameAllocationReduction/how_i_reduce_per_frame_allocations_by_95_percent_with_my_memory_allocation_tracker_tool.html"
                        class="block bg-slate-900/50 rounded-lg overflow-hidden ring-1 ring-white/5
                   hover:ring-sky-500/50 hover:bg-slate-900/70 hover:-translate-y-1
@@ -1056,7 +1070,7 @@
                         </div>
                     </a>
 
-                    <!-- Article 1 - Memory Allocation Tracker -->
+                    <!-- Article 1 - Profiler -->
                     <a href="Assets/Articles/MemoryAllocationTrackerPerformanceAnalysis/memory_allocation_tracker_successes_downfalls_and_optimizations.html"
                        class="block bg-slate-900/50 rounded-lg overflow-hidden ring-1 ring-white/5
                   hover:ring-sky-500/50 hover:bg-slate-900/70 hover:-translate-y-1
